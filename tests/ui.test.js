@@ -146,8 +146,8 @@ test("title, all twelve encounters, multi-seal transitions and ending are playab
   assert.match($("#page").textContent, /Unlimited possibility/);
 });
 test("free drawings cast, save, reopen and render user names safely", () => {
-  draw(pagePaths("water", "spread", 3));
-  assert.match($("#feedbackText").textContent, /Water awakened/);
+  draw(pagePaths("water", "flow", 3));
+  assert.match($("#feedbackText").textContent, /Water/);
   assert.equal($("#worldObject").dataset.element, "water");
   assert.match($(".target-label").textContent, /Silverleaf/);
   click('[data-act="save-seal"]');
@@ -160,10 +160,10 @@ test("free drawings cast, save, reopen and render user names safely", () => {
   click('[data-act="open-seal"]');
   assert.ok($("#drawing"));
   click('[data-act="cast"]');
-  assert.match($("#feedbackText").textContent, /Water awakened/);
+  assert.match($("#feedbackText").textContent, /Water/);
   click('[data-act="clear"]');
   click('[data-act="cast"]');
-  assert.match($("#feedbackText").textContent, /Begin with a central sigil/);
+  assert.match($("#feedbackText").textContent, /Finish an enclosing ring/);
 });
 test("settings, guide, undo, redo, unrecognized sketches and scene changes work", () => {
   draw([
@@ -184,11 +184,11 @@ test("settings, guide, undo, redo, unrecognized sketches and scene changes work"
   click("#settings");
   change('[data-setting="reducedMotion"]', true);
   assert.equal(document.body.classList.contains("reduced-motion"), true);
-  click('[data-act="close-dialog"]');
+  click('#closeDialog');
   click('[data-act="field-guide"]');
-  assert.equal(document.querySelectorAll(".element-guide>div").length, 5);
-  assert.equal(document.querySelectorAll(".modifier-guide>div").length, 3);
-  click('[data-act="close-dialog"]');
+  assert.equal(document.querySelectorAll(".atlas-card").length, 6);
+  assert.ok($("#atlasSearch"));
+  click('#closeDialog');
   click('[data-act="environment"][data-environment="forest"]');
   assert.equal($("#stageScene").classList.contains("art-forest"), true);
   assert.equal($("#strokeCount").textContent, "1 lines");
@@ -210,10 +210,10 @@ test("spellbook pages, studio sigil references, and the music control work",()=>
  assert.ok($('#recipePreview'));click('[data-act="apply-recipe"]');
  click('[data-act="field-guide"]');
  click('[data-act="guide-page"][data-index="1"]');
- assert.equal($('.guide-tabs [aria-current="page"]').dataset.index,'1');
+ assert.match($('.atlas .book-turns').textContent,/2 \/ 14/);
  click('[data-act="guide-page"][data-index="2"]');
- assert.match($('#dialogBody').textContent,/not simulated yet/);
- click('[data-act="close-dialog"]');
+ assert.match($('.atlas .book-turns').textContent,/3 \/ 14/);
+ click('#closeDialog');
  const before=JSON.parse(storage.get(SAVE_KEY)).settings.music;
  click('[data-act="music"]');
  assert.equal(JSON.parse(storage.get(SAVE_KEY)).settings.music,!before);

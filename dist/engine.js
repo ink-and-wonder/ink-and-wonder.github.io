@@ -1,3 +1,4 @@
+import { SIGILS, SIGNS } from "./vocabulary.js?v=3.0.0";
 /* Local geometric recognition. The ring defines a coordinate system, so seals
    may be drawn anywhere on the page and at any useful size. */
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -14,6 +15,7 @@ export function circle(radius = 1, cx = 0, cy = 0, count = 96) {
 // Geometric study drawings checked against the manga's sigil/sign references.
 // Pressure, particles and recognition tolerances are game presentation, not lore.
 export function heart(element) {
+  if (!['fire','light','earth','water','wind'].includes(element)) return (SIGILS[element]?.paths || []).map(s=>s.map(p=>point(p.x*.9,p.y*.9)));
   if (element === "fire") return [path([[0,-.38],[-.34,.22],[.34,.22],[0,-.38]]),path([[-.21,-.02],[-.34,-.10]]),path([[.21,-.02],[.34,-.10]]),path([[0,.22],[0,.4]])];
   if (element === "light") return [path([[-.27,-.27],[.27,-.27],[.27,.27],[-.27,.27],[-.27,-.27]]),path([[0,-.27],[.27,0],[0,.27],[-.27,0],[0,-.27]]),path([[-.43,0],[-.27,0]]),path([[.27,0],[.43,0]]),path([[0,-.43],[0,-.27]]),path([[0,.27],[0,.43]])];
   if (element === "earth") return [path([[-.32,-.34],[.32,-.34]]),path([[0,-.34],[0,.29]]),path([[-.17,-.13],[-.32,.04],[0,.29],[.32,.04],[.17,-.13]]),path([[-.28,.4],[.28,.4]]),circle(.025,-.45,-.04,12),circle(.025,.45,-.04,12)];
@@ -21,6 +23,7 @@ export function heart(element) {
   return [path([[.08,-.16],[.13,-.22],[.10,-.30],[.01,-.32],[-.08,-.26],[-.10,-.16],[-.07,-.06],[.05,.03],[.16,.13],[.18,.26],[.09,.38],[-.03,.4],[-.13,.33],[-.14,.22],[-.07,.16],[.02,.18],[.04,.24]]),path([[-.1,-.03],[-.17,-.13],[-.18,-.26],[-.09,-.38],[.03,-.4],[.13,-.33],[.14,-.22],[.07,-.16]]),path([[-.30,0],[-.52,0]]),path([[-.35,-.11],[-.43,-.19]]),path([[-.35,.11],[-.43,.19]]),path([[.30,0],[.52,0]]),path([[.35,-.11],[.43,-.19]]),path([[.35,.11],[.43,.19]])];
 }
 export function sign(modifier, angle) {
+  if (!['focus','flow','spread'].includes(modifier)) return (SIGNS[modifier]?.paths || []).map(s=>s.map(p=>{const x=p.x*.34,y=p.y*.34+.77;return point(x*Math.cos(angle)-y*Math.sin(angle),x*Math.sin(angle)+y*Math.cos(angle));}));
   const stem=path([[0,1],[0,.65]]);
   const source = modifier === "flow" ? [path([[0,1],[0,.6]]),path([[-.1,.73],[0,.6],[.1,.73]]),path([[-.09,1],[.09,1]])] :
     modifier === "spread" ? [stem,path([[-.12,.65],[.12,.65]]),path([[-.13,.56],[-.07,.51],[0,.49],[.07,.51],[.13,.56]])] :
@@ -84,7 +87,7 @@ function similarity(actual, expected, tolerance = 0.11) {
     ) / expected.length;
   return 0.43 * a + 0.57 * b;
 }
-function fitRing(p) {
+export function fitRing(p) {
   if (p.length < 12) return null;
   const sampled = resample([p], 5, 1200),
     xs = sampled.map((q) => q.x),
@@ -128,7 +131,7 @@ function fitRing(p) {
     quality: Math.max(0, 1 - deviation * 3 - closure * 0.35),
   };
 }
-function ringCandidates(strokes) {
+export function ringCandidates(strokes) {
   const candidates = strokes.map(fitRing).filter(Boolean);
   const points = strokes.flat();
   if (!points.length) return candidates;
@@ -330,7 +333,7 @@ export function strokeLength(strokes) {
 export function validateDrawing(value) {
   return (
     Array.isArray(value) &&
-    value.length <= 150 &&
+    value.length <= 1200 &&
     value.every(
       (s) =>
         Array.isArray(s) &&

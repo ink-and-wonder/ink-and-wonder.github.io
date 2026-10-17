@@ -90,7 +90,7 @@ test("drawing import rejects invalid and oversized content", () => {
   assert.equal(validateDrawing(pagePaths("light", "focus", 1)), true);
   assert.equal(validateDrawing([[{ x: Infinity, y: 0 }]]), false);
   assert.equal(validateDrawing([[{ x: 0, y: 99999 }]]), false);
-  assert.equal(validateDrawing(Array(151).fill([])), false);
+  assert.equal(validateDrawing(Array(1201).fill([])), false);
 });
 
 test("manga vocabulary reads all five sigils and three sign types under uneven pen motion", () => {

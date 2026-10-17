@@ -1,4 +1,5 @@
-import { distance, pagePaths } from "./engine.js?v=2.2.4";
+import { compositionPaths } from "./compiler.js?v=3.0.0";
+import { distance, pagePaths } from "./engine.js?v=3.0.0";
 export class DrawingDesk {
   constructor(canvas, { settings, onChange, onFinish }) {
     this.canvas = canvas;
@@ -54,7 +55,7 @@ export class DrawingDesk {
   }
   setGuide(recipe) {
     this.guide = recipe
-      ? pagePaths(recipe.element, recipe.modifier, recipe.signs)
+      ? recipe.structure || recipe.extraSigils ? compositionPaths(recipe) : pagePaths(recipe.element, recipe.modifier, recipe.signs)
       : null;
     this.requestPaint();
   }
@@ -93,7 +94,7 @@ export class DrawingDesk {
       (e.pointerType === "touch" && performance.now() - this.lastPen < 1000)
     )
       return;
-    if (this.strokes.length >= 150) {
+    if (this.strokes.length >= 1200) {
       this.onChange("The page is full. Save your seal or start a new page.");
       return;
     }

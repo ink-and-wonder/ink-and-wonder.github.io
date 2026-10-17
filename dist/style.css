@@ -3357,3 +3357,158 @@ dialog::backdrop {
  .focused .study-strip {width:100%;}
  .focused .study-strip button {flex-direction:row;font-size:11px;gap:8px;}
 }
+
+/* Screen-fit atelier. All collections turn pages; the document never scrolls. */
+:root {--muted:#526253;--line:#c9cbbb;}
+html,body {width:100%;height:100%;overflow:hidden;overscroll-behavior:none;}
+body {font-size:14px;line-height:1.45;}
+[hidden] {display:none!important;}
+button,input,select {font-size:14px;}
+button {min-height:44px;}
+.overline {font-size:11px!important;letter-spacing:1.5px;}
+.text-button,.check-label,.form-label {font-size:13px;}
+.game-screen {height:100dvh;min-height:0;display:grid;grid-template-rows:70px minmax(0,1fr) 34px;overflow:hidden;}
+.game-header {height:70px;padding:0 24px;gap:20px;}
+.game-footer {height:34px;padding:0 24px;font-size:12px;}
+#page {min-height:0;overflow:hidden;display:flex;flex-direction:column;}
+.encounter-bar {flex:none;height:42px;padding:0 24px;}
+.play-layout,.play-layout.focused {min-height:0;height:100%;width:100%;max-width:none;margin:0;padding:12px 20px 16px;gap:16px;grid-template-columns:minmax(210px,.32fr) minmax(0,1fr);overflow:hidden;}
+.play-layout.focused {height:100dvh;inset:0;}
+.play-layout.focused .stage-scene {display:none;}
+.play-layout.focused {grid-template-columns:1fr;}
+.stage-scene {height:100%!important;min-height:0!important;}
+.scene-heading {top:65px;left:24px;right:20px;}
+.scene-heading h1 {font-size:34px;line-height:1.05;}
+.scene-heading p {display:none;}
+.scene-location {left:20px;right:20px;font-size:12px;}
+.scene-time,.scene-heading .overline {display:none;}
+.scene-caption {bottom:70px;left:20px;right:20px;font-size:14px;}
+.scene-caption p {font-size:14px;line-height:1.45;}
+.world-object {width:90%;left:50%;}
+.spell-desk,.focused .spell-desk {height:100%;min-height:0;max-width:none;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 208px;grid-template-rows:44px repeat(6,minmax(0,auto)) 1fr;gap:8px 18px;align-content:start;}
+.desk-header,.focused .desk-header {grid-column:1/-1;grid-row:1;margin:0;padding:0 0 8px;min-width:0;}
+.desk-header>span {font-size:12px;}
+.desk-utilities {gap:12px;}
+.desk-utilities .text-button {font-size:13px;}
+.drawing-surface,.focused .drawing-surface {grid-column:1;grid-row:2/10;align-self:center;justify-self:center;width:min(100%,calc(100dvh - 250px));max-height:100%;margin:0;flex-shrink:1;}
+.focused .drawing-surface {width:min(100%,calc(100dvh - 100px));}
+.spell-order,.focused .spell-order {grid-column:2;grid-row:2;margin:0;}
+.spell-order h2 {font-size:25px;line-height:1.08;margin:4px 0;}
+.order-element {display:none;}
+.studio-hints,.focused .studio-hints {grid-column:2;grid-row:3;min-width:0;margin:0;}
+.recipe-select {font-size:13px!important;white-space:normal;line-height:1.3;}
+.desk-instruction,.pen-status,.desk-bottom,.paper-watermark,.study-strip {display:none!important;}
+.step-track {grid-column:2;grid-row:3;margin:4px 0;}
+.desk-tools,.focused .desk-tools {grid-column:2;grid-row:4;display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px;position:static;margin:0;box-shadow:none;}
+.tool-group {display:flex;flex-wrap:wrap;gap:2px;}
+.tool {width:36px;min-height:44px;}
+.check-label {min-height:36px;}
+.spell-feedback,.focused .spell-feedback {grid-column:2;grid-row:5;min-height:64px;max-height:none;margin:0;padding:10px;font-size:14px;line-height:1.4;}
+.cast-actions,.focused .cast-actions {grid-column:2;grid-row:6;margin:0;gap:5px;}
+.cast-button {font-size:14px!important;padding:12px;}
+#nextSeal {grid-column:2;grid-row:7;font-size:14px;}
+.journey-page,.grimoire-page {height:100%;min-height:0;padding:16px 28px;display:flex;flex-direction:column;gap:12px;}
+.page-heading {margin:0;flex:none;}
+.page-heading h1 {font-size:32px;margin:3px 0;line-height:1.1;}
+.page-heading p {font-size:14px;margin:3px 0;}
+.journey-count,.journey-lower,.chapter-description,.chapter-foot,.book-emblem {display:none;}
+.chapter-grid {display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 44px;min-height:0;flex:1;max-width:1100px;width:100%;align-self:center;gap:10px;}
+.chapter-card {display:grid;grid-template-columns:1fr 1fr;min-height:0;height:100%;overflow:hidden;}
+.chapter-art {height:100%;min-height:0;}
+.chapter-art-copy h2 {font-size:36px;}
+.mission-list {display:grid;grid-template-rows:repeat(4,1fr);padding:10px 20px;min-height:0;}
+.mission-row {padding:8px 0;min-height:44px;}
+.mission-row b {font-size:17px;}
+.mission-row small {font-size:12px;}
+.deck-turns {grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:24px;height:44px;}
+.deck-turns button {width:54px;background:#e5e6d8;border:1px solid var(--line);border-radius:4px;font-size:20px;}
+.book-tabs {margin:0;flex:none;}
+.book-content {flex:1;min-height:0;}
+.seal-grid,.discovery-grid {height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,1fr) 44px;gap:12px;}
+.saved-seal,.discovery {min-height:0;padding:12px;display:flex;flex-direction:column;}
+.saved-seal-art,.discovery>div {flex:1;min-height:0;height:auto;}
+.saved-seal-art svg,.discovery>div svg {height:100%;max-height:100%;width:100%;}
+.saved-seal h2,.discovery h2 {font-size:21px;margin:6px 0;}
+.saved-seal p,.discovery p {display:none;}
+.memory-list {display:grid;grid-template-rows:repeat(3,minmax(0,1fr)) 44px;height:100%;gap:8px;}
+.memory {padding:12px;min-height:0;}
+.memory h2 {font-size:22px;margin:3px 0;}
+.memory p {font-size:14px;line-height:1.4;margin:3px 0;}
+#dialog {max-height:calc(100dvh - 24px);overflow:hidden;width:min(760px,calc(100% - 24px));}
+#dialogBody {max-height:calc(100dvh - 26px);overflow:hidden;}
+.dialog-content {padding:28px;}
+.dialog-content>h2 {font-size:32px;margin:3px 0 14px;}
+.dialog-content>p,.dialog-content blockquote {font-size:15px;line-height:1.5;}
+.dialog-close {min-height:36px;width:36px;height:36px;}
+.story-intro {height:110px;min-height:0;}
+.dialog-content .fan-note,.dialog-content .keyboard-hints {display:none;}
+.settings-list {display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;}
+.setting-row {min-height:54px;padding:8px 0;}
+.setting-row b {font-size:14px;}
+.setting-row small,.data-settings p {display:none;}
+.data-settings {margin:12px 0;padding:12px 0;}
+.data-settings .overline {display:none;}
+.install-button {margin:8px 0;}
+#dialog:has(.atlas) {width:min(1000px,calc(100% - 24px));max-width:1000px;}
+.atlas {display:flex;flex-direction:column;height:min(730px,calc(100dvh - 28px));gap:12px;}
+.atlas h2 {margin:0;font-size:32px;}
+.atlas-filters {display:flex;gap:12px;}
+.atlas-filters input {flex:1;min-width:0;}
+.atlas-filters input,.atlas-filters select {height:44px;background:#fcfaf1;border:1px solid #a5af9b;padding:8px;border-radius:4px;}
+.atlas-grid {display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,minmax(0,1fr));gap:10px;flex:1;min-height:0;}
+.atlas-card {display:flex;gap:12px;align-items:center;border:1px solid #c7c9b4;padding:10px;background:#eeecde;border-radius:5px;min-height:0;}
+.atlas-glyph {flex:none;width:82px;height:82px;display:grid;place-items:center;}
+.atlas-glyph svg {width:100%;height:100%;stroke-width:.018;}
+.atlas-glyph>span {font-size:48px;}
+.atlas-card h3 {font-size:19px;line-height:1.1;margin:0 0 4px;}
+.atlas-card p {font-size:13px;line-height:1.3;margin:4px 0;}
+.certainty {font-size:11px;color:#4e604e;}
+.atlas-card a,.atlas-card button {font-size:12px;margin-right:10px;}
+.atlas-card button {min-height:30px;}
+.atlas .book-turns {margin:0;align-items:center;}
+.atlas-note {font-size:12px!important;margin:0!important;}
+.composer-layout {display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.composer-fields {display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.composer .form-label {margin:0;}
+.composer select {width:100%;margin-top:4px;min-height:42px;padding:7px;font-size:13px;}
+.composer .recipe-preview {height:auto;min-height:0;margin:0;display:grid;place-items:center;}
+.composer .recipe-preview svg {width:100%;height:auto;max-height:340px;stroke-width:2;}
+.composer .wide {margin-top:16px;}
+.title-screen {height:100dvh;min-height:0;overflow:hidden;}
+@media(max-width:1000px) {
+ .game-header {gap:12px;padding:0 16px;}.player-chip {display:none;}
+ .play-layout {grid-template-columns:1fr;}.stage-scene {display:none;}
+ .drawing-surface {width:min(100%,calc(100dvh - 250px));}
+ .spell-desk {grid-template-columns:minmax(0,1fr) 208px;}
+ .chapter-card {grid-template-columns:.8fr 1fr;}
+}
+@media(max-width:650px) {
+ .game-screen {grid-template-rows:60px minmax(0,1fr) 28px;}
+ .game-header {height:60px;padding:0 10px;gap:8px;}.wordmark {font-size:24px;}.wordmark span,.account-button,#xpLabel,.game-footer>span:nth-child(2) {display:none;}
+ .game-header nav {gap:0;}.game-header nav button {padding:8px;font-size:12px;}.game-header nav svg {display:none;}
+ .game-footer {height:28px;padding:0 12px;font-size:11px;}.game-footer button {min-height:24px;}
+ .encounter-bar {height:36px;padding:0 12px;}.encounter-bar>span {display:none;}
+ .play-layout,.play-layout.focused {padding:6px;gap:0;}
+ .spell-desk,.focused .spell-desk {padding:10px;display:grid;grid-template-columns:minmax(0,1fr) 150px;grid-template-rows:40px auto minmax(0,1fr) auto auto;gap:8px;}
+ .desk-header,.focused .desk-header {grid-row:1;flex-wrap:nowrap;gap:6px;}.desk-header>span {display:none;}.desk-utilities {width:100%;justify-content:space-between;}
+ .spell-order,.focused .spell-order {grid-column:1;grid-row:2;}.spell-order h2 {font-size:21px;}.spell-order .overline {display:none;}
+ .studio-hints,.focused .studio-hints {grid-column:2;grid-row:2;}.studio-hints .icon-button {display:none;}
+ .drawing-surface,.focused .drawing-surface {grid-column:1/-1;grid-row:3;width:min(100%,calc(100dvh - 310px));align-self:center;}
+ .focused .drawing-surface {width:min(100%,calc(100dvh - 175px));}
+ .desk-tools,.focused .desk-tools {grid-column:1/-1;grid-row:4;flex-wrap:nowrap;justify-content:space-between;gap:4px;}.tool {width:32px;}.check-label {font-size:12px;}
+ .spell-feedback,.focused .spell-feedback {grid-column:1;grid-row:5;min-height:44px;font-size:12px;padding:5px;}.feedback-icon {display:none;}
+ .cast-actions,.focused .cast-actions {grid-column:2;grid-row:5;}.save-seal-button {width:38px;}.cast-button {font-size:13px!important;padding:8px;}
+ #nextSeal {grid-column:2;grid-row:5;}.step-track {grid-column:2;grid-row:2;}
+ .journey-page,.grimoire-page {padding:12px;gap:10px;}.page-heading h1 {font-size:28px;}.page-heading p,.page-heading .overline {display:none;}
+ .chapter-card {grid-template-columns:1fr;grid-template-rows:minmax(90px,.6fr) minmax(0,1fr);}.chapter-art-copy h2 {font-size:27px;}.chapter-art-copy {bottom:15px;}.chapter-badge {top:12px;}
+ .mission-list {padding:0 14px;}.mission-row b {font-size:15px;}.mission-row small {font-size:12px;}
+ .book-tabs button {padding:8px;font-size:12px;}.book-tabs span {display:none;}.book-guide {font-size:12px!important;}
+ .seal-grid,.discovery-grid {grid-template-columns:repeat(2,minmax(0,1fr));}.memory p {font-size:12px;}.memory h2 {font-size:18px;}.memory-number {display:none;}
+ .dialog-content {padding:24px 16px 16px;}.dialog-content>h2 {font-size:28px;margin-bottom:10px;}.settings-list {gap:4px 12px;}.setting-row {min-height:52px;}.setting-row b {font-size:12px;}
+ .atlas {gap:8px;height:calc(100dvh - 28px);}.atlas-grid {gap:6px;}.atlas-card {padding:7px;gap:6px;flex-direction:column;justify-content:center;align-items:flex-start;}.atlas-glyph {width:52px;height:52px;align-self:center;}.atlas-card h3 {font-size:15px;}.atlas-card p {display:none;}.certainty {font-size:10px;}.atlas-card a,.atlas-card button {font-size:11px;margin-right:4px;}.atlas-note {font-size:11px!important;}.atlas h2 {font-size:27px;}
+ .composer-layout {grid-template-columns:1.2fr 1fr;gap:10px;}.composer-fields {grid-template-columns:1fr;gap:4px;}.composer .form-label {font-size:12px;}.composer select {min-height:34px;margin:0;padding:4px;font-size:12px;}
+}
+@media(max-height:600px) and (min-width:651px) {
+ .game-screen {grid-template-rows:54px minmax(0,1fr) 26px;}.game-header {height:54px;}.game-footer {height:26px;}.encounter-bar {height:32px;}
+ .play-layout {padding:6px;}.spell-desk,.focused .spell-desk {padding:8px;grid-template-columns:minmax(0,1fr) 210px;gap:3px 12px;grid-template-rows:32px repeat(6,auto);}.desk-header {min-height:32px;}.drawing-surface {width:min(100%,calc(100dvh - 150px));}.spell-order h2 {font-size:22px;}.spell-feedback {min-height:45px;font-size:12px;}.atlas-glyph {width:48px;height:48px;}.atlas-card p {display:none;}.atlas-card h3 {font-size:16px;}.atlas {gap:6px;}.atlas h2 {font-size:26px;}.atlas-filters input,.atlas-filters select {height:36px;}.dialog-content {padding:22px;}.story-intro {display:none;}
+}

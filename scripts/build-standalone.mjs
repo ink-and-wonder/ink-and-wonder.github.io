@@ -3,8 +3,10 @@
 import fs from "node:fs/promises";
 const root = new URL("../dist/", import.meta.url),
   files = [
+    "vocabulary.js",
     "data.js",
     "engine.js",
+    "compiler.js",
     "state.js",
     "cloud-config.js",
     "cloud.js",

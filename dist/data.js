@@ -1,3 +1,4 @@
+import { SIGILS, SIGNS } from "./vocabulary.js?v=3.0.0";
 export const ELEMENTS = {
   light: {
     name: "Light",
@@ -43,6 +44,9 @@ export const MODIFIERS = {
     description: "Lets an effect spread outward rather than remain in a narrow column.",
   },
 };
+for (const [id,g] of Object.entries(SIGILS)) if(!ELEMENTS[id]) ELEMENTS[id]={name:g.name,color:g.color,glyph:'',description:g.effect?g.effect.replaceAll('-',' '):'Function unresolved',certainty:g.certainty};
+ELEMENTS.shaping={name:'Shaping seal',color:'#d9d4bd',glyph:'',description:'A seal that acts on existing material without an elemental sigil.'};
+for (const [id,g] of Object.entries(SIGNS)) if(!MODIFIERS[id]) MODIFIERS[id]={name:g.name,label:g.certainty==='unknown'?'Unresolved function':g.effect||'Study symbol',description:g.effect?g.effect.replaceAll('-',' '):'Function unresolved',certainty:g.certainty};
 export const CHAPTERS = [
   {
     name: "The first line",

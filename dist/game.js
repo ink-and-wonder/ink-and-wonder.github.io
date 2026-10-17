@@ -1,3 +1,5 @@
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.0.0";
+import { compileSpell, compositionPaths } from "./compiler.js?v=3.0.0";
 import {
   ELEMENTS,
   MODIFIERS,
@@ -5,7 +7,7 @@ import {
   MISSIONS,
   OBJECT_NAMES,
   RANKS,
-} from "./data.js?v=2.2.4";
+} from "./data.js?v=3.0.0";
 import {
   recognize,
   checkObjective,
@@ -14,7 +16,7 @@ import {
   recipePaths,
   distance,
   validateDrawing,
-} from "./engine.js?v=2.2.4";
+} from "./engine.js?v=3.0.0";
 import {
   SAVE_KEY,
   freshSave,
@@ -23,12 +25,12 @@ import {
   nextMission,
   insight,
   completeMission,
-} from "./state.js?v=2.2.4";
-import { AtelierMusic } from "./music.js?v=2.2.4";
-import { DrawingDesk } from "./drawing.js?v=2.2.4";
-import { objectArt, WorldEffects } from "./world.js?v=2.2.4";
-import { CLOUD_CONFIG } from "./cloud-config.js?v=2.2.4";
-import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=2.2.4";
+} from "./state.js?v=3.0.0";
+import { AtelierMusic } from "./music.js?v=3.0.0";
+import { DrawingDesk } from "./drawing.js?v=3.0.0";
+import { objectArt, WorldEffects } from "./world.js?v=3.0.0";
+import { CLOUD_CONFIG } from "./cloud-config.js?v=3.0.0";
+import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.0.0";
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
@@ -85,7 +87,7 @@ const music = new AtelierMusic(() => save.settings.music);
 document.addEventListener("pointerdown",()=>music.start(),{passive:true});
 document.addEventListener("keydown",()=>music.start());
 document.addEventListener("visibilitychange",()=>music.sync());
-let guidePage = 0;
+let guidePage = 0, atlasKind = "all", atlasQuery = "";
 let activeUser = null,
   localSaveKey = SAVE_KEY,
   accountMode = "signin",
@@ -445,12 +447,23 @@ function navigate(next) {
 function svgPaths(paths, viewBox = "-1.15 -1.15 2.3 2.3") {
   return `<svg viewBox="${viewBox}" class="seal-preview" fill="none" aria-hidden="true">${paths.map((p) => `<path d="${p.map((q, i) => `${i ? "L" : "M"}${q.x.toFixed(3)},${q.y.toFixed(3)}`).join(" ")}"/>`).join("")}</svg>`;
 }
+function layoutDeck(deck) {
+ if(!deck)return;
+ const cards=[...deck.children].filter(e=>e.tagName!=="NAV"),size=deck.classList.contains("chapter-grid")?1:deck.classList.contains("memory-list")?3:(window.innerWidth||1200)<650?2:3;
+ const total=Math.max(1,Math.ceil(cards.length/size)),current=Math.max(0,Math.min(total-1,Number(deck.dataset.current)||0));
+ cards.forEach((card,i)=>card.hidden=Math.floor(i/size)!==current);
+ deck.querySelector(":scope > nav")?.remove();
+ if(total>1){const nav=document.createElement("nav");nav.className="deck-turns";nav.innerHTML=`<button data-act="deck-page" data-deck="${deck.id}" data-index="${current-1}" ${current===0?"disabled":""}>←</button><span>${current+1} / ${total}</span><button data-act="deck-page" data-deck="${deck.id}" data-index="${current+1}" ${current===total-1?"disabled":""}>→</button>`;deck.append(nav);}
+}
+function paginateCollections() {
+ $$(".chapter-grid,.seal-grid,.discovery-grid,.memory-list").forEach((deck,i)=>{deck.id="deck-"+i;layoutDeck(deck);});
+}
 function renderJourney() {
   const next = nextMission(save),
     count = Object.keys(save.completed).length,
     all = count === 12;
   $("#page").innerHTML =
-    `<section class="journey-page"><div class="page-heading"><div><span class="overline">YOUR APPRENTICESHIP</span><h1>${all ? "A world made a little brighter." : "There is a world beyond the page."}</h1><p>${all ? "Your story is complete. Revisit your favorite moments, perfect your seals, or make something entirely your own." : "Follow the road. Meet the people. Leave a little wonder behind."}</p></div><div class="journey-count"><b>${String(count).padStart(2, "0")}<i>/12</i></b><span>MOMENTS OF MAGIC</span></div></div><div class="chapter-grid">${CHAPTERS.map(
+    `<section class="journey-page"><div class="page-heading"><div><span class="overline">YOUR APPRENTICESHIP</span><h1>${all ? "A world made a little brighter." : "Your apprenticeship"}</h1><p>${all ? "Your story is complete. Revisit your favorite moments, perfect your seals, or make something entirely your own." : "Three chapters. Twelve moments of magic."}</p></div><div class="journey-count"><b>${String(count).padStart(2, "0")}<i>/12</i></b><span>MOMENTS OF MAGIC</span></div></div><div class="chapter-grid">${CHAPTERS.map(
       (c, ci) => {
         const chapterMissions = MISSIONS.map((m, i) => ({
             ...m,
@@ -471,7 +484,9 @@ function renderJourney() {
     ).join(
       "",
     )}</div><div class="journey-lower"><div class="studio-invite"><div class="invite-icon">${icon("quill")}</div><div><span class="overline">A PAGE WITH NO INSTRUCTIONS</span><h2>What will your hands discover?</h2><p>Draw freely, invent combinations, and collect your own working seals.</p></div><button class="button outline" data-act="studio">Enter the studio ${icon("arrow")}</button></div><div class="mastery-note"><b>${Object.values(save.completed).reduce((n, m) => n + m.stars, 0)}<span>/ 36</span></b><p>Mastery stars<br><small>Draw without guides for a third star.</small></p></div></div></section>`;
+  paginateCollections();
 }
+
 function beginMission(index) {
   if (!available(index, save)) return;
   cleanup();
@@ -504,7 +519,7 @@ function sceneMarkup({ art, location, title, brief, type, studio = false }) {
 }
 function deskMarkup(studio = false) {
   const r = studio ? studioRecipe : requirement();
-  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "A thought, made visible." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Draw any elemental sigil inside a ring. Add signs to change its behavior. Your pen decides what happens.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close a ring to give your spell a home." : "Begin with the heart. Add the signs. Close the ring last."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
+  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "Your spell. Your ink." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Sigil. Signs. Close the ring.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).filter(([id])=>["fire","water","earth","wind","light"].includes(id)).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close the ring to cast." : "Sigil → signs → close the ring."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
 }
 function recipeInstruction(r) {
   return `Draw the ${ELEMENTS[r.element].name.toLowerCase()} sigil with <b>${r.signs} ${MODIFIERS[r.modifier].name.toLowerCase()} sign${r.signs > 1 ? "s" : ""}</b>, then finish with one closed ring.`;
@@ -525,7 +540,7 @@ function mountDesk(studio = false) {
     },
     onFinish: (last) => {
       if (busy || stageFinished) return;
-      const r = recognize(desk.strokes);
+      const r = page === "studio" ? compileSpell(desk.strokes, {interpretations:save.settings.interpretations}) : recognize(desk.strokes);
       if (r.ok) setFeedback(`${ELEMENTS[r.element].name} sigil · ${r.composition.map(id=>MODIFIERS[id].name).join(" + ") || "no shaping signs"} · ${r.signs} signs. ${save.settings.autoCast ? "Seal is ready." : "Tap Awaken when ready."}`, "ready");
       else if (desk.strokes.length>1) setFeedback(r.reason);
       if (save.settings.autoCast && r.ok && last.some(p=>Math.abs(Math.hypot(p.x-r.ring.x,p.y-r.ring.y)-r.ring.r)<r.ring.r*0.2)) castSpell();
@@ -565,11 +580,16 @@ function setFeedback(text, kind = "neutral") {
 }
 function castSpell() {
   if (!desk || desk.active || busy || stageFinished) return;
-  const r = recognize(desk.strokes);
+  const r = page === "studio" ? compileSpell(desk.strokes, {interpretations:save.settings.interpretations}) : recognize(desk.strokes);
   lastResult = r;
   if (!r.ok) {
     setFeedback(r.reason, "warning");
     sound("miss");
+    return;
+  }
+  if (page === "studio" && r.executable === false) {
+    setFeedback(r.warnings[0] || "Study symbol recognised; effect unresolved.", "warning");
+    $("#sceneCaption").textContent = r.summary + " · study only";
     return;
   }
   const element = ELEMENTS[r.element];
@@ -586,7 +606,8 @@ function castSpell() {
       water: "plant",
       wind: "paper",
       fire: "kettle",
-    }[r.element];
+      earth: "arch",
+    }[r.element] || "observatory";
     $("#worldObject").innerHTML = objectArt(objectType);
     $("#worldObject").dataset.object = objectType;
     $(".target-label>span").innerHTML =
@@ -594,9 +615,9 @@ function castSpell() {
     $("#worldObject").className = "world-object awakened " + r.modifier;
     $("#worldObject").dataset.element = r.element;
     $("#sceneCaption").textContent =
-      `${element.name} · ${r.composition.map(id=>MODIFIERS[id].name).join(" + ") || "unshaped"} · ${r.signs} signs · ${Math.round(r.power*100)}% intensity`;
+      `${r.summary || element.name} · ${r.layers?.length || 1} seal${r.layers?.length===1?"":"s"} · ${r.signs} signs`;
     setFeedback(
-      `${element.name} awakened. ${r.signs ? MODIFIERS[r.modifier].name + " signs shape its motion." : "A simple elemental spell, without directional signs."} Save this seal to keep it.`,
+      `${r.summary || element.name} · ${r.quality}% clarity. Save to your grimoire.`,
       "success",
     );
     $("#orderElement").innerHTML = svgPaths(heart(r.element),"-.65 -.65 1.3 1.3");
@@ -695,41 +716,17 @@ function ending() {
     `<div class="story-intro ending-art art-forest"></div><div class="dialog-content"><span class="overline">EPILOGUE · THE NEXT EMPTY PAGE</span><h2>Wonder is a practice.</h2><p>The road home is the same road. The village is the same village. Yet the little things look different now: the rain caught on a leaf, the wind in a mill’s sails, the light in someone’s window.</p><p>You know what your hands can do. More than that, you know why they might do it.</p><blockquote>“There will always be another blank page.”</blockquote><p class="epilogue-signature">Thank you for making a little wonder.</p><div class="dialog-actions"><button class="button dark" data-act="studio">Write your own spells ${icon("quill")}</button><button class="button light" data-act="journey">Revisit the journey</button></div><small class="fan-note">An original unofficial fan story inspired by Witch Hat Atelier. Story dialogue, locations outside the atelier, and practice seals are game adaptations.</small></div>`,
   );
 }
+function recipePlan() {
+ return {element:$("#recipeElement").value,modifier:$("#recipeModifier").value,signs:Number($("#recipeSigns").value),extraSigils:$("#recipeExtra").value?[$("#recipeExtra").value]:[],extraSigns:$("#recipeSignExtra").value?[$("#recipeSignExtra").value]:[],structure:$("#recipeStructure").value,inverted:$("#recipeInverted").checked};
+}
 function openRecipe() {
-  openDialog(
-    `<div class="dialog-content"><span class="overline">THE REFERENCE PAGE</span><h2>A spell is a small language.</h2><p>Choose a reference to study. These controls change only the example; your drawing determines the spell.</p><label class="form-label">Element<select id="recipeElement">${Object.entries(
-      ELEMENTS,
-    )
-      .map(
-        ([id, e]) =>
-          `<option value="${id}" ${id === studioRecipe.element ? "selected" : ""}>${e.name}</option>`,
-      )
-      .join(
-        "",
-      )}</select></label><label class="form-label">Direction<select id="recipeModifier">${Object.entries(
-      MODIFIERS,
-    )
-      .map(
-        ([id, m]) =>
-          `<option value="${id}" ${id === studioRecipe.modifier ? "selected" : ""}>${m.name} — ${m.label}</option>`,
-      )
-      .join(
-        "",
-      )}</select></label><label class="form-label">Number of signs<select id="recipeSigns">${[0, 1, 2, 3, 4, 5, 6].map((n) => `<option ${n === studioRecipe.signs ? "selected" : ""}>${n}</option>`).join("")}</select></label><div id="recipePreview" class="recipe-preview">${svgPaths(recipePaths(studioRecipe.element, studioRecipe.modifier, studioRecipe.signs))}</div><button class="button dark wide" data-act="apply-recipe">Keep this reference ${icon("book")}</button></div>`,
-  );
+ const options=(records,current,empty=false)=>(empty?'<option value="">None</option>':"")+Object.values(records).filter(g=>g.paths.length).map(g=>`<option value="${g.key}" ${g.key===current?"selected":""}>${g.name}</option>`).join("");
+ openDialog(`<div class="dialog-content composer"><span class="overline">REFERENCE ONLY · YOUR INK DECIDES</span><h2>Compose a seal</h2><div class="composer-layout"><div class="composer-fields"><label class="form-label">Sigil<select id="recipeElement">${options(SIGILS,studioRecipe.element)}</select></label><label class="form-label">Second sigil<select id="recipeExtra">${options(SIGILS,studioRecipe.extraSigils?.[0],true)}</select></label><label class="form-label">Sign<select id="recipeModifier">${options(SIGNS,studioRecipe.modifier)}</select></label><label class="form-label">Second sign<select id="recipeSignExtra">${options(SIGNS,studioRecipe.extraSigns?.[0],true)}</select></label><label class="form-label">Signs<select id="recipeSigns">${[0,1,2,3,4,5,6,8,12].map(n=>`<option ${n===studioRecipe.signs?"selected":""}>${n}</option>`).join("")}</select></label><label class="form-label">Arrangement<select id="recipeStructure">${["single","nested","parallel"].map(k=>`<option ${studioRecipe.structure===k?"selected":""}>${k}</option>`).join("")}</select></label><label class="check-label"><input id="recipeInverted" type="checkbox" ${studioRecipe.inverted?"checked":""}> Invert signs</label></div><div id="recipePreview" class="recipe-preview">${svgPaths(compositionPaths(studioRecipe),"0 0 600 600")}</div></div><button class="button dark wide" data-act="apply-recipe">Use reference</button></div>`);
 }
 function applyRecipe() {
-  studioRecipe = {
-    element: $("#recipeElement").value,
-    modifier: $("#recipeModifier").value,
-    signs: Number($("#recipeSigns").value),
-  };
-  $("#recipeLabel").textContent =
-    ELEMENTS[studioRecipe.element].name +
-    " / " +
-    MODIFIERS[studioRecipe.modifier].name;
-  desk.setGuide(studioGuide ? studioRecipe : null);
-  closeDialog();
+ studioRecipe=recipePlan();
+ $("#recipeLabel").textContent=ELEMENTS[studioRecipe.element].name+" / "+MODIFIERS[studioRecipe.modifier].name;
+ desk.setGuide(studioGuide?studioRecipe:null);closeDialog();
 }
 function saveSeal() {
   if (!desk?.strokes.length) {
@@ -742,7 +739,7 @@ function saveSeal() {
     );
     return;
   }
-  const r = recognize(desk.strokes);
+  const r = page === "studio" ? compileSpell(desk.strokes, {interpretations:save.settings.interpretations}) : recognize(desk.strokes);
   openDialog(
     `<div class="dialog-content"><span class="overline">A PAGE FOR YOUR GRIMOIRE</span><h2>Give your idea a name.</h2><p>${r.ok ? `${ELEMENTS[r.element].name} · ${MODIFIERS[r.modifier].name} · ${r.quality}% clarity` : "An experimental sketch. You can keep drawings even before they awaken."}</p><label class="form-label">Seal name<input id="sealName" maxlength="60" value="${r.ok ? ELEMENTS[r.element].name + " of " + ["the quiet morning", "the open road", "the silver sky"][Math.floor(Math.random() * 3)] : "An unfinished possibility"}" autocomplete="off"></label><button class="button dark wide" data-act="confirm-save-seal">Place in grimoire ${icon("book")}</button></div>`,
   );
@@ -755,7 +752,7 @@ function confirmSaveSeal() {
     $("#sealName").focus();
     return;
   }
-  const r = recognize(desk.strokes);
+  const r = page === "studio" ? compileSpell(desk.strokes, {interpretations:save.settings.interpretations}) : recognize(desk.strokes);
   save.seals.unshift({
     id: crypto.randomUUID(),
     name,
@@ -769,19 +766,13 @@ function confirmSaveSeal() {
   toast("A new page has been placed in your grimoire.");
 }
 function fieldGuide() {
-  const labels=["The language","Anatomy of a seal","Invent a spell"];
-  const refs=Object.entries(ELEMENTS).map(([id,e])=>`<div>${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<b>${e.name}</b><small>${e.description}</small></div>`).join("");
-  const modifiers=Object.entries(MODIFIERS).map(([id,m])=>`<div>${svgPaths(sign(id,Math.PI),"-.25 -1.1 .5 .75")}<b>${m.name}</b><small>${m.description}</small></div>`).join("");
-  openDialog(`<div class="dialog-content field-guide manuscript"><span class="overline">THE APPRENTICE'S SPELLBOOK · ${guidePage+1} / 3</span><h2>${labels[guidePage]}</h2>
-    <nav class="guide-tabs" aria-label="Spellbook chapters">${labels.map((label,i)=>`<button data-act="guide-page" data-index="${i}" aria-current="${guidePage===i?"page":"false"}">${String(i+1).padStart(2,"0")} ${label}</button>`).join("")}</nav>
-    <section ${guidePage===0?"":"hidden"}><p>Study the marks before the spell. Fire, water, earth and wind form the primary tetrad; light is a variant within fire magic.</p><div class="element-guide">${refs}</div><h3>Signs give the sigil a task</h3><div class="modifier-guide">${modifiers}</div><p class="source-note">Study references: manga chapter 5 opening page; chapter 3, p. 10; volume 1 extra, Introduction to Casting Seals. Geometric redraws for pen practice, not scanned manga pages.</p></section>
-    <section ${guidePage===1?"":"hidden"}><div class="seal-anatomy">${svgPaths(recipePaths("water","flow",3))}<ol><li><b>Sigil</b><span>The element or substance.</span></li><li><b>Signs</b><span>The form and movement.</span></li><li><b>Enclosing ring</b><span>The last connection awakens the seal.</span></li></ol></div><h3>Proportions are part of the idea</h3><p>A larger sigil relative to its ring strengthens the effect. Sign length also matters. Balanced Levitation signs can suspend an object; changing their balance changes its motion.</p><p>Draw the inner marks first. Leave a small gap in the ring until you are ready. Join it to cast. In this game, connected arcs, modest ovals and a natural tremor are accepted.</p><p class="source-note">Manga references: volume 1 extra; chapter 46, pp. 9–10. Recognition tolerances and effect intensity are game approximations.</p></section>
-    <section ${guidePage===2?"":"hidden"}><h3>One language. Many arrangements.</h3><div class="experiment-pair"><div>${svgPaths(recipePaths("water","flow",3))}<b>Water + balanced Levitation</b></div><div>${svgPaths(recipePaths("water","spread",3))}<b>Water + Dispersion</b></div></div><p>Use the studio to combine different signs around one sigil, change their count, or enlarge the sigil. The effect reads your marks, not the selected reference. Save your discoveries as named grimoire pages.</p><p>This release reads five sigils and three signs. Nested seals, multiple elemental sigils in one ring, and decorative sigils are not simulated yet. Unreadable drawings can still be saved as sketches.</p><p class="source-note">The campaign is an original fan story. It does not retell the manga. The full magic system is richer than this game's supported vocabulary.</p></section>
-    <div class="book-turns"><button class="button light" data-act="guide-page" data-index="${(guidePage+2)%3}">← Previous</button><button class="button dark" data-act="guide-page" data-index="${(guidePage+1)%3}">Next page →</button></div><p class="keyboard-hints">P · pen &nbsp; E · eraser &nbsp; Ctrl/⌘ Z · undo &nbsp; Space · cast</p><button class="button light wide" data-act="close-dialog">Return to drawing</button></div>`);
+  const entries=CATALOGUE.filter(g=>(atlasKind==="all"||g.kind===atlasKind)&&g.name.toLowerCase().includes(atlasQuery.toLowerCase()));
+  const total=Math.max(1,Math.ceil(entries.length/6));guidePage=Math.max(0,Math.min(total-1,guidePage));
+  openDialog(`<div class="dialog-content atlas"><span class="overline">THE DRAWN LANGUAGE · 83 REFERENCES</span><h2>Spell atlas</h2><div class="atlas-filters"><input id="atlasSearch" type="search" value="${escape(atlasQuery)}" placeholder="Find a symbol" aria-label="Find a symbol"><select id="atlasKind" aria-label="Symbol type">${["all","sigil","sign"].map(k=>`<option value="${k}" ${k===atlasKind?"selected":""}>${k==="all"?"All symbols":k==="sigil"?"Sigils":"Signs"}</option>`).join("")}</select></div><div class="atlas-grid">${entries.slice(guidePage*6,guidePage*6+6).map(g=>`<article class="atlas-card"><div class="atlas-glyph">${g.paths.length?svgPaths(g.paths,"-.65 -.65 1.3 1.3"):'<span>?</span>'}</div><div><h3>${escape(g.name)}</h3><span class="certainty">${g.kind} · ${g.certainty==="observed"?"documented":g.certainty==="inferred"?"interpretation":g.certainty==="unrecorded"?"design unpublished":"effect unknown"}</span><p>${escape(g.effect||"Study reference; no invented effect.")}</p><a href="${g.source}" target="_blank" rel="noopener noreferrer">Reference ↗</a>${g.paths.length?`<button class="text-button" data-act="atlas-use" data-id="${g.id}">Study ↗</button>`:""}</div></article>`).join("")||'<p>No symbols found.</p>'}</div><div class="book-turns"><button class="button light" data-act="guide-page" data-index="${guidePage-1}" ${guidePage===0?"disabled":""}>←</button><span>${guidePage+1} / ${total}</span><button class="button dark" data-act="guide-page" data-index="${guidePage+1}" ${guidePage===total-1?"disabled":""}>→</button></div><p class="atlas-note">Sigil → signs → close the ring. Effects are game approximations. <a href="assets/glyph-attribution.md" target="_blank" rel="noopener">Sources & credits ↗</a></p></div>`);
 }
 function renderGrimoire() {
   $("#page").innerHTML =
-    `<section class="grimoire-page"><div class="page-heading"><div><span class="overline">THE THINGS YOUR HANDS REMEMBER</span><h1>Your personal grimoire.</h1><p>A collection of working seals, unfinished ideas, and moments along the road.</p></div><div class="book-emblem">${icon("book")}</div></div><div class="book-tabs">${[
+    `<section class="grimoire-page"><div class="page-heading"><div><span class="overline">THE THINGS YOUR HANDS REMEMBER</span><h1>Your personal grimoire.</h1><p>Your spells and keepsakes.</p></div><div class="book-emblem">${icon("book")}</div></div><div class="book-tabs">${[
       ["seals", "My seals", save.seals.length],
       ["discoveries", "Discoveries", save.discoveries.length + "/12"],
       ["memories", "Memories", Object.keys(save.completed).length + "/12"],
@@ -793,16 +784,18 @@ function renderGrimoire() {
       .join(
         "",
       )}<button data-act="field-guide" class="book-guide">Field guide ↗</button></div><div class="book-content">${bookTab === "seals" ? sealsMarkup() : bookTab === "discoveries" ? discoveriesMarkup() : memoriesMarkup()}</div></section>`;
+  paginateCollections();
 }
+
 function sealsMarkup() {
   if (!save.seals.length)
     return `<div class="empty-book"><span>✧</span><h2>Your next idea belongs here.</h2><p>Save a working spell or an experimental sketch from the drawing desk.<br>This grimoire is yours to fill.</p><button class="button dark" data-act="studio">Find a blank page ${icon("quill")}</button></div>`;
   return `<div class="seal-grid">${save.seals.map((s, i) => `<article class="saved-seal"><div class="saved-seal-art">${svgPaths(s.strokes, "0 0 600 600")}</div><span class="overline">${s.element === "sketch" ? "EXPERIMENTAL PAGE" : ELEMENTS[s.element].name + " / " + MODIFIERS[s.modifier].name}</span><h2>${escape(s.name)}</h2><p>${s.quality ? s.quality + "% clarity" : "An idea still taking shape"}</p><div><button class="text-button" data-act="open-seal" data-index="${i}">Open in studio ↗</button><button class="text-button remove-page" data-act="remove-seal" data-index="${i}" aria-label="Remove ${escape(s.name)}">×</button></div></article>`).join("")}</div>`;
 }
 function discoveriesMarkup() {
-  return `<div class="discovery-grid">${Object.entries(ELEMENTS)
+  return `<div class="discovery-grid">${Object.entries(ELEMENTS).filter(([key])=>["fire","water","wind","earth","light"].includes(key)||save.discoveries.some(d=>d.startsWith(key+"-")))
     .flatMap(([element, e]) =>
-      Object.entries(MODIFIERS).map(([modifier, m]) => {
+      Object.entries(MODIFIERS).filter(([key])=>["focus","flow","spread"].includes(key)||save.discoveries.includes(element+"-"+key)).map(([modifier, m]) => {
         const found = save.discoveries.includes(element + "-" + modifier);
         return `<article class="discovery ${found ? "found" : ""}"><div>${found ? svgPaths(recipePaths(element, modifier, 3)) : '<span class="unknown">?</span>'}</div><span class="overline">${found ? "DISCOVERED" : "UNEXPLORED"}</span><h2>${e.name} × ${m.name}</h2><p>${found ? m.description : "Try this combination in the free drawing studio."}</p><button class="text-button" data-act="try-combination" data-element="${element}" data-modifier="${modifier}">${found ? "Draw again" : "Experiment"} ↗</button></article>`;
       }),
@@ -835,7 +828,8 @@ function settings() {
         "Reduce motion",
         "Gentler effects and no animated world objects.",
       ],
-      ["largeText", "Larger text", "More room for instructions and dialogue."],
+      ["largeText", "Larger text", "Larger instructions."],
+      ["interpretations", "Interpret uncertain effects", "Optional game interpretations; off for strict study."],
     ]
       .map(
         ([id, label, description]) =>
@@ -843,7 +837,7 @@ function settings() {
       )
       .join(
         "",
-      )}</div><div class="data-settings"><span class="overline">KEEP YOUR STORY SAFE</span><p>Progress is saved in this browser. Export it before moving to GitHub hosting or to another tablet.</p><div class="dialog-actions"><button class="button light" data-act="export">Export save ↓</button><button class="button light" data-act="import">Import save ↑</button></div></div><button class="button light wide install-button" data-act="install">Install on your tablet ↗</button><button class="button dark wide" data-act="close-dialog">Back to the story</button><p class="fan-note">Original fan story, art, and practice seals inspired by Witch Hat Atelier. No account or network is needed to play after the first load.</p></div>`,
+      )}</div><div class="data-settings"><span class="overline">KEEP YOUR STORY SAFE</span><p>Your saves stay private.</p><div class="dialog-actions"><button class="button light" data-act="export">Export save ↓</button><button class="button light" data-act="import">Import save ↑</button></div></div><button class="button light wide install-button" data-act="install">Install on your tablet ↗</button><button class="button dark wide" data-act="close-dialog">Back to the story</button><p class="fan-note">Original fan story, art, and practice seals inspired by Witch Hat Atelier. No account or network is needed to play after the first load.</p></div>`,
   );
 }
 function exportSave() {
@@ -915,6 +909,8 @@ document.addEventListener("click", (event) => {
     button.textContent=save.settings.music?"♫ On":"♫ Off";
     button.setAttribute("aria-pressed",String(save.settings.music));
   }
+  else if (act === "atlas-use") {const g=CATALOGUE.find(g=>g.id===button.dataset.id);if(g.kind==="sigil")studioRecipe.element=g.key;else studioRecipe.modifier=g.key;if(page!=="studio")navigate("studio");openRecipe();}
+  else if (act === "deck-page") {const deck=document.getElementById(button.dataset.deck);deck.dataset.current=button.dataset.index;layoutDeck(deck);}
   else if (act === "guide-page") { guidePage=Number(button.dataset.index); fieldGuide(); }
   else if (act === "study-sigil") { studioRecipe.element=button.dataset.element; openRecipe(); }
   else if (act === "field-guide") {guidePage=0;fieldGuide();}
@@ -1006,14 +1002,11 @@ document.addEventListener("change", (e) => {
     document.querySelectorAll(".music-toggle").forEach(b=>{b.textContent=save.settings.music?"♫ On":"♫ Off";b.setAttribute("aria-pressed",String(save.settings.music));});
     persist();
   }
-  if (["recipeElement", "recipeModifier", "recipeSigns"].includes(e.target.id))
-    $("#recipePreview").innerHTML = svgPaths(
-      recipePaths(
-        $("#recipeElement").value,
-        $("#recipeModifier").value,
-        Number($("#recipeSigns").value),
-      ),
-    );
+  if (e.target.id.startsWith("recipe") && $("#recipePreview"))
+    $("#recipePreview").innerHTML=svgPaths(compositionPaths(recipePlan()),"0 0 600 600");
+  if(e.target.id==="atlasSearch"){atlasQuery=e.target.value;guidePage=0;fieldGuide();}
+  if(e.target.id==="atlasKind"){atlasKind=e.target.value;guidePage=0;fieldGuide();}
+
 });
 $("#saveImport").addEventListener("change", async (e) => {
   const file = e.target.files[0];

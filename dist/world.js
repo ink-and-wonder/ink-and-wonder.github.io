@@ -1,3 +1,4 @@
+import { SIGILS } from "./vocabulary.js?v=3.0.0";
 const shell = (content) =>
   `<svg viewBox="0 0 340 310" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="object-shadow" cx="170" cy="280" rx="111" ry="14" fill="#081c1b" opacity=".28"/><g stroke="#e8ddbd" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${content}</g></svg>`;
 const lantern = (x) =>
@@ -79,11 +80,11 @@ export class WorldEffects {
         life: 1,
         age: 0,
         size: 1 + Math.random() * 3,
-        color: colors[result.element],
+        color: (colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0"),
         kind: result.element,
         modifier: result.components?.length ? result.components[i % result.components.length].modifier : result.modifier,
       });
-    this.color = colors[result.element];
+    this.color = (colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0");
     this.pulse = 1;
     if (!this.frame) {
       this.time = 0;

@@ -1,5 +1,5 @@
-import { MISSIONS } from "./data.js?v=2.2.4";
-import { validateDrawing } from "./engine.js?v=2.2.4";
+import { MISSIONS, ELEMENTS, MODIFIERS } from "./data.js?v=3.0.0";
+import { validateDrawing } from "./engine.js?v=3.0.0";
 export const SAVE_KEY = "ink-wonder-adventure-v2";
 export const freshSave = () => ({
   version: 2,
@@ -13,6 +13,7 @@ export const freshSave = () => ({
     autoCast: true,
     reducedMotion: false,
     largeText: false,
+    interpretations: false,
   },
   lastMission: 0,
 });
@@ -51,8 +52,8 @@ export function validateSave(input) {
       typeof s.name !== "string" ||
       s.name.length > 60 ||
       !validateDrawing(s.strokes) ||
-      !["light", "water", "wind", "fire", "earth", "sketch"].includes(s.element) ||
-      !["focus", "flow", "spread"].includes(s.modifier)
+      !(s.element === "sketch" || Object.hasOwn(ELEMENTS,s.element)) ||
+      !Object.hasOwn(MODIFIERS,s.modifier)
     )
       throw Error("The save contains an invalid seal.");
     return {
@@ -69,7 +70,7 @@ export function validateSave(input) {
       input.discoveries.filter(
         (s) =>
           typeof s === "string" &&
-          /^(light|water|wind|fire|earth)-(focus|flow|spread)$/.test(s),
+          Object.keys(ELEMENTS).some(e=>s.startsWith(e+"-") && Object.hasOwn(MODIFIERS,s.slice(e.length+1))),
       ),
     ),
   ];
