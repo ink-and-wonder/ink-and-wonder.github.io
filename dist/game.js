@@ -24,6 +24,7 @@ import {
   insight,
   completeMission,
 } from "./state.js";
+import { AtelierMusic } from "./music.js";
 import { DrawingDesk } from "./drawing.js";
 import { objectArt, WorldEffects } from "./world.js";
 import { CLOUD_CONFIG } from "./cloud-config.js";
@@ -80,6 +81,11 @@ let page = "journey",
   toastTimer,
   timers = [],
   audioContext;
+const music = new AtelierMusic(() => save.settings.music);
+document.addEventListener("pointerdown",()=>music.start(),{passive:true});
+document.addEventListener("keydown",()=>music.start());
+document.addEventListener("visibilitychange",()=>music.sync());
+let guidePage = 0;
 let activeUser = null,
   localSaveKey = SAVE_KEY,
   accountMode = "signin",
@@ -498,7 +504,7 @@ function sceneMarkup({ art, location, title, brief, type, studio = false }) {
 }
 function deskMarkup(studio = false) {
   const r = studio ? studioRecipe : requirement();
-  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} CONJURING DESK</span><div class="desk-utilities"><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Guide ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "A thought, made visible." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${ELEMENTS[r.element].glyph}</span></div>${studio ? `<p class="desk-instruction">Draw any elemental sigil inside a ring. Add signs to change its behavior. Your pen decides what happens.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close a ring to give your spell a home." : "Begin with the heart. Add the signs. Close the ring last."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
+  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "A thought, made visible." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${ELEMENTS[r.element].glyph}</span></div>${studio ? `<p class="desk-instruction">Draw any elemental sigil inside a ring. Add signs to change its behavior. Your pen decides what happens.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close a ring to give your spell a home." : "Begin with the heart. Add the signs. Close the ring last."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
 }
 function recipeInstruction(r) {
   return `Draw the ${ELEMENTS[r.element].name.toLowerCase()} sigil with <b>${r.signs} ${MODIFIERS[r.modifier].name.toLowerCase()} sign${r.signs > 1 ? "s" : ""}</b>, then finish with one closed ring.`;
@@ -518,18 +524,11 @@ function mountDesk(studio = false) {
       if (lastResult) lastResult = null;
     },
     onFinish: (last) => {
-      if (!save.settings.autoCast || busy || stageFinished || last.length < 12)
-        return;
-      const xs = last.map((p) => p.x),
-        ys = last.map((p) => p.y);
-      if (
-        Math.max(...xs) - Math.min(...xs) > 100 &&
-        Math.max(...ys) - Math.min(...ys) > 100 &&
-        distance(last[0], last.at(-1)) < 45
-      ) {
-        const r = recognize(desk.strokes);
-        if (r.ok) castSpell();
-      }
+      if (busy || stageFinished) return;
+      const r = recognize(desk.strokes);
+      if (r.ok) setFeedback(`${ELEMENTS[r.element].name} sigil · ${r.composition.map(id=>MODIFIERS[id].name).join(" + ") || "no shaping signs"} · ${r.signs} signs. ${save.settings.autoCast ? "Seal is ready." : "Tap Awaken when ready."}`, "ready");
+      else if (desk.strokes.length>1) setFeedback(r.reason);
+      if (save.settings.autoCast && r.ok && last.some(p=>Math.abs(Math.hypot(p.x-r.ring.x,p.y-r.ring.y)-r.ring.r)<r.ring.r*0.2)) castSpell();
     },
   });
   desk.setGuide(
@@ -595,7 +594,7 @@ function castSpell() {
     $("#worldObject").className = "world-object awakened " + r.modifier;
     $("#worldObject").dataset.element = r.element;
     $("#sceneCaption").textContent =
-      `${element.name}, ${{ focus: "gathering", flow: "lifting", spread: "scattering" }[r.modifier]} · ${r.signs} sign${r.signs === 1 ? "" : "s"} · ${r.quality}% clarity`;
+      `${element.name} · ${r.composition.map(id=>MODIFIERS[id].name).join(" + ") || "unshaped"} · ${r.signs} signs · ${Math.round(r.power*100)}% intensity`;
     setFeedback(
       `${element.name} awakened. ${r.signs ? MODIFIERS[r.modifier].name + " signs shape its motion." : "A simple elemental spell, without directional signs."} Save this seal to keep it.`,
       "success",
@@ -770,27 +769,15 @@ function confirmSaveSeal() {
   toast("A new page has been placed in your grimoire.");
 }
 function fieldGuide() {
-  openDialog(
-    `<div class="dialog-content field-guide"><span class="overline">THE APPRENTICE’S FIELD GUIDE</span><h2>A language drawn by hand.</h2><p>In Witch Hat Atelier, magic is a craft of ink and drawn seals. This game uses original, simplified exercises inspired by that idea.</p><div class="guide-rule"><b>01</b><div><h3>Begin with a heart</h3><p>Keep the elemental sigil near the center. Its width is roughly half the ring’s diameter.</p></div></div><div class="element-guide">${Object.entries(
-      ELEMENTS,
-    )
-      .map(
-        ([id, e]) =>
-          `<div>${svgPaths(heart(id), "-.6 -.6 1.2 1.2")}<b>${e.name}</b><small>${e.description}</small></div>`,
-      )
-      .join(
-        "",
-      )}</div><div class="guide-rule"><b>02</b><div><h3>Give it an intention</h3><p>Place signs around the heart, inside the ring. Their tips point outward. More signs strengthen the effect. Missions tell you how many to use.</p></div></div><div class="modifier-guide">${Object.entries(
-      MODIFIERS,
-    )
-      .map(
-        ([id, m]) =>
-          `<div>${svgPaths(sign(id, Math.PI), "-.3 -1.1 .6 .7")}<b>${m.name}</b><small>${m.description}</small></div>`,
-      )
-      .join(
-        "",
-      )}</div><div class="guide-rule"><b>03</b><div><h3>Give it a home</h3><p>Enclose everything in one continuous ring. Close it carefully. Seals may be drawn anywhere, at different sizes; their proportions still matter.</p></div></div><p>Free drawing accepts your own arrangements, without a guide. The game reads four elemental hearts and three directional signs. Unrecognized sketches can still be saved as grimoire pages.</p><p><b>Pen tips:</b> Enable Pen only in Settings for palm rejection. Use the eraser to remove a stroke, Undo to take it back, or hide the trace guide to draw from memory.</p><p class="keyboard-hints">P · pen &nbsp; E · eraser &nbsp; Ctrl/⌘ Z · undo &nbsp; Shift Ctrl/⌘ Z · redo &nbsp; Space · cast</p><button class="button dark wide" data-act="close-dialog">Back to the page ${icon("quill")}</button></div>`,
-  );
+  const labels=["The language","Anatomy of a seal","Invent a spell"];
+  const refs=Object.entries(ELEMENTS).map(([id,e])=>`<div>${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<b>${e.name}</b><small>${e.description}</small></div>`).join("");
+  const modifiers=Object.entries(MODIFIERS).map(([id,m])=>`<div>${svgPaths(sign(id,Math.PI),"-.25 -1.1 .5 .75")}<b>${m.name}</b><small>${m.description}</small></div>`).join("");
+  openDialog(`<div class="dialog-content field-guide manuscript"><span class="overline">THE APPRENTICE'S SPELLBOOK · ${guidePage+1} / 3</span><h2>${labels[guidePage]}</h2>
+    <nav class="guide-tabs" aria-label="Spellbook chapters">${labels.map((label,i)=>`<button data-act="guide-page" data-index="${i}" aria-current="${guidePage===i?"page":"false"}">${String(i+1).padStart(2,"0")} ${label}</button>`).join("")}</nav>
+    <section ${guidePage===0?"":"hidden"}><p>Study the marks before the spell. Fire, water, earth and wind form the primary tetrad; light is a variant within fire magic.</p><div class="element-guide">${refs}</div><h3>Signs give the sigil a task</h3><div class="modifier-guide">${modifiers}</div><p class="source-note">Study references: manga chapter 5 opening page; chapter 3, p. 10; volume 1 extra, Introduction to Casting Seals. Geometric redraws for pen practice, not scanned manga pages.</p></section>
+    <section ${guidePage===1?"":"hidden"}><div class="seal-anatomy">${svgPaths(recipePaths("water","flow",3))}<ol><li><b>Sigil</b><span>The element or substance.</span></li><li><b>Signs</b><span>The form and movement.</span></li><li><b>Enclosing ring</b><span>The last connection awakens the seal.</span></li></ol></div><h3>Proportions are part of the idea</h3><p>A larger sigil relative to its ring strengthens the effect. Sign length also matters. Balanced Levitation signs can suspend an object; changing their balance changes its motion.</p><p>Draw the inner marks first. Leave a small gap in the ring until you are ready. Join it to cast. In this game, connected arcs, modest ovals and a natural tremor are accepted.</p><p class="source-note">Manga references: volume 1 extra; chapter 46, pp. 9–10. Recognition tolerances and effect intensity are game approximations.</p></section>
+    <section ${guidePage===2?"":"hidden"}><h3>One language. Many arrangements.</h3><div class="experiment-pair"><div>${svgPaths(recipePaths("water","flow",3))}<b>Water + balanced Levitation</b></div><div>${svgPaths(recipePaths("water","spread",3))}<b>Water + Dispersion</b></div></div><p>Use the studio to combine different signs around one sigil, change their count, or enlarge the sigil. The effect reads your marks, not the selected reference. Save your discoveries as named grimoire pages.</p><p>This release reads five sigils and three signs. Nested seals, multiple elemental sigils in one ring, and decorative sigils are not simulated yet. Unreadable drawings can still be saved as sketches.</p><p class="source-note">The campaign is an original fan story. It does not retell the manga. The full magic system is richer than this game's supported vocabulary.</p></section>
+    <div class="book-turns"><button class="button light" data-act="guide-page" data-index="${(guidePage+2)%3}">← Previous</button><button class="button dark" data-act="guide-page" data-index="${(guidePage+1)%3}">Next page →</button></div><p class="keyboard-hints">P · pen &nbsp; E · eraser &nbsp; Ctrl/⌘ Z · undo &nbsp; Space · cast</p><button class="button light wide" data-act="close-dialog">Return to drawing</button></div>`);
 }
 function renderGrimoire() {
   $("#page").innerHTML =
@@ -831,7 +818,8 @@ function memoriesMarkup() {
 function settings() {
   openDialog(
     `<div class="dialog-content"><span class="overline">MAKE YOURSELF AT HOME</span><h2>Your atelier, your pace.</h2><div class="settings-list">${[
-      ["sound", "Sound", "Original soft chimes when a spell awakens."],
+      ["music", "Background music", "A quiet original melody and soft sustained chords. Pauses when this tab is hidden."],
+      ["sound", "Spell sounds", "Original soft chimes when a spell awakens."],
       [
         "penOnly",
         "Pen only",
@@ -922,7 +910,14 @@ document.addEventListener("click", (event) => {
   else if (act === "mission") beginMission(Number(button.dataset.index));
   else if (act === "begin-drawing") closeDialog();
   else if (act === "close-dialog") closeDialog();
-  else if (act === "field-guide") fieldGuide();
+  else if (act === "music") {
+    save.settings.music=!save.settings.music; music.sync(); persist();
+    button.textContent=save.settings.music?"♫ On":"♫ Off";
+    button.setAttribute("aria-pressed",String(save.settings.music));
+  }
+  else if (act === "guide-page") { guidePage=Number(button.dataset.index); fieldGuide(); }
+  else if (act === "study-sigil") { studioRecipe.element=button.dataset.element; openRecipe(); }
+  else if (act === "field-guide") {guidePage=0;fieldGuide();}
   else if (act === "dialogue") {
     const m = MISSIONS[missionIndex];
     openDialog(
@@ -1007,6 +1002,8 @@ document.addEventListener("change", (e) => {
   if (e.target.dataset.setting) {
     save.settings[e.target.dataset.setting] = e.target.checked;
     if (effects) effects.reduced = save.settings.reducedMotion;
+    music.sync();
+    document.querySelectorAll(".music-toggle").forEach(b=>{b.textContent=save.settings.music?"♫ On":"♫ Off";b.setAttribute("aria-pressed",String(save.settings.music));});
     persist();
   }
   if (["recipeElement", "recipeModifier", "recipeSigns"].includes(e.target.id))

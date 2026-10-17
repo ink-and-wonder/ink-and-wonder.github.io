@@ -145,42 +145,43 @@ const ELEMENTS = {
     color: "#f5d98b",
     glyph: "☼",
     description:
-      "A clear circle with eight rays. The language of illumination.",
+      "A square and inner diamond with four short extensions. A light-producing variant within fire magic.",
   },
   water: {
     name: "Water",
     color: "#8bd8e7",
     glyph: "♧",
-    description: "A single falling droplet. The language of water and rain.",
+    description: "A flowing central curve between two opposing droplets. Water is created or manipulated.",
   },
   wind: {
     name: "Wind",
     color: "#b6d4b0",
     glyph: "≋",
-    description: "Three moving currents. The language of air and motion.",
+    description: "Opposing curls with side marks. Moves existing air.",
   },
   fire: {
-    name: "Warmth",
+    name: "Fire",
     color: "#efa97a",
     glyph: "♨",
-    description: "A flame with a smaller flame inside. The language of heat.",
+    description: "A triangle with three short extensions. Creates flame or heat.",
   },
 };
+ELEMENTS.earth = {name:"Earth",color:"#d8bc86",glyph:"◇",description:"A barred vertical stroke, angular bowl, and two dots. Works on existing solid material."};
 const MODIFIERS = {
   focus: {
-    name: "Gather",
-    label: "A diamond on a stem",
-    description: "Diamond signs gather an element into one place.",
+    name: "Columns",
+    label: "A T-shaped sign",
+    description: "Directs an effect along a column. Its length changes its strength.",
   },
   flow: {
-    name: "Lift",
-    label: "An outward arrow",
-    description: "Outward-pointing arrows send an element into motion.",
+    name: "Levitation",
+    label: "An inward arrow with a base",
+    description: "Balanced levitation signs suspend the affected object.",
   },
   spread: {
-    name: "Scatter",
-    label: "Three branching lines",
-    description: "A branching fan lets an element spread across an area.",
+    name: "Dispersion",
+    label: "A T with a curved cap",
+    description: "Lets an effect spread outward rather than remain in a narrow column.",
   },
 };
 const CHAPTERS = [
@@ -226,7 +227,7 @@ const MISSIONS = [
     steps: [s("light")],
     before: {
       speaker: "Qifrey",
-      text: "There is no need to hurry. A spell begins with an intention. Draw the light sigil, give it a gathering sign, then close the ring. The last line is the one that wakes it.",
+      text: "There is no need to hurry. A spell begins with an intention. Draw the light sigil, add a Columns sign, then close the ring. The last line is the one that wakes it.",
     },
     after:
       "A quiet glow spills across the page. The letters you could barely see become a whole new world.",
@@ -281,7 +282,7 @@ const MISSIONS = [
     steps: [s("fire", "focus", 2)],
     before: {
       speaker: "Qifrey",
-      text: "Heat calls for care. Give it two gathering signs and keep your lines steady. We are making tea, after all, not a bonfire.",
+      text: "Heat calls for care. Give it two Columns signs and keep your lines steady. We are making tea, after all, not a bonfire.",
     },
     after:
       "A curl of steam rises. Outside, the day is beginning. Inside, there is just enough time for tea.",
@@ -477,135 +478,21 @@ function circle(radius = 1, cx = 0, cy = 0, count = 96) {
     ),
   );
 }
+// Geometric study drawings checked against the manga's sigil/sign references.
+// Pressure, particles and recognition tolerances are game presentation, not lore.
 function heart(element) {
-  if (element === "light") {
-    const a = [circle(0.21)];
-    for (let i = 0; i < 8; i++) {
-      const t = (i * Math.PI) / 4;
-      a.push(
-        path([
-          [Math.cos(t) * 0.3, Math.sin(t) * 0.3],
-          [Math.cos(t) * 0.43, Math.sin(t) * 0.43],
-        ]),
-      );
-    }
-    return a;
-  }
-  if (element === "water")
-    return [
-      path([
-        [0, -0.45],
-        [-0.18, -0.18],
-        [-0.24, 0.04],
-        [-0.22, 0.2],
-        [-0.12, 0.32],
-        [0, 0.36],
-        [0.15, 0.3],
-        [0.24, 0.17],
-        [0.23, 0],
-        [0.15, -0.2],
-        [0, -0.45],
-      ]),
-      path([
-        [-0.12, 0.1],
-        [-0.1, 0.2],
-        [0, 0.25],
-      ]),
-    ];
-  if (element === "wind")
-    return [
-      path([
-        [-0.4, -0.16],
-        [0.02, -0.16],
-        [0.19, -0.21],
-        [0.23, -0.31],
-        [0.17, -0.38],
-        [0.07, -0.34],
-      ]),
-      path([
-        [-0.44, 0],
-        [0.44, 0],
-      ]),
-      path([
-        [-0.32, 0.16],
-        [0.03, 0.16],
-        [0.21, 0.24],
-        [0.24, 0.34],
-        [0.17, 0.39],
-        [0.07, 0.34],
-      ]),
-    ];
-  return [
-    path([
-      [0, -0.46],
-      [-0.04, -0.18],
-      [-0.17, -0.28],
-      [-0.26, -0.05],
-      [-0.24, 0.17],
-      [-0.08, 0.33],
-      [0.1, 0.34],
-      [0.25, 0.17],
-      [0.25, -0.1],
-      [0.13, 0.02],
-      [0.07, -0.22],
-      [0, -0.46],
-    ]),
-    path([
-      [-0.04, 0.28],
-      [-0.1, 0.12],
-      [0, -0.05],
-      [0.1, 0.13],
-      [0.04, 0.31],
-    ]),
-  ];
+  if (element === "fire") return [path([[0,-.38],[-.34,.22],[.34,.22],[0,-.38]]),path([[-.21,-.02],[-.34,-.10]]),path([[.21,-.02],[.34,-.10]]),path([[0,.22],[0,.4]])];
+  if (element === "light") return [path([[-.27,-.27],[.27,-.27],[.27,.27],[-.27,.27],[-.27,-.27]]),path([[0,-.27],[.27,0],[0,.27],[-.27,0],[0,-.27]]),path([[-.43,0],[-.27,0]]),path([[.27,0],[.43,0]]),path([[0,-.43],[0,-.27]]),path([[0,.27],[0,.43]])];
+  if (element === "earth") return [path([[-.32,-.34],[.32,-.34]]),path([[0,-.34],[0,.29]]),path([[-.17,-.13],[-.32,.04],[0,.29],[.32,.04],[.17,-.13]]),path([[-.28,.4],[.28,.4]]),circle(.025,-.45,-.04,12),circle(.025,.45,-.04,12)];
+  if (element === "water") return [path([[.08,-.44],[-.03,-.42],[-.1,-.34],[-.13,-.22],[-.08,-.08],[.01,.08],[.08,.23],[.07,.33],[0,.42],[-.12,.44]]),path([[-.29,-.22],[-.36,.05],[-.35,.15],[-.28,.18],[-.22,.13],[-.23,.04],[-.29,-.22]]),path([[.29,.22],[.36,-.05],[.35,-.15],[.28,-.18],[.22,-.13],[.23,-.04],[.29,.22]])];
+  return [path([[.08,-.16],[.13,-.22],[.10,-.30],[.01,-.32],[-.08,-.26],[-.10,-.16],[-.07,-.06],[.05,.03],[.16,.13],[.18,.26],[.09,.38],[-.03,.4],[-.13,.33],[-.14,.22],[-.07,.16],[.02,.18],[.04,.24]]),path([[-.1,-.03],[-.17,-.13],[-.18,-.26],[-.09,-.38],[.03,-.4],[.13,-.33],[.14,-.22],[.07,-.16]]),path([[-.30,0],[-.52,0]]),path([[-.35,-.11],[-.43,-.19]]),path([[-.35,.11],[-.43,.19]]),path([[.30,0],[.52,0]]),path([[.35,-.11],[.43,-.19]]),path([[.35,.11],[.43,.19]])];
 }
 function sign(modifier, angle) {
-  const source =
-    modifier === "flow"
-      ? [
-          path([
-            [-0.09, 0.8],
-            [0, 0.94],
-            [0.09, 0.8],
-          ]),
-          path([
-            [0, 0.94],
-            [0, 0.62],
-          ]),
-        ]
-      : modifier === "spread"
-        ? [
-            path([
-              [0, 0.63],
-              [0, 0.91],
-            ]),
-            path([
-              [0, 0.63],
-              [-0.13, 0.85],
-            ]),
-            path([
-              [0, 0.63],
-              [0.13, 0.85],
-            ]),
-          ]
-        : [
-            path([
-              [0, 0.63],
-              [-0.085, 0.76],
-              [0, 0.9],
-              [0.085, 0.76],
-              [0, 0.63],
-              [0, 0.54],
-            ]),
-          ];
-  return source.map((p) =>
-    p.map((q) =>
-      point(
-        q.x * Math.cos(angle) - q.y * Math.sin(angle),
-        q.x * Math.sin(angle) + q.y * Math.cos(angle),
-      ),
-    ),
-  );
+  const stem=path([[0,1],[0,.65]]);
+  const source = modifier === "flow" ? [path([[0,1],[0,.6]]),path([[-.1,.73],[0,.6],[.1,.73]]),path([[-.09,1],[.09,1]])] :
+    modifier === "spread" ? [stem,path([[-.12,.65],[.12,.65]]),path([[-.13,.56],[-.07,.51],[0,.49],[.07,.51],[.13,.56]])] :
+    [stem,path([[-.13,.65],[.13,.65]])];
+  return source.map(p=>p.map(q=>point(q.x*Math.cos(angle)-q.y*Math.sin(angle),q.x*Math.sin(angle)+q.y*Math.cos(angle))));
 }
 function recipePaths(element, modifier = "focus", signs = 1) {
   const p = heart(element);
@@ -620,21 +507,25 @@ function pagePaths(element, modifier, signs) {
   );
 }
 function resample(paths, spacing = 5, max = 3500) {
+  // Sample by travelled distance rather than event count. Slow pen strokes must
+  // not outweigh fast ones, and a long scribble must not hide the closing ring.
+  const total = strokeLength(paths);
+  spacing = Math.max(spacing, total / Math.max(1, max - paths.length));
   const out = [];
   for (const p of paths) {
     if (!p?.length) continue;
     out.push(p[0]);
+    let remaining = spacing;
     for (let i = 1; i < p.length; i++) {
-      const a = p[i - 1],
-        b = p[i],
-        n = Math.max(1, Math.ceil(distance(a, b) / spacing));
-      for (let j = 1; j <= n; j++) {
-        out.push(
-          point(a.x + ((b.x - a.x) * j) / n, a.y + ((b.y - a.y) * j) / n),
-        );
-        if (out.length >= max) return out;
+      let a = p[i-1], b = p[i], length = distance(a,b);
+      while (length >= remaining && out.length < max) {
+        const t = remaining / length;
+        a = point(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t);
+        out.push(a); length = distance(a,b); remaining = spacing;
       }
+      remaining -= length;
     }
+    if (distance(out.at(-1),p.at(-1)) > spacing * 0.25) out.push(p.at(-1));
   }
   return out;
 }
@@ -673,10 +564,11 @@ function fitRing(p) {
     cy = (minY + maxY) / 2,
     r = (maxX - minX + (maxY - minY)) / 4;
   if (r < 35 || r > 425) return null;
+  const rx = (maxX-minX)/2, ry = (maxY-minY)/2;
   const closure = distance(p[0], p.at(-1)) / r;
   const deviation =
     sampled.reduce(
-      (n, q) => n + Math.abs(Math.hypot(q.x - cx, q.y - cy) - r) / r,
+      (n, q) => n + Math.abs(Math.hypot((q.x - cx) / rx, (q.y - cy) / ry) - 1),
       0,
     ) / sampled.length;
   const bins = new Set(
@@ -692,16 +584,61 @@ function fitRing(p) {
     closure > 0.24 ||
     deviation > 0.12 ||
     bins.size < 22 ||
-    ratio < 0.72 ||
-    ratio > 1.38
+    ratio < 0.65 ||
+    ratio > 1.55
   )
     return null;
   return {
     cx,
     cy,
-    r,
+    r, rx, ry,
     quality: Math.max(0, 1 - deviation * 3 - closure * 0.35),
   };
+}
+function ringCandidates(strokes) {
+  const candidates = strokes.map(fitRing).filter(Boolean);
+  const points = strokes.flat();
+  if (!points.length) return candidates;
+  const xs=points.map(p=>p.x), ys=points.map(p=>p.y);
+  const cx=(Math.min(...xs)+Math.max(...xs))/2, cy=(Math.min(...ys)+Math.max(...ys))/2;
+  const r=(Math.max(...xs)-Math.min(...xs)+Math.max(...ys)-Math.min(...ys))/4;
+  const arcs=strokes.filter(p=>p.length>2 && p.every(q=>Math.hypot(q.x-cx,q.y-cy)>r*0.72));
+  const unused=new Set(arcs);
+  for (const arc of arcs) {
+    if (!unused.delete(arc)) continue;
+    let joined=[...arc];
+    while (unused.size) {
+      let nearestArc=null, reverse=false, gap=Infinity;
+      for (const next of unused) for (const rev of [false,true]) {
+        const d=distance(joined.at(-1),rev?next.at(-1):next[0]);
+        if(d<gap){gap=d;nearestArc=next;reverse=rev;}
+      }
+      if(gap>r*0.16) break;
+      unused.delete(nearestArc);
+      joined.push(...(reverse?[...nearestArc].reverse():nearestArc));
+    }
+    const fit=fitRing(joined); if(fit) candidates.push(fit);
+  }
+  return candidates.sort((a,b)=>b.r-a.r);
+}
+function fitCore(actual, element) {
+  const expected=resample(heart(element),0.035);
+  const bounds=pts=>{
+    const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+    return {x:(Math.min(...xs)+Math.max(...xs))/2,y:(Math.min(...ys)+Math.max(...ys))/2,
+      size:Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))};
+  };
+  const a=bounds(actual), b=bounds(expected);
+  if(a.size<0.15 || a.size>1.4) return {score:0,rotation:0};
+  let best={score:0,rotation:0};
+  for(let i=0;i<24;i++) {
+    const rotation=i*Math.PI/12, co=Math.cos(rotation),si=Math.sin(rotation);
+    const aligned=actual.map(p=>{const x=(p.x-a.x)*b.size/a.size,y=(p.y-a.y)*b.size/a.size;
+      return point(x*co-y*si+b.x,x*si+y*co+b.y);});
+    const score=similarity(aligned,expected,0.14);
+    if(score>best.score) best={score,rotation};
+  }
+  return best;
 }
 function recognize(strokes) {
   const all = resample(strokes, 5);
@@ -711,19 +648,16 @@ function recognize(strokes) {
       reason:
         "Begin with a central sigil. Add signs around it, then close an enclosing ring.",
     };
-  const rings = strokes
-    .map(fitRing)
-    .filter(Boolean)
-    .sort((a, b) => b.r - a.r);
+  const rings = ringCandidates(strokes);
   if (!rings.length)
     return {
       ok: false,
       reason:
-        "The seal needs a closed ring. Draw one continuous circle around the sigil and signs.",
+        "The enclosing ring is open or too uneven. Join its endpoints; you may use several connected strokes. Keep the sigil and signs inside.",
     };
   const ring = rings[0],
     normalized = all.map((q) =>
-      point((q.x - ring.cx) / ring.r, (q.y - ring.cy) / ring.r),
+      point((q.x - ring.cx) / ring.rx, (q.y - ring.cy) / ring.ry),
     );
   const outside =
     normalized.filter((q) => Math.hypot(q.x, q.y) > 1.17).length /
@@ -734,30 +668,33 @@ function recognize(strokes) {
       reason:
         "Some ink lies outside the seal. Erase stray strokes or draw a larger enclosing ring.",
     };
-  const core = normalized.filter((q) => Math.hypot(q.x, q.y) < 0.5);
+  const normalizedPaths = strokes.map(s=>s.map(q=>point((q.x-ring.cx)/ring.rx,(q.y-ring.cy)/ring.ry)));
+  const innerPaths = normalizedPaths.filter(s=>s.length && Math.max(...s.map(q=>Math.hypot(q.x,q.y)))<0.7 &&
+      s.reduce((n,q)=>n+Math.hypot(q.x,q.y),0)/s.length<0.52);
+  const core = resample(innerPaths,0.025);
   if (core.length < 8)
     return {
       ok: false,
       reason:
         "The ring is ready, but its heart is empty. Draw an elemental sigil inside it.",
     };
-  const matches = ["light", "water", "wind", "fire"]
+  const matches = ["light", "water", "wind", "fire", "earth"]
       .map((element) => ({
         element,
-        score: similarity(core, resample(heart(element), 0.035), 0.15),
+        ...fitCore(core, element),
       }))
       .sort((a, b) => b.score - a.score),
     best = matches[0];
-  if (best.score < 0.43 || best.score - matches[1].score < 0.018)
+  if (best.score < 0.67 || best.score - matches[1].score < 0.018)
     return {
       ok: false,
       reason:
         "The heart is not clear yet. Keep the sigil near the center, about half the width of your ring. Open the field guide for its shape.",
       candidates: matches,
     };
-  const annulus = normalized.filter((q) => {
+  const annulus = resample(normalizedPaths.filter(p=>!innerPaths.includes(p)),0.025).filter((q) => {
       const r = Math.hypot(q.x, q.y);
-      return r >= 0.52 && r < 0.95;
+      return r >= 0.42 && r < 0.95;
     }),
     signs = [];
   const candidates = [];
@@ -777,10 +714,12 @@ function recognize(strokes) {
     const scores = ["focus", "flow", "spread"]
       .map((modifier) => ({
         modifier,
-        score: similarity(rotated, resample(sign(modifier, 0), 0.025), 0.095),
+        score: Math.max(...[0.85,1,1.15].map(scale=> similarity(
+          rotated.map(p=>point(p.x/scale,(p.y-0.78)/scale+0.78)),
+          resample(sign(modifier, 0), 0.025).filter(p=>Math.hypot(p.x,p.y)<0.95), 0.08))),
       }))
       .sort((a, b) => b.score - a.score);
-    if (scores[0].score > 0.43) candidates.push({ ...scores[0], angle });
+    if (scores[0].score > 0.49) candidates.push({ ...scores[0], angle, length: Math.max(...sector.map(p=>Math.hypot(p.x,p.y))) - Math.min(...sector.map(p=>Math.hypot(p.x,p.y))) });
   }
   candidates.sort((a, b) => b.score - a.score);
   for (const candidate of candidates) {
@@ -807,13 +746,20 @@ function recognize(strokes) {
       Math.min(100, (best.score * 0.7 + ring.quality * 0.3) * 100),
     ),
     count = signs.length;
+  const signWeight=signs.reduce((n,s)=>n+s.length,0);
+  const direction=signs.reduce((v,s)=>({x:v.x+Math.sin(s.angle)*s.length,y:v.y-Math.cos(s.angle)*s.length}),{x:0,y:0});
+  if(signWeight){direction.x/=signWeight;direction.y/=signWeight;}
   return {
     ok: true,
     element: best.element,
     modifier: count ? dominant.modifier : "focus",
     signs: count,
     quality,
-    power: Math.min(1, 0.32 + count * 0.14 + quality * 0.003),
+    power: Math.min(1, 0.15 + Math.max(...core.map(p=>Math.hypot(p.x,p.y))) * 0.9 + count * 0.06 + signWeight * 0.09),
+    direction,
+    balance: 1-Math.min(1,Math.hypot(direction.x,direction.y)),
+    composition: [...new Set(signs.map(s=>s.modifier))],
+    sigilScale: Math.max(...core.map(p=>Math.hypot(p.x,p.y))),
     ring: { x: ring.cx, y: ring.cy, r: ring.r },
     heartQuality: best.score,
     components: signs,
@@ -830,7 +776,7 @@ function checkObjective(result, requirement) {
   if (result.signs < requirement.signs)
     return {
       ok: false,
-      reason: `Your spell is alive, but needs ${requirement.signs} ${requirement.modifier === "focus" ? "gathering" : requirement.modifier === "flow" ? "lifting" : "scattering"} sign${requirement.signs > 1 ? "s" : ""}. You have ${result.signs}.`,
+      reason: `Your spell is alive, but needs ${requirement.signs} ${requirement.modifier === "focus" ? "Columns" : requirement.modifier === "flow" ? "Levitation" : "Dispersion"} sign${requirement.signs > 1 ? "s" : ""}. You have ${result.signs}.`,
     };
   const matching = result.components.filter(
     (s) => s.modifier === requirement.modifier,
@@ -838,7 +784,7 @@ function checkObjective(result, requirement) {
   if (matching < requirement.signs)
     return {
       ok: false,
-      reason: `The element is right. Use ${requirement.modifier === "focus" ? "diamond gathering" : requirement.modifier === "flow" ? "outward lifting-arrow" : "branching scattering"} signs to give it the needed direction.`,
+      reason: `The element is right. Use ${requirement.modifier === "focus" ? "T-shaped Columns" : requirement.modifier === "flow" ? "inward Levitation" : "curved Dispersion"} signs to give it the needed direction.`,
     };
   return { ok: true };
 }
@@ -883,6 +829,7 @@ const freshSave = () => ({
   discoveries: [],
   settings: {
     sound: true,
+    music: true,
     penOnly: false,
     autoCast: true,
     reducedMotion: false,
@@ -925,7 +872,7 @@ function validateSave(input) {
       typeof s.name !== "string" ||
       s.name.length > 60 ||
       !validateDrawing(s.strokes) ||
-      !["light", "water", "wind", "fire", "sketch"].includes(s.element) ||
+      !["light", "water", "wind", "fire", "earth", "sketch"].includes(s.element) ||
       !["focus", "flow", "spread"].includes(s.modifier)
     )
       throw Error("The save contains an invalid seal.");
@@ -943,7 +890,7 @@ function validateSave(input) {
       input.discoveries.filter(
         (s) =>
           typeof s === "string" &&
-          /^(light|water|wind|fire)-(focus|flow|spread)$/.test(s),
+          /^(light|water|wind|fire|earth)-(focus|flow|spread)$/.test(s),
       ),
     ),
   ];
@@ -1461,6 +1408,10 @@ class DrawingDesk {
   constructor(canvas, { settings, onChange, onFinish }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.ink = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(1,1) :
+      typeof document !== "undefined" ? document.createElement("canvas") : null;
+    this.inkContext = this.ink?.getContext("2d");
+    this.inkDirty = true;
     this.settings = settings;
     this.onChange = onChange;
     this.onFinish = onFinish;
@@ -1499,6 +1450,11 @@ class DrawingDesk {
       0,
       0,
     );
+    if (this.ink) {
+      this.ink.width=this.canvas.width;this.ink.height=this.canvas.height;
+      this.inkContext.setTransform(this.canvas.width/600,0,0,this.canvas.height/600,0,0);
+      this.inkDirty=true;
+    }
     this.paint();
   }
   setGuide(recipe) {
@@ -1520,12 +1476,13 @@ class DrawingDesk {
     };
   }
   remember() {
+    this.inkDirty=true;
     this.history.push(structuredClone(this.strokes));
     if (this.history.length > 35) this.history.shift();
     this.future = [];
   }
   down(e) {
-    if (e.button > 0) return;
+    if (e.button > 0 && !(e.pointerType === "pen" && e.button === 5)) return;
     if (e.pointerType === "pen") {
       this.lastPen = performance.now();
       if (this.pointer !== null && this.pointerType === "touch") {
@@ -1551,7 +1508,7 @@ class DrawingDesk {
     this.canvas.setPointerCapture(e.pointerId);
     this.remember();
     const p = this.position(e);
-    if (this.tool === "erase") {
+    if (this.tool === "erase" || (e.pointerType === "pen" && (e.button === 5 || (e.buttons & 32)))) {
       this.erasing = true;
       this.erase(p);
     } else {
@@ -1575,13 +1532,14 @@ class DrawingDesk {
       if (
         this.active &&
         this.active.length < 5000 &&
-        distance(p, this.active.at(-1)) > 0.65
+        distance(p, this.active.at(-1)) > 0.25
       )
         this.active.push(p);
     }
     this.requestPaint();
   }
   erase(p) {
+    this.inkDirty=true;
     this.strokes = this.strokes.filter(
       (stroke) =>
         !stroke.some((q, i) => {
@@ -1604,7 +1562,13 @@ class DrawingDesk {
     this.requestPaint();
   }
   end(e, cancel = false) {
+    this.inkDirty=true;
     if (this.pointer !== e.pointerId) return;
+    // Pointer-up often contains a final sample absent from pointermove.
+    if (!cancel && e.type === "pointerup" && this.active && this.active.length < 5000) {
+      const tip = this.position(e);
+      if (distance(tip, this.active.at(-1)) > 0.25) this.active.push(tip);
+    }
     const finished = this.active;
     this.pointer = null;
     if (cancel) {
@@ -1617,6 +1581,7 @@ class DrawingDesk {
     if (!cancel && finished) this.onFinish(finished);
   }
   undo() {
+    this.inkDirty=true;
     if (!this.history.length) return;
     this.future.push(structuredClone(this.strokes));
     this.strokes = this.history.pop();
@@ -1625,6 +1590,7 @@ class DrawingDesk {
     this.onChange();
   }
   redo() {
+    this.inkDirty=true;
     if (!this.future.length) return;
     this.history.push(structuredClone(this.strokes));
     this.strokes = this.future.pop();
@@ -1632,6 +1598,7 @@ class DrawingDesk {
     this.onChange();
   }
   clear() {
+    this.inkDirty=true;
     if (this.active) return;
     this.remember();
     this.strokes = [];
@@ -1639,6 +1606,7 @@ class DrawingDesk {
     this.onChange();
   }
   load(strokes) {
+    this.inkDirty=true;
     this.remember();
     this.strokes = structuredClone(strokes);
     this.active = null;
@@ -1674,21 +1642,37 @@ class DrawingDesk {
         559,
       );
     }
+    if (this.inkContext) {
+      if (this.inkDirty) {
+        this.inkContext.clearRect(0,0,600,600);
+        this.renderStrokes(this.inkContext,this.strokes);
+        this.inkDirty=false;
+      }
+      c.drawImage(this.ink,0,0,600,600);
+    } else this.renderStrokes(c,this.strokes);
+    if (this.active) this.renderStrokes(c,[this.active]);
+  }
+  renderStrokes(c,strokes) {
     c.lineCap = "round";
     c.lineJoin = "round";
     c.strokeStyle = "#263b35";
     c.fillStyle = "#263b35";
-    for (const p of [...this.strokes, ...(this.active ? [this.active] : [])]) {
+    for (const p of strokes) {
       if (p.length === 1) {
         c.beginPath();
         c.arc(p[0].x, p[0].y, 1.4, 0, Math.PI * 2);
         c.fill();
       }
+      // Midpoint quadratic joins keep corners responsive and curves continuous.
+      // The stored samples stay untouched for recognition and undo.
       for (let i = 1; i < p.length; i++) {
-        c.lineWidth = 1.2 + (p[i].p ?? 0.5) * 3;
+        const before = p[i - 1], tip = p[i], next = p[i + 1];
+        const start = i === 1 ? before : {x:(p[i-2].x+before.x)/2,y:(p[i-2].y+before.y)/2};
+        const end = next ? {x:(before.x+tip.x)/2,y:(before.y+tip.y)/2} : tip;
+        c.lineWidth = 1.25 + ((before.p ?? 0.5) * 0.5 + (tip.p ?? 0.5) * 0.5) * 2.6;
         c.beginPath();
-        c.moveTo(p[i - 1].x, p[i - 1].y);
-        c.lineTo(p[i].x, p[i].y);
+        c.moveTo(start.x, start.y);
+        c.quadraticCurveTo(before.x, before.y, end.x, end.y);
         c.stroke();
       }
     }
@@ -1701,15 +1685,7 @@ class DrawingDesk {
     c.fillStyle = "#f4f0e2";
     c.fillRect(0, 0, 1200, 1200);
     c.scale(2, 2);
-    c.strokeStyle = "#263b35";
-    c.lineCap = "round";
-    c.lineJoin = "round";
-    for (const p of this.strokes) {
-      c.beginPath();
-      c.lineWidth = 2.3;
-      p.forEach((q, i) => (i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)));
-      c.stroke();
-    }
+    this.renderStrokes(c,this.strokes);
     c.fillStyle = "#8a856c";
     c.font = "12px Georgia";
     c.textAlign = "center";
@@ -1723,6 +1699,56 @@ class DrawingDesk {
     this.abort.abort();
     this.observer.disconnect();
     cancelAnimationFrame(this.frame);
+  }
+}
+
+/* music.js */
+// Original, quiet pentatonic chamber sketch. No remote audio or soundtrack samples.
+class AtelierMusic {
+  constructor(enabled = () => true) { this.enabled=enabled; this.timer=null; this.context=null; this.notes=new Set(); this.unlocked=false; this.phrase=0; }
+  start() { this.unlocked=true; this.sync(); }
+  sync() {
+    if (!this.unlocked || !this.enabled() || document.hidden) { this.pause(); return; }
+    const Audio=globalThis.AudioContext || globalThis.webkitAudioContext;
+    if (!Audio) return;
+    try {
+      if (!this.context) {
+        this.context=new Audio(); this.master=this.context.createGain();
+        this.master.gain.value=0; this.master.connect(this.context.destination);
+      }
+      this.context.resume()?.catch(()=>{});
+      this.master.gain.cancelScheduledValues(this.context.currentTime);
+      this.master.gain.setTargetAtTime(0.07,this.context.currentTime,0.7);
+      if (this.timer===null) { this.next=this.context.currentTime+0.1; this.schedule(); }
+    } catch { this.pause(); }
+  }
+  schedule() {
+    if (!this.enabled() || document.hidden) {this.pause();return;}
+    const c=this.context, progression=[[48,55,62,67],[45,52,60,64],[41,48,55,62],[43,50,57,62]];
+    while(this.next<c.currentTime+2) {
+      const beat=this.phrase++%32, chord=progression[Math.floor(beat/8)];
+      if(beat%8===0) for(const note of chord.slice(0,3)) this.note(note,this.next,6,0.12,'sine');
+      const melody=[0,2,3,2,1,3,2,1][beat%8];
+      this.note(chord[melody]+12,this.next,2.8,0.20,'sine');
+      this.next+=0.9;
+    }
+    this.timer=setTimeout(()=>{this.timer=null;this.schedule();},700);
+  }
+  note(midi,at,duration,volume,type) {
+    const c=this.context,o=c.createOscillator(),g=c.createGain();
+    o.type=type;o.frequency.value=440*2**((midi-69)/12);
+    g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(volume,at+0.12);
+    g.gain.exponentialRampToValueAtTime(0.0001,at+duration);
+    o.connect(g).connect(this.master);o.start(at);o.stop(at+duration+0.05);
+    this.notes.add(o);o.onended=()=>{o.disconnect();g.disconnect();this.notes.delete(o);};
+  }
+  pause() {
+    clearTimeout(this.timer);this.timer=null;
+    if(!this.context)return;
+    this.master.gain.cancelScheduledValues(this.context.currentTime);
+    this.master.gain.setTargetAtTime(0,this.context.currentTime,0.12);
+    for(const o of this.notes) {try{o.stop(this.context.currentTime+0.5);}catch{}}
+    this.notes.clear();
   }
 }
 
@@ -1792,6 +1818,7 @@ class WorldEffects {
         water: "#a0e6f0",
         wind: "#cbe2bf",
         fire: "#ffc08b",
+        earth: "#d8bc86",
       },
       range = result.modifier === "spread" ? 0.65 : 0.2;
     for (
@@ -1802,14 +1829,14 @@ class WorldEffects {
       this.particles.push({
         x: 0.48 + (Math.random() - 0.5) * range,
         y: 0.6 + (Math.random() - 0.5) * 0.25,
-        vx: (Math.random() - 0.5) * 0.0015,
-        vy: -0.0005 - Math.random() * 0.0015,
+        vx: (Math.random() - 0.5) * 0.0015 + (result.direction?.x || 0) * 0.002 * result.power,
+        vy: -0.0005 - Math.random() * 0.0015 + (result.direction?.y || 0) * 0.001 * result.power,
         life: 1,
         age: 0,
         size: 1 + Math.random() * 3,
         color: colors[result.element],
         kind: result.element,
-        modifier: result.modifier,
+        modifier: result.components?.length ? result.components[i % result.components.length].modifier : result.modifier,
       });
     this.color = colors[result.element];
     this.pulse = 1;
@@ -1887,6 +1914,7 @@ class WorldEffects {
 
 
 
+
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
@@ -1939,6 +1967,11 @@ let page = "journey",
   toastTimer,
   timers = [],
   audioContext;
+const music = new AtelierMusic(() => save.settings.music);
+document.addEventListener("pointerdown",()=>music.start(),{passive:true});
+document.addEventListener("keydown",()=>music.start());
+document.addEventListener("visibilitychange",()=>music.sync());
+let guidePage = 0;
 let activeUser = null,
   localSaveKey = SAVE_KEY,
   accountMode = "signin",
@@ -2357,7 +2390,7 @@ function sceneMarkup({ art, location, title, brief, type, studio = false }) {
 }
 function deskMarkup(studio = false) {
   const r = studio ? studioRecipe : requirement();
-  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} CONJURING DESK</span><div class="desk-utilities"><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Guide ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "A thought, made visible." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${ELEMENTS[r.element].glyph}</span></div>${studio ? `<p class="desk-instruction">Draw any elemental sigil inside a ring. Add signs to change its behavior. Your pen decides what happens.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close a ring to give your spell a home." : "Begin with the heart. Add the signs. Close the ring last."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
+  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "A thought, made visible." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${ELEMENTS[r.element].glyph}</span></div>${studio ? `<p class="desk-instruction">Draw any elemental sigil inside a ring. Add signs to change its behavior. Your pen decides what happens.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close a ring to give your spell a home." : "Begin with the heart. Add the signs. Close the ring last."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
 }
 function recipeInstruction(r) {
   return `Draw the ${ELEMENTS[r.element].name.toLowerCase()} sigil with <b>${r.signs} ${MODIFIERS[r.modifier].name.toLowerCase()} sign${r.signs > 1 ? "s" : ""}</b>, then finish with one closed ring.`;
@@ -2377,18 +2410,11 @@ function mountDesk(studio = false) {
       if (lastResult) lastResult = null;
     },
     onFinish: (last) => {
-      if (!save.settings.autoCast || busy || stageFinished || last.length < 12)
-        return;
-      const xs = last.map((p) => p.x),
-        ys = last.map((p) => p.y);
-      if (
-        Math.max(...xs) - Math.min(...xs) > 100 &&
-        Math.max(...ys) - Math.min(...ys) > 100 &&
-        distance(last[0], last.at(-1)) < 45
-      ) {
-        const r = recognize(desk.strokes);
-        if (r.ok) castSpell();
-      }
+      if (busy || stageFinished) return;
+      const r = recognize(desk.strokes);
+      if (r.ok) setFeedback(`${ELEMENTS[r.element].name} sigil · ${r.composition.map(id=>MODIFIERS[id].name).join(" + ") || "no shaping signs"} · ${r.signs} signs. ${save.settings.autoCast ? "Seal is ready." : "Tap Awaken when ready."}`, "ready");
+      else if (desk.strokes.length>1) setFeedback(r.reason);
+      if (save.settings.autoCast && r.ok && last.some(p=>Math.abs(Math.hypot(p.x-r.ring.x,p.y-r.ring.y)-r.ring.r)<r.ring.r*0.2)) castSpell();
     },
   });
   desk.setGuide(
@@ -2454,7 +2480,7 @@ function castSpell() {
     $("#worldObject").className = "world-object awakened " + r.modifier;
     $("#worldObject").dataset.element = r.element;
     $("#sceneCaption").textContent =
-      `${element.name}, ${{ focus: "gathering", flow: "lifting", spread: "scattering" }[r.modifier]} · ${r.signs} sign${r.signs === 1 ? "" : "s"} · ${r.quality}% clarity`;
+      `${element.name} · ${r.composition.map(id=>MODIFIERS[id].name).join(" + ") || "unshaped"} · ${r.signs} signs · ${Math.round(r.power*100)}% intensity`;
     setFeedback(
       `${element.name} awakened. ${r.signs ? MODIFIERS[r.modifier].name + " signs shape its motion." : "A simple elemental spell, without directional signs."} Save this seal to keep it.`,
       "success",
@@ -2629,27 +2655,15 @@ function confirmSaveSeal() {
   toast("A new page has been placed in your grimoire.");
 }
 function fieldGuide() {
-  openDialog(
-    `<div class="dialog-content field-guide"><span class="overline">THE APPRENTICE’S FIELD GUIDE</span><h2>A language drawn by hand.</h2><p>In Witch Hat Atelier, magic is a craft of ink and drawn seals. This game uses original, simplified exercises inspired by that idea.</p><div class="guide-rule"><b>01</b><div><h3>Begin with a heart</h3><p>Keep the elemental sigil near the center. Its width is roughly half the ring’s diameter.</p></div></div><div class="element-guide">${Object.entries(
-      ELEMENTS,
-    )
-      .map(
-        ([id, e]) =>
-          `<div>${svgPaths(heart(id), "-.6 -.6 1.2 1.2")}<b>${e.name}</b><small>${e.description}</small></div>`,
-      )
-      .join(
-        "",
-      )}</div><div class="guide-rule"><b>02</b><div><h3>Give it an intention</h3><p>Place signs around the heart, inside the ring. Their tips point outward. More signs strengthen the effect. Missions tell you how many to use.</p></div></div><div class="modifier-guide">${Object.entries(
-      MODIFIERS,
-    )
-      .map(
-        ([id, m]) =>
-          `<div>${svgPaths(sign(id, Math.PI), "-.3 -1.1 .6 .7")}<b>${m.name}</b><small>${m.description}</small></div>`,
-      )
-      .join(
-        "",
-      )}</div><div class="guide-rule"><b>03</b><div><h3>Give it a home</h3><p>Enclose everything in one continuous ring. Close it carefully. Seals may be drawn anywhere, at different sizes; their proportions still matter.</p></div></div><p>Free drawing accepts your own arrangements, without a guide. The game reads four elemental hearts and three directional signs. Unrecognized sketches can still be saved as grimoire pages.</p><p><b>Pen tips:</b> Enable Pen only in Settings for palm rejection. Use the eraser to remove a stroke, Undo to take it back, or hide the trace guide to draw from memory.</p><p class="keyboard-hints">P · pen &nbsp; E · eraser &nbsp; Ctrl/⌘ Z · undo &nbsp; Shift Ctrl/⌘ Z · redo &nbsp; Space · cast</p><button class="button dark wide" data-act="close-dialog">Back to the page ${icon("quill")}</button></div>`,
-  );
+  const labels=["The language","Anatomy of a seal","Invent a spell"];
+  const refs=Object.entries(ELEMENTS).map(([id,e])=>`<div>${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<b>${e.name}</b><small>${e.description}</small></div>`).join("");
+  const modifiers=Object.entries(MODIFIERS).map(([id,m])=>`<div>${svgPaths(sign(id,Math.PI),"-.25 -1.1 .5 .75")}<b>${m.name}</b><small>${m.description}</small></div>`).join("");
+  openDialog(`<div class="dialog-content field-guide manuscript"><span class="overline">THE APPRENTICE'S SPELLBOOK · ${guidePage+1} / 3</span><h2>${labels[guidePage]}</h2>
+    <nav class="guide-tabs" aria-label="Spellbook chapters">${labels.map((label,i)=>`<button data-act="guide-page" data-index="${i}" aria-current="${guidePage===i?"page":"false"}">${String(i+1).padStart(2,"0")} ${label}</button>`).join("")}</nav>
+    <section ${guidePage===0?"":"hidden"}><p>Study the marks before the spell. Fire, water, earth and wind form the primary tetrad; light is a variant within fire magic.</p><div class="element-guide">${refs}</div><h3>Signs give the sigil a task</h3><div class="modifier-guide">${modifiers}</div><p class="source-note">Study references: manga chapter 5 opening page; chapter 3, p. 10; volume 1 extra, Introduction to Casting Seals. Geometric redraws for pen practice, not scanned manga pages.</p></section>
+    <section ${guidePage===1?"":"hidden"}><div class="seal-anatomy">${svgPaths(recipePaths("water","flow",3))}<ol><li><b>Sigil</b><span>The element or substance.</span></li><li><b>Signs</b><span>The form and movement.</span></li><li><b>Enclosing ring</b><span>The last connection awakens the seal.</span></li></ol></div><h3>Proportions are part of the idea</h3><p>A larger sigil relative to its ring strengthens the effect. Sign length also matters. Balanced Levitation signs can suspend an object; changing their balance changes its motion.</p><p>Draw the inner marks first. Leave a small gap in the ring until you are ready. Join it to cast. In this game, connected arcs, modest ovals and a natural tremor are accepted.</p><p class="source-note">Manga references: volume 1 extra; chapter 46, pp. 9–10. Recognition tolerances and effect intensity are game approximations.</p></section>
+    <section ${guidePage===2?"":"hidden"}><h3>One language. Many arrangements.</h3><div class="experiment-pair"><div>${svgPaths(recipePaths("water","flow",3))}<b>Water + balanced Levitation</b></div><div>${svgPaths(recipePaths("water","spread",3))}<b>Water + Dispersion</b></div></div><p>Use the studio to combine different signs around one sigil, change their count, or enlarge the sigil. The effect reads your marks, not the selected reference. Save your discoveries as named grimoire pages.</p><p>This release reads five sigils and three signs. Nested seals, multiple elemental sigils in one ring, and decorative sigils are not simulated yet. Unreadable drawings can still be saved as sketches.</p><p class="source-note">The campaign is an original fan story. It does not retell the manga. The full magic system is richer than this game's supported vocabulary.</p></section>
+    <div class="book-turns"><button class="button light" data-act="guide-page" data-index="${(guidePage+2)%3}">← Previous</button><button class="button dark" data-act="guide-page" data-index="${(guidePage+1)%3}">Next page →</button></div><p class="keyboard-hints">P · pen &nbsp; E · eraser &nbsp; Ctrl/⌘ Z · undo &nbsp; Space · cast</p><button class="button light wide" data-act="close-dialog">Return to drawing</button></div>`);
 }
 function renderGrimoire() {
   $("#page").innerHTML =
@@ -2690,7 +2704,8 @@ function memoriesMarkup() {
 function settings() {
   openDialog(
     `<div class="dialog-content"><span class="overline">MAKE YOURSELF AT HOME</span><h2>Your atelier, your pace.</h2><div class="settings-list">${[
-      ["sound", "Sound", "Original soft chimes when a spell awakens."],
+      ["music", "Background music", "A quiet original melody and soft sustained chords. Pauses when this tab is hidden."],
+      ["sound", "Spell sounds", "Original soft chimes when a spell awakens."],
       [
         "penOnly",
         "Pen only",
@@ -2781,7 +2796,14 @@ document.addEventListener("click", (event) => {
   else if (act === "mission") beginMission(Number(button.dataset.index));
   else if (act === "begin-drawing") closeDialog();
   else if (act === "close-dialog") closeDialog();
-  else if (act === "field-guide") fieldGuide();
+  else if (act === "music") {
+    save.settings.music=!save.settings.music; music.sync(); persist();
+    button.textContent=save.settings.music?"♫ On":"♫ Off";
+    button.setAttribute("aria-pressed",String(save.settings.music));
+  }
+  else if (act === "guide-page") { guidePage=Number(button.dataset.index); fieldGuide(); }
+  else if (act === "study-sigil") { studioRecipe.element=button.dataset.element; openRecipe(); }
+  else if (act === "field-guide") {guidePage=0;fieldGuide();}
   else if (act === "dialogue") {
     const m = MISSIONS[missionIndex];
     openDialog(
@@ -2866,6 +2888,8 @@ document.addEventListener("change", (e) => {
   if (e.target.dataset.setting) {
     save.settings[e.target.dataset.setting] = e.target.checked;
     if (effects) effects.reduced = save.settings.reducedMotion;
+    music.sync();
+    document.querySelectorAll(".music-toggle").forEach(b=>{b.textContent=save.settings.music?"♫ On":"♫ Off";b.setAttribute("aria-pressed",String(save.settings.music));});
     persist();
   }
   if (["recipeElement", "recipeModifier", "recipeSigns"].includes(e.target.id))

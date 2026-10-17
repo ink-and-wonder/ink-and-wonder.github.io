@@ -186,7 +186,7 @@ test("settings, guide, undo, redo, unrecognized sketches and scene changes work"
   assert.equal(document.body.classList.contains("reduced-motion"), true);
   click('[data-act="close-dialog"]');
   click('[data-act="field-guide"]');
-  assert.equal(document.querySelectorAll(".element-guide>div").length, 4);
+  assert.equal(document.querySelectorAll(".element-guide>div").length, 5);
   assert.equal(document.querySelectorAll(".modifier-guide>div").length, 3);
   click('[data-act="close-dialog"]');
   click('[data-act="environment"][data-environment="forest"]');
@@ -200,5 +200,21 @@ test("settings, guide, undo, redo, unrecognized sketches and scene changes work"
   click('[data-act="book-tab"][data-tab="memories"]');
   assert.equal(document.querySelectorAll(".memory:not(.unwritten)").length, 12);
   click('[data-act="book-tab"][data-tab="discoveries"]');
-  assert.equal(document.querySelectorAll(".discovery").length, 12);
+  assert.equal(document.querySelectorAll(".discovery").length, 15);
+});
+
+test("spellbook pages, studio sigil references, and the music control work",()=>{
+ click('[data-page="studio"]');
+ assert.equal(document.querySelectorAll('.study-strip button').length,5);
+ click('[data-act="study-sigil"][data-element="earth"]');
+ assert.ok($('#recipePreview'));click('[data-act="apply-recipe"]');
+ click('[data-act="field-guide"]');
+ click('[data-act="guide-page"][data-index="1"]');
+ assert.equal($('.guide-tabs [aria-current="page"]').dataset.index,'1');
+ click('[data-act="guide-page"][data-index="2"]');
+ assert.match($('#dialogBody').textContent,/not simulated yet/);
+ click('[data-act="close-dialog"]');
+ const before=JSON.parse(storage.get(SAVE_KEY)).settings.music;
+ click('[data-act="music"]');
+ assert.equal(JSON.parse(storage.get(SAVE_KEY)).settings.music,!before);
 });

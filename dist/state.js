@@ -8,6 +8,7 @@ export const freshSave = () => ({
   discoveries: [],
   settings: {
     sound: true,
+    music: true,
     penOnly: false,
     autoCast: true,
     reducedMotion: false,
@@ -50,7 +51,7 @@ export function validateSave(input) {
       typeof s.name !== "string" ||
       s.name.length > 60 ||
       !validateDrawing(s.strokes) ||
-      !["light", "water", "wind", "fire", "sketch"].includes(s.element) ||
+      !["light", "water", "wind", "fire", "earth", "sketch"].includes(s.element) ||
       !["focus", "flow", "spread"].includes(s.modifier)
     )
       throw Error("The save contains an invalid seal.");
@@ -68,7 +69,7 @@ export function validateSave(input) {
       input.discoveries.filter(
         (s) =>
           typeof s === "string" &&
-          /^(light|water|wind|fire)-(focus|flow|spread)$/.test(s),
+          /^(light|water|wind|fire|earth)-(focus|flow|spread)$/.test(s),
       ),
     ),
   ];

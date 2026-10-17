@@ -106,3 +106,17 @@ test("a pen can take over an accidental palm stroke without keeping palm ink", (
   assert.equal(desk.pointer, null);
   desk.destroy();
 });
+
+test("the last pointer-up sample is retained without losing coalesced movement",()=>{
+  const {desk}=create();desk.down(e());
+  desk.move({...e("pen",130,130),getCoalescedEvents:()=>[e("pen",110,115),e("pen",130,130)]});
+  desk.end({...e("pen",150,145),type:"pointerup"});
+  assert.equal(desk.strokes[0].length,4);
+  assert.equal(desk.strokes[0].at(-1).x,150);
+  desk.destroy();
+});
+test("hardware pen eraser removes ink instead of being discarded as a secondary button",()=>{
+  const {desk}=create();desk.load([[{x:90,y:90},{x:120,y:120}]]);
+  desk.down({...e("pen",100,100),button:5,buttons:32});desk.end(e());
+  assert.equal(desk.strokes.length,0);desk.undo();assert.equal(desk.strokes.length,1);desk.destroy();
+});

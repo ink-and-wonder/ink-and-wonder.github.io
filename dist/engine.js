@@ -11,135 +11,21 @@ export function circle(radius = 1, cx = 0, cy = 0, count = 96) {
     ),
   );
 }
+// Geometric study drawings checked against the manga's sigil/sign references.
+// Pressure, particles and recognition tolerances are game presentation, not lore.
 export function heart(element) {
-  if (element === "light") {
-    const a = [circle(0.21)];
-    for (let i = 0; i < 8; i++) {
-      const t = (i * Math.PI) / 4;
-      a.push(
-        path([
-          [Math.cos(t) * 0.3, Math.sin(t) * 0.3],
-          [Math.cos(t) * 0.43, Math.sin(t) * 0.43],
-        ]),
-      );
-    }
-    return a;
-  }
-  if (element === "water")
-    return [
-      path([
-        [0, -0.45],
-        [-0.18, -0.18],
-        [-0.24, 0.04],
-        [-0.22, 0.2],
-        [-0.12, 0.32],
-        [0, 0.36],
-        [0.15, 0.3],
-        [0.24, 0.17],
-        [0.23, 0],
-        [0.15, -0.2],
-        [0, -0.45],
-      ]),
-      path([
-        [-0.12, 0.1],
-        [-0.1, 0.2],
-        [0, 0.25],
-      ]),
-    ];
-  if (element === "wind")
-    return [
-      path([
-        [-0.4, -0.16],
-        [0.02, -0.16],
-        [0.19, -0.21],
-        [0.23, -0.31],
-        [0.17, -0.38],
-        [0.07, -0.34],
-      ]),
-      path([
-        [-0.44, 0],
-        [0.44, 0],
-      ]),
-      path([
-        [-0.32, 0.16],
-        [0.03, 0.16],
-        [0.21, 0.24],
-        [0.24, 0.34],
-        [0.17, 0.39],
-        [0.07, 0.34],
-      ]),
-    ];
-  return [
-    path([
-      [0, -0.46],
-      [-0.04, -0.18],
-      [-0.17, -0.28],
-      [-0.26, -0.05],
-      [-0.24, 0.17],
-      [-0.08, 0.33],
-      [0.1, 0.34],
-      [0.25, 0.17],
-      [0.25, -0.1],
-      [0.13, 0.02],
-      [0.07, -0.22],
-      [0, -0.46],
-    ]),
-    path([
-      [-0.04, 0.28],
-      [-0.1, 0.12],
-      [0, -0.05],
-      [0.1, 0.13],
-      [0.04, 0.31],
-    ]),
-  ];
+  if (element === "fire") return [path([[0,-.38],[-.34,.22],[.34,.22],[0,-.38]]),path([[-.21,-.02],[-.34,-.10]]),path([[.21,-.02],[.34,-.10]]),path([[0,.22],[0,.4]])];
+  if (element === "light") return [path([[-.27,-.27],[.27,-.27],[.27,.27],[-.27,.27],[-.27,-.27]]),path([[0,-.27],[.27,0],[0,.27],[-.27,0],[0,-.27]]),path([[-.43,0],[-.27,0]]),path([[.27,0],[.43,0]]),path([[0,-.43],[0,-.27]]),path([[0,.27],[0,.43]])];
+  if (element === "earth") return [path([[-.32,-.34],[.32,-.34]]),path([[0,-.34],[0,.29]]),path([[-.17,-.13],[-.32,.04],[0,.29],[.32,.04],[.17,-.13]]),path([[-.28,.4],[.28,.4]]),circle(.025,-.45,-.04,12),circle(.025,.45,-.04,12)];
+  if (element === "water") return [path([[.08,-.44],[-.03,-.42],[-.1,-.34],[-.13,-.22],[-.08,-.08],[.01,.08],[.08,.23],[.07,.33],[0,.42],[-.12,.44]]),path([[-.29,-.22],[-.36,.05],[-.35,.15],[-.28,.18],[-.22,.13],[-.23,.04],[-.29,-.22]]),path([[.29,.22],[.36,-.05],[.35,-.15],[.28,-.18],[.22,-.13],[.23,-.04],[.29,.22]])];
+  return [path([[.08,-.16],[.13,-.22],[.10,-.30],[.01,-.32],[-.08,-.26],[-.10,-.16],[-.07,-.06],[.05,.03],[.16,.13],[.18,.26],[.09,.38],[-.03,.4],[-.13,.33],[-.14,.22],[-.07,.16],[.02,.18],[.04,.24]]),path([[-.1,-.03],[-.17,-.13],[-.18,-.26],[-.09,-.38],[.03,-.4],[.13,-.33],[.14,-.22],[.07,-.16]]),path([[-.30,0],[-.52,0]]),path([[-.35,-.11],[-.43,-.19]]),path([[-.35,.11],[-.43,.19]]),path([[.30,0],[.52,0]]),path([[.35,-.11],[.43,-.19]]),path([[.35,.11],[.43,.19]])];
 }
 export function sign(modifier, angle) {
-  const source =
-    modifier === "flow"
-      ? [
-          path([
-            [-0.09, 0.8],
-            [0, 0.94],
-            [0.09, 0.8],
-          ]),
-          path([
-            [0, 0.94],
-            [0, 0.62],
-          ]),
-        ]
-      : modifier === "spread"
-        ? [
-            path([
-              [0, 0.63],
-              [0, 0.91],
-            ]),
-            path([
-              [0, 0.63],
-              [-0.13, 0.85],
-            ]),
-            path([
-              [0, 0.63],
-              [0.13, 0.85],
-            ]),
-          ]
-        : [
-            path([
-              [0, 0.63],
-              [-0.085, 0.76],
-              [0, 0.9],
-              [0.085, 0.76],
-              [0, 0.63],
-              [0, 0.54],
-            ]),
-          ];
-  return source.map((p) =>
-    p.map((q) =>
-      point(
-        q.x * Math.cos(angle) - q.y * Math.sin(angle),
-        q.x * Math.sin(angle) + q.y * Math.cos(angle),
-      ),
-    ),
-  );
+  const stem=path([[0,1],[0,.65]]);
+  const source = modifier === "flow" ? [path([[0,1],[0,.6]]),path([[-.1,.73],[0,.6],[.1,.73]]),path([[-.09,1],[.09,1]])] :
+    modifier === "spread" ? [stem,path([[-.12,.65],[.12,.65]]),path([[-.13,.56],[-.07,.51],[0,.49],[.07,.51],[.13,.56]])] :
+    [stem,path([[-.13,.65],[.13,.65]])];
+  return source.map(p=>p.map(q=>point(q.x*Math.cos(angle)-q.y*Math.sin(angle),q.x*Math.sin(angle)+q.y*Math.cos(angle))));
 }
 export function recipePaths(element, modifier = "focus", signs = 1) {
   const p = heart(element);
@@ -154,21 +40,25 @@ export function pagePaths(element, modifier, signs) {
   );
 }
 export function resample(paths, spacing = 5, max = 3500) {
+  // Sample by travelled distance rather than event count. Slow pen strokes must
+  // not outweigh fast ones, and a long scribble must not hide the closing ring.
+  const total = strokeLength(paths);
+  spacing = Math.max(spacing, total / Math.max(1, max - paths.length));
   const out = [];
   for (const p of paths) {
     if (!p?.length) continue;
     out.push(p[0]);
+    let remaining = spacing;
     for (let i = 1; i < p.length; i++) {
-      const a = p[i - 1],
-        b = p[i],
-        n = Math.max(1, Math.ceil(distance(a, b) / spacing));
-      for (let j = 1; j <= n; j++) {
-        out.push(
-          point(a.x + ((b.x - a.x) * j) / n, a.y + ((b.y - a.y) * j) / n),
-        );
-        if (out.length >= max) return out;
+      let a = p[i-1], b = p[i], length = distance(a,b);
+      while (length >= remaining && out.length < max) {
+        const t = remaining / length;
+        a = point(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t);
+        out.push(a); length = distance(a,b); remaining = spacing;
       }
+      remaining -= length;
     }
+    if (distance(out.at(-1),p.at(-1)) > spacing * 0.25) out.push(p.at(-1));
   }
   return out;
 }
@@ -207,10 +97,11 @@ function fitRing(p) {
     cy = (minY + maxY) / 2,
     r = (maxX - minX + (maxY - minY)) / 4;
   if (r < 35 || r > 425) return null;
+  const rx = (maxX-minX)/2, ry = (maxY-minY)/2;
   const closure = distance(p[0], p.at(-1)) / r;
   const deviation =
     sampled.reduce(
-      (n, q) => n + Math.abs(Math.hypot(q.x - cx, q.y - cy) - r) / r,
+      (n, q) => n + Math.abs(Math.hypot((q.x - cx) / rx, (q.y - cy) / ry) - 1),
       0,
     ) / sampled.length;
   const bins = new Set(
@@ -226,16 +117,61 @@ function fitRing(p) {
     closure > 0.24 ||
     deviation > 0.12 ||
     bins.size < 22 ||
-    ratio < 0.72 ||
-    ratio > 1.38
+    ratio < 0.65 ||
+    ratio > 1.55
   )
     return null;
   return {
     cx,
     cy,
-    r,
+    r, rx, ry,
     quality: Math.max(0, 1 - deviation * 3 - closure * 0.35),
   };
+}
+function ringCandidates(strokes) {
+  const candidates = strokes.map(fitRing).filter(Boolean);
+  const points = strokes.flat();
+  if (!points.length) return candidates;
+  const xs=points.map(p=>p.x), ys=points.map(p=>p.y);
+  const cx=(Math.min(...xs)+Math.max(...xs))/2, cy=(Math.min(...ys)+Math.max(...ys))/2;
+  const r=(Math.max(...xs)-Math.min(...xs)+Math.max(...ys)-Math.min(...ys))/4;
+  const arcs=strokes.filter(p=>p.length>2 && p.every(q=>Math.hypot(q.x-cx,q.y-cy)>r*0.72));
+  const unused=new Set(arcs);
+  for (const arc of arcs) {
+    if (!unused.delete(arc)) continue;
+    let joined=[...arc];
+    while (unused.size) {
+      let nearestArc=null, reverse=false, gap=Infinity;
+      for (const next of unused) for (const rev of [false,true]) {
+        const d=distance(joined.at(-1),rev?next.at(-1):next[0]);
+        if(d<gap){gap=d;nearestArc=next;reverse=rev;}
+      }
+      if(gap>r*0.16) break;
+      unused.delete(nearestArc);
+      joined.push(...(reverse?[...nearestArc].reverse():nearestArc));
+    }
+    const fit=fitRing(joined); if(fit) candidates.push(fit);
+  }
+  return candidates.sort((a,b)=>b.r-a.r);
+}
+function fitCore(actual, element) {
+  const expected=resample(heart(element),0.035);
+  const bounds=pts=>{
+    const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+    return {x:(Math.min(...xs)+Math.max(...xs))/2,y:(Math.min(...ys)+Math.max(...ys))/2,
+      size:Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))};
+  };
+  const a=bounds(actual), b=bounds(expected);
+  if(a.size<0.15 || a.size>1.4) return {score:0,rotation:0};
+  let best={score:0,rotation:0};
+  for(let i=0;i<24;i++) {
+    const rotation=i*Math.PI/12, co=Math.cos(rotation),si=Math.sin(rotation);
+    const aligned=actual.map(p=>{const x=(p.x-a.x)*b.size/a.size,y=(p.y-a.y)*b.size/a.size;
+      return point(x*co-y*si+b.x,x*si+y*co+b.y);});
+    const score=similarity(aligned,expected,0.14);
+    if(score>best.score) best={score,rotation};
+  }
+  return best;
 }
 export function recognize(strokes) {
   const all = resample(strokes, 5);
@@ -245,19 +181,16 @@ export function recognize(strokes) {
       reason:
         "Begin with a central sigil. Add signs around it, then close an enclosing ring.",
     };
-  const rings = strokes
-    .map(fitRing)
-    .filter(Boolean)
-    .sort((a, b) => b.r - a.r);
+  const rings = ringCandidates(strokes);
   if (!rings.length)
     return {
       ok: false,
       reason:
-        "The seal needs a closed ring. Draw one continuous circle around the sigil and signs.",
+        "The enclosing ring is open or too uneven. Join its endpoints; you may use several connected strokes. Keep the sigil and signs inside.",
     };
   const ring = rings[0],
     normalized = all.map((q) =>
-      point((q.x - ring.cx) / ring.r, (q.y - ring.cy) / ring.r),
+      point((q.x - ring.cx) / ring.rx, (q.y - ring.cy) / ring.ry),
     );
   const outside =
     normalized.filter((q) => Math.hypot(q.x, q.y) > 1.17).length /
@@ -268,30 +201,33 @@ export function recognize(strokes) {
       reason:
         "Some ink lies outside the seal. Erase stray strokes or draw a larger enclosing ring.",
     };
-  const core = normalized.filter((q) => Math.hypot(q.x, q.y) < 0.5);
+  const normalizedPaths = strokes.map(s=>s.map(q=>point((q.x-ring.cx)/ring.rx,(q.y-ring.cy)/ring.ry)));
+  const innerPaths = normalizedPaths.filter(s=>s.length && Math.max(...s.map(q=>Math.hypot(q.x,q.y)))<0.7 &&
+      s.reduce((n,q)=>n+Math.hypot(q.x,q.y),0)/s.length<0.52);
+  const core = resample(innerPaths,0.025);
   if (core.length < 8)
     return {
       ok: false,
       reason:
         "The ring is ready, but its heart is empty. Draw an elemental sigil inside it.",
     };
-  const matches = ["light", "water", "wind", "fire"]
+  const matches = ["light", "water", "wind", "fire", "earth"]
       .map((element) => ({
         element,
-        score: similarity(core, resample(heart(element), 0.035), 0.15),
+        ...fitCore(core, element),
       }))
       .sort((a, b) => b.score - a.score),
     best = matches[0];
-  if (best.score < 0.43 || best.score - matches[1].score < 0.018)
+  if (best.score < 0.67 || best.score - matches[1].score < 0.018)
     return {
       ok: false,
       reason:
         "The heart is not clear yet. Keep the sigil near the center, about half the width of your ring. Open the field guide for its shape.",
       candidates: matches,
     };
-  const annulus = normalized.filter((q) => {
+  const annulus = resample(normalizedPaths.filter(p=>!innerPaths.includes(p)),0.025).filter((q) => {
       const r = Math.hypot(q.x, q.y);
-      return r >= 0.52 && r < 0.95;
+      return r >= 0.42 && r < 0.95;
     }),
     signs = [];
   const candidates = [];
@@ -311,10 +247,12 @@ export function recognize(strokes) {
     const scores = ["focus", "flow", "spread"]
       .map((modifier) => ({
         modifier,
-        score: similarity(rotated, resample(sign(modifier, 0), 0.025), 0.095),
+        score: Math.max(...[0.85,1,1.15].map(scale=> similarity(
+          rotated.map(p=>point(p.x/scale,(p.y-0.78)/scale+0.78)),
+          resample(sign(modifier, 0), 0.025).filter(p=>Math.hypot(p.x,p.y)<0.95), 0.08))),
       }))
       .sort((a, b) => b.score - a.score);
-    if (scores[0].score > 0.43) candidates.push({ ...scores[0], angle });
+    if (scores[0].score > 0.49) candidates.push({ ...scores[0], angle, length: Math.max(...sector.map(p=>Math.hypot(p.x,p.y))) - Math.min(...sector.map(p=>Math.hypot(p.x,p.y))) });
   }
   candidates.sort((a, b) => b.score - a.score);
   for (const candidate of candidates) {
@@ -341,13 +279,20 @@ export function recognize(strokes) {
       Math.min(100, (best.score * 0.7 + ring.quality * 0.3) * 100),
     ),
     count = signs.length;
+  const signWeight=signs.reduce((n,s)=>n+s.length,0);
+  const direction=signs.reduce((v,s)=>({x:v.x+Math.sin(s.angle)*s.length,y:v.y-Math.cos(s.angle)*s.length}),{x:0,y:0});
+  if(signWeight){direction.x/=signWeight;direction.y/=signWeight;}
   return {
     ok: true,
     element: best.element,
     modifier: count ? dominant.modifier : "focus",
     signs: count,
     quality,
-    power: Math.min(1, 0.32 + count * 0.14 + quality * 0.003),
+    power: Math.min(1, 0.15 + Math.max(...core.map(p=>Math.hypot(p.x,p.y))) * 0.9 + count * 0.06 + signWeight * 0.09),
+    direction,
+    balance: 1-Math.min(1,Math.hypot(direction.x,direction.y)),
+    composition: [...new Set(signs.map(s=>s.modifier))],
+    sigilScale: Math.max(...core.map(p=>Math.hypot(p.x,p.y))),
     ring: { x: ring.cx, y: ring.cy, r: ring.r },
     heartQuality: best.score,
     components: signs,
@@ -364,7 +309,7 @@ export function checkObjective(result, requirement) {
   if (result.signs < requirement.signs)
     return {
       ok: false,
-      reason: `Your spell is alive, but needs ${requirement.signs} ${requirement.modifier === "focus" ? "gathering" : requirement.modifier === "flow" ? "lifting" : "scattering"} sign${requirement.signs > 1 ? "s" : ""}. You have ${result.signs}.`,
+      reason: `Your spell is alive, but needs ${requirement.signs} ${requirement.modifier === "focus" ? "Columns" : requirement.modifier === "flow" ? "Levitation" : "Dispersion"} sign${requirement.signs > 1 ? "s" : ""}. You have ${result.signs}.`,
     };
   const matching = result.components.filter(
     (s) => s.modifier === requirement.modifier,
@@ -372,7 +317,7 @@ export function checkObjective(result, requirement) {
   if (matching < requirement.signs)
     return {
       ok: false,
-      reason: `The element is right. Use ${requirement.modifier === "focus" ? "diamond gathering" : requirement.modifier === "flow" ? "outward lifting-arrow" : "branching scattering"} signs to give it the needed direction.`,
+      reason: `The element is right. Use ${requirement.modifier === "focus" ? "T-shaped Columns" : requirement.modifier === "flow" ? "inward Levitation" : "curved Dispersion"} signs to give it the needed direction.`,
     };
   return { ok: true };
 }

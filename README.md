@@ -74,3 +74,14 @@ Workflow reference: [GitHub’s custom Pages workflow documentation](https://doc
 This is an unofficial fan game, not an official adaptation. Story dialogue, Bellweather, the observatory, directional exercises, and practice seals are original game adaptations. The source concept of casting seals drawn with special tools is described on the [official anime website](https://tongari-anime.com/en/).
 
 Original environments were created using built-in image generation. Full prompts and asset locations are recorded in [ART.md](ART.md). The bundled Cormorant Garamond and DM Sans fonts include their OFL license files in `dist/assets/fonts`.
+
+
+## Spell studies (2.2)
+
+The drawing vocabulary now uses geometric study redraws of Fire, Water, Earth, Wind and Light, with Columns, Levitation and Dispersion. The former sun/droplet/flame icons and invented gathering diamond are retired. Existing saved sketches remain viewable. The campaign is still an original fan story, not a manga retelling.
+
+Reference checks: *Witch Hat Atelier* chapter 5 opening page (primary tetrad), chapter 3 page 10 (light), volume 1 extra “Introduction to Casting Seals” (seal components and signs), and chapter 46 pages 9–10 (proportions). Visual references were inspected through the [Independent Wiki sigil index](https://witchhatatelier.telepedia.net/wiki/Sigils_Explained) and [sign index](https://witchhatatelier.telepedia.net/wiki/Signs_Explained), which cite manga chapters. Unknown properties are not treated as established rules. These redraws are not scans, official assets, or a claim to reproduce the complete system.
+
+The studio interprets mixed signs and sigil proportions, accepts connected ring arcs and modest ovals, and rejects unrecognized sketches without preventing their storage. Multiple elemental sigils in one ring, nested seals, conditional spells, decorative sigils, and the remaining manga vocabulary are not simulated. Particle motion and numerical intensity are game approximations.
+
+Background music is an original procedural pentatonic composition, generated locally with Web Audio after a user gesture. It pauses on hidden tabs and can be disabled independently of spell sounds. Drawing stores original pressure samples while rendering quadratic joins; coalesced samples, final pen-up points and hardware erasers are supported.

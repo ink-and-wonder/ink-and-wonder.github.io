@@ -63,6 +63,7 @@ export class WorldEffects {
         water: "#a0e6f0",
         wind: "#cbe2bf",
         fire: "#ffc08b",
+        earth: "#d8bc86",
       },
       range = result.modifier === "spread" ? 0.65 : 0.2;
     for (
@@ -73,14 +74,14 @@ export class WorldEffects {
       this.particles.push({
         x: 0.48 + (Math.random() - 0.5) * range,
         y: 0.6 + (Math.random() - 0.5) * 0.25,
-        vx: (Math.random() - 0.5) * 0.0015,
-        vy: -0.0005 - Math.random() * 0.0015,
+        vx: (Math.random() - 0.5) * 0.0015 + (result.direction?.x || 0) * 0.002 * result.power,
+        vy: -0.0005 - Math.random() * 0.0015 + (result.direction?.y || 0) * 0.001 * result.power,
         life: 1,
         age: 0,
         size: 1 + Math.random() * 3,
         color: colors[result.element],
         kind: result.element,
-        modifier: result.modifier,
+        modifier: result.components?.length ? result.components[i % result.components.length].modifier : result.modifier,
       });
     this.color = colors[result.element];
     this.pulse = 1;

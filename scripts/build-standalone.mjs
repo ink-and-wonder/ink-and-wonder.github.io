@@ -9,6 +9,7 @@ const root = new URL("../dist/", import.meta.url),
     "cloud-config.js",
     "cloud.js",
     "drawing.js",
+    "music.js",
     "world.js",
     "game.js",
   ];

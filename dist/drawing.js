@@ -3,6 +3,10 @@ export class DrawingDesk {
   constructor(canvas, { settings, onChange, onFinish }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.ink = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(1,1) :
+      typeof document !== "undefined" ? document.createElement("canvas") : null;
+    this.inkContext = this.ink?.getContext("2d");
+    this.inkDirty = true;
     this.settings = settings;
     this.onChange = onChange;
     this.onFinish = onFinish;
@@ -41,6 +45,11 @@ export class DrawingDesk {
       0,
       0,
     );
+    if (this.ink) {
+      this.ink.width=this.canvas.width;this.ink.height=this.canvas.height;
+      this.inkContext.setTransform(this.canvas.width/600,0,0,this.canvas.height/600,0,0);
+      this.inkDirty=true;
+    }
     this.paint();
   }
   setGuide(recipe) {
@@ -62,12 +71,13 @@ export class DrawingDesk {
     };
   }
   remember() {
+    this.inkDirty=true;
     this.history.push(structuredClone(this.strokes));
     if (this.history.length > 35) this.history.shift();
     this.future = [];
   }
   down(e) {
-    if (e.button > 0) return;
+    if (e.button > 0 && !(e.pointerType === "pen" && e.button === 5)) return;
     if (e.pointerType === "pen") {
       this.lastPen = performance.now();
       if (this.pointer !== null && this.pointerType === "touch") {
@@ -93,7 +103,7 @@ export class DrawingDesk {
     this.canvas.setPointerCapture(e.pointerId);
     this.remember();
     const p = this.position(e);
-    if (this.tool === "erase") {
+    if (this.tool === "erase" || (e.pointerType === "pen" && (e.button === 5 || (e.buttons & 32)))) {
       this.erasing = true;
       this.erase(p);
     } else {
@@ -117,13 +127,14 @@ export class DrawingDesk {
       if (
         this.active &&
         this.active.length < 5000 &&
-        distance(p, this.active.at(-1)) > 0.65
+        distance(p, this.active.at(-1)) > 0.25
       )
         this.active.push(p);
     }
     this.requestPaint();
   }
   erase(p) {
+    this.inkDirty=true;
     this.strokes = this.strokes.filter(
       (stroke) =>
         !stroke.some((q, i) => {
@@ -146,7 +157,13 @@ export class DrawingDesk {
     this.requestPaint();
   }
   end(e, cancel = false) {
+    this.inkDirty=true;
     if (this.pointer !== e.pointerId) return;
+    // Pointer-up often contains a final sample absent from pointermove.
+    if (!cancel && e.type === "pointerup" && this.active && this.active.length < 5000) {
+      const tip = this.position(e);
+      if (distance(tip, this.active.at(-1)) > 0.25) this.active.push(tip);
+    }
     const finished = this.active;
     this.pointer = null;
     if (cancel) {
@@ -159,6 +176,7 @@ export class DrawingDesk {
     if (!cancel && finished) this.onFinish(finished);
   }
   undo() {
+    this.inkDirty=true;
     if (!this.history.length) return;
     this.future.push(structuredClone(this.strokes));
     this.strokes = this.history.pop();
@@ -167,6 +185,7 @@ export class DrawingDesk {
     this.onChange();
   }
   redo() {
+    this.inkDirty=true;
     if (!this.future.length) return;
     this.history.push(structuredClone(this.strokes));
     this.strokes = this.future.pop();
@@ -174,6 +193,7 @@ export class DrawingDesk {
     this.onChange();
   }
   clear() {
+    this.inkDirty=true;
     if (this.active) return;
     this.remember();
     this.strokes = [];
@@ -181,6 +201,7 @@ export class DrawingDesk {
     this.onChange();
   }
   load(strokes) {
+    this.inkDirty=true;
     this.remember();
     this.strokes = structuredClone(strokes);
     this.active = null;
@@ -216,21 +237,37 @@ export class DrawingDesk {
         559,
       );
     }
+    if (this.inkContext) {
+      if (this.inkDirty) {
+        this.inkContext.clearRect(0,0,600,600);
+        this.renderStrokes(this.inkContext,this.strokes);
+        this.inkDirty=false;
+      }
+      c.drawImage(this.ink,0,0,600,600);
+    } else this.renderStrokes(c,this.strokes);
+    if (this.active) this.renderStrokes(c,[this.active]);
+  }
+  renderStrokes(c,strokes) {
     c.lineCap = "round";
     c.lineJoin = "round";
     c.strokeStyle = "#263b35";
     c.fillStyle = "#263b35";
-    for (const p of [...this.strokes, ...(this.active ? [this.active] : [])]) {
+    for (const p of strokes) {
       if (p.length === 1) {
         c.beginPath();
         c.arc(p[0].x, p[0].y, 1.4, 0, Math.PI * 2);
         c.fill();
       }
+      // Midpoint quadratic joins keep corners responsive and curves continuous.
+      // The stored samples stay untouched for recognition and undo.
       for (let i = 1; i < p.length; i++) {
-        c.lineWidth = 1.2 + (p[i].p ?? 0.5) * 3;
+        const before = p[i - 1], tip = p[i], next = p[i + 1];
+        const start = i === 1 ? before : {x:(p[i-2].x+before.x)/2,y:(p[i-2].y+before.y)/2};
+        const end = next ? {x:(before.x+tip.x)/2,y:(before.y+tip.y)/2} : tip;
+        c.lineWidth = 1.25 + ((before.p ?? 0.5) * 0.5 + (tip.p ?? 0.5) * 0.5) * 2.6;
         c.beginPath();
-        c.moveTo(p[i - 1].x, p[i - 1].y);
-        c.lineTo(p[i].x, p[i].y);
+        c.moveTo(start.x, start.y);
+        c.quadraticCurveTo(before.x, before.y, end.x, end.y);
         c.stroke();
       }
     }
@@ -243,15 +280,7 @@ export class DrawingDesk {
     c.fillStyle = "#f4f0e2";
     c.fillRect(0, 0, 1200, 1200);
     c.scale(2, 2);
-    c.strokeStyle = "#263b35";
-    c.lineCap = "round";
-    c.lineJoin = "round";
-    for (const p of this.strokes) {
-      c.beginPath();
-      c.lineWidth = 2.3;
-      p.forEach((q, i) => (i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)));
-      c.stroke();
-    }
+    this.renderStrokes(c,this.strokes);
     c.fillStyle = "#8a856c";
     c.font = "12px Georgia";
     c.textAlign = "center";

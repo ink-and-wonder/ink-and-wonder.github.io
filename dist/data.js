@@ -4,42 +4,43 @@ export const ELEMENTS = {
     color: "#f5d98b",
     glyph: "☼",
     description:
-      "A clear circle with eight rays. The language of illumination.",
+      "A square and inner diamond with four short extensions. A light-producing variant within fire magic.",
   },
   water: {
     name: "Water",
     color: "#8bd8e7",
     glyph: "♧",
-    description: "A single falling droplet. The language of water and rain.",
+    description: "A flowing central curve between two opposing droplets. Water is created or manipulated.",
   },
   wind: {
     name: "Wind",
     color: "#b6d4b0",
     glyph: "≋",
-    description: "Three moving currents. The language of air and motion.",
+    description: "Opposing curls with side marks. Moves existing air.",
   },
   fire: {
-    name: "Warmth",
+    name: "Fire",
     color: "#efa97a",
     glyph: "♨",
-    description: "A flame with a smaller flame inside. The language of heat.",
+    description: "A triangle with three short extensions. Creates flame or heat.",
   },
 };
+ELEMENTS.earth = {name:"Earth",color:"#d8bc86",glyph:"◇",description:"A barred vertical stroke, angular bowl, and two dots. Works on existing solid material."};
 export const MODIFIERS = {
   focus: {
-    name: "Gather",
-    label: "A diamond on a stem",
-    description: "Diamond signs gather an element into one place.",
+    name: "Columns",
+    label: "A T-shaped sign",
+    description: "Directs an effect along a column. Its length changes its strength.",
   },
   flow: {
-    name: "Lift",
-    label: "An outward arrow",
-    description: "Outward-pointing arrows send an element into motion.",
+    name: "Levitation",
+    label: "An inward arrow with a base",
+    description: "Balanced levitation signs suspend the affected object.",
   },
   spread: {
-    name: "Scatter",
-    label: "Three branching lines",
-    description: "A branching fan lets an element spread across an area.",
+    name: "Dispersion",
+    label: "A T with a curved cap",
+    description: "Lets an effect spread outward rather than remain in a narrow column.",
   },
 };
 export const CHAPTERS = [
@@ -85,7 +86,7 @@ export const MISSIONS = [
     steps: [s("light")],
     before: {
       speaker: "Qifrey",
-      text: "There is no need to hurry. A spell begins with an intention. Draw the light sigil, give it a gathering sign, then close the ring. The last line is the one that wakes it.",
+      text: "There is no need to hurry. A spell begins with an intention. Draw the light sigil, add a Columns sign, then close the ring. The last line is the one that wakes it.",
     },
     after:
       "A quiet glow spills across the page. The letters you could barely see become a whole new world.",
@@ -140,7 +141,7 @@ export const MISSIONS = [
     steps: [s("fire", "focus", 2)],
     before: {
       speaker: "Qifrey",
-      text: "Heat calls for care. Give it two gathering signs and keep your lines steady. We are making tea, after all, not a bonfire.",
+      text: "Heat calls for care. Give it two Columns signs and keep your lines steady. We are making tea, after all, not a bonfire.",
     },
     after:
       "A curl of steam rises. Outside, the day is beginning. Inside, there is just enough time for tea.",
