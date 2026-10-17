@@ -1,5 +1,5 @@
-import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.1";
-import { compileSpell, compositionPaths } from "./compiler.js?v=3.1.1";
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.2";
+import { compileSpell, compositionPaths } from "./compiler.js?v=3.1.2";
 import {
   ELEMENTS,
   MODIFIERS,
@@ -7,7 +7,7 @@ import {
   MISSIONS,
   OBJECT_NAMES,
   RANKS,
-} from "./data.js?v=3.1.1";
+} from "./data.js?v=3.1.2";
 import {
   recognize,
   checkObjective,
@@ -16,7 +16,7 @@ import {
   recipePaths,
   distance,
   validateDrawing,
-} from "./engine.js?v=3.1.1";
+} from "./engine.js?v=3.1.2";
 import {
   SAVE_KEY,
   freshSave,
@@ -25,12 +25,12 @@ import {
   nextMission,
   insight,
   completeMission,
-} from "./state.js?v=3.1.1";
-import { AtelierMusic } from "./music.js?v=3.1.1";
-import { DrawingDesk } from "./drawing.js?v=3.1.1";
-import { objectArt, WorldEffects, spellArt } from "./world.js?v=3.1.1";
-import { CLOUD_CONFIG } from "./cloud-config.js?v=3.1.1";
-import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.1.1";
+} from "./state.js?v=3.1.2";
+import { AtelierMusic } from "./music.js?v=3.1.2";
+import { DrawingDesk } from "./drawing.js?v=3.1.2";
+import { objectArt, WorldEffects, spellArt } from "./world.js?v=3.1.2";
+import { CLOUD_CONFIG } from "./cloud-config.js?v=3.1.2";
+import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.1.2";
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;

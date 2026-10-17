@@ -1,4 +1,4 @@
-import { SIGILS, SIGNS } from "./vocabulary.js?v=3.1.1";
+import { SIGILS, SIGNS } from "./vocabulary.js?v=3.1.2";
 /* Local geometric recognition. The ring defines a coordinate system, so seals
    may be drawn anywhere on the page and at any useful size. */
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -87,6 +87,8 @@ function similarity(actual, expected, tolerance = 0.11) {
     ) / expected.length;
   return 0.43 * a + 0.57 * b;
 }
+// Roughly one ink-width of contact, in the 600-unit drawing coordinate system.
+const ringContact = radius => Math.min(2.5, Math.max(1, radius * .009));
 export function fitRing(p) {
   if (p.length < 12) return null;
   const sampled = resample([p], 5, 1200),
@@ -102,6 +104,12 @@ export function fitRing(p) {
   if (r < 35 || r > 425) return null;
   const rx = (maxX-minX)/2, ry = (maxY-minY)/2;
   const closure = distance(p[0], p.at(-1)) / r;
+  let turn=0,closed=false;
+  for(let i=1;i<p.length;i++){
+    const previous=Math.atan2(p[i-1].y-cy,p[i-1].x-cx),angle=Math.atan2(p[i].y-cy,p[i].x-cx);
+    turn+=Math.atan2(Math.sin(angle-previous),Math.cos(angle-previous));
+    if(Math.abs(turn)>=Math.PI*2-.04 && distance(p[0],p[i])<=ringContact(r)){closed=true;break;}
+  }
   const deviation =
     sampled.reduce(
       (n, q) => n + Math.abs(Math.hypot((q.x - cx) / rx, (q.y - cy) / ry) - 1),
@@ -117,7 +125,7 @@ export function fitRing(p) {
   );
   const ratio = (maxX - minX) / (maxY - minY);
   if (
-    closure > 0.24 ||
+    !closed ||
     deviation > 0.12 ||
     bins.size < 22 ||
     ratio < 0.65 ||
@@ -149,7 +157,7 @@ export function ringCandidates(strokes) {
         const d=distance(joined.at(-1),rev?next.at(-1):next[0]);
         if(d<gap){gap=d;nearestArc=next;reverse=rev;}
       }
-      if(gap>r*0.16) break;
+      if(gap>ringContact(r)) break;
       unused.delete(nearestArc);
       joinedStrokes.push(nearestArc);
       joined.push(...(reverse?[...nearestArc].reverse():nearestArc));

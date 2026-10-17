@@ -1,6 +1,6 @@
 const PREFIX =
   "ink-wonder-" + encodeURIComponent(self.registration.scope) + "-";
-const CACHE = PREFIX + "v3.1.1";
+const CACHE = PREFIX + "v3.1.2";
 const FILES = [
   "./",
   "index.html",
@@ -27,7 +27,7 @@ const FILES = [
   "assets/forest.webp",
   "assets/fonts/fonts.css",
   ...Array.from({ length: 9 }, (_, i) => `assets/fonts/font-${i}.ttf`),
-].flatMap(file => file.endsWith(".js") || file === "style.css" ? [file, file + "?v=3.1.1"] : [file]);
+].flatMap(file => file.endsWith(".js") || file === "style.css" ? [file, file + "?v=3.1.2"] : [file]);
 const URLS = new Set(
   FILES.map((file) => new URL(file, self.registration.scope).href),
 );

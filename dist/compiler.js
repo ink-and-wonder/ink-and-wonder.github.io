@@ -1,5 +1,5 @@
-import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.1";
-import { resample, distance, ringCandidates, fitRing, heart, sign, circle, recognize, validateDrawing } from "./engine.js?v=3.1.1";
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.2";
+import { resample, distance, ringCandidates, fitRing, heart, sign, circle, recognize, validateDrawing } from "./engine.js?v=3.1.2";
 const designed=CATALOGUE.filter(g=>g.paths.length), templateCache=new Map();
 const bounds=paths=>{
  const p=paths.flat();if(!p.length)return null;
@@ -87,7 +87,7 @@ function uniqueRings(strokes){
 }
 export function compileSpell(strokes,{interpretations=false}={}){
  if(!validateDrawing(strokes))return {ok:false,reason:'This page has too many strokes. Start another grimoire page.'};
- const rings=uniqueRings(strokes);if(!rings.length)return {ok:false,reason:'Finish an enclosing ring before awakening this composition.'};
+ const rings=uniqueRings(strokes);if(!rings.length)return {ok:false,reason:'Finish an enclosing ring. Its ends must touch.'};
  let budget=16;
  function layer(r,depth=0){
   if(depth>7||--budget<0)return null;
