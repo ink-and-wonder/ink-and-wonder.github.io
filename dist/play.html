@@ -1,0 +1,2969 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#142b29" />
+    <meta
+      name="description"
+      content="An illustrated spell-drawing adventure. Learn the language of magic and restore a forgotten observatory."
+    />
+    <title>Ink & Wonder — A Witch’s Atelier</title>
+    <link rel="icon" href="assets/icon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <symbol id="i-quill" viewBox="0 0 24 24">
+          <path
+            d="M4 21 17 8M6 18C5 8 13 2 22 2c0 9-6 17-16 16Zm6-6 6 1M11 13l-1-5"
+          />
+        </symbol>
+        <symbol id="i-map" viewBox="0 0 24 24">
+          <path d="m3 5 6-2 6 3 6-2v16l-6 2-6-3-6 2Zm6-2v16m6-13v16" />
+        </symbol>
+        <symbol id="i-book" viewBox="0 0 24 24">
+          <path
+            d="M12 5C8 2 5 3 2 4v16c4-2 7-1 10 1 3-2 6-3 10-1V4c-3-1-6-2-10 1Zm0 0v16M5 8h4m-4 4h4m6-4h4m-4 4h4"
+          />
+        </symbol>
+        <symbol id="i-spark" viewBox="0 0 24 24">
+          <path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" />
+        </symbol>
+        <symbol id="i-settings" viewBox="0 0 24 24">
+          <path d="M4 7h16M4 17h16" />
+          <circle cx="8" cy="7" r="3" />
+          <circle cx="16" cy="17" r="3" />
+        </symbol>
+        <symbol id="i-undo" viewBox="0 0 24 24">
+          <path d="m8 4-5 5 5 5M3 9h10a7 7 0 0 1 0 14" />
+        </symbol>
+        <symbol id="i-eraser" viewBox="0 0 24 24">
+          <path d="m3 15 11-12 8 8-10 11H9Zm5-5 9 9M12 22h10" />
+        </symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24">
+          <path d="M3 6h18M9 6V3h6v3M5 6l1 16h12l1-16M10 10v8m4-8v8" />
+        </symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24">
+          <path d="M3 12h18m-7-7 7 7-7 7" />
+        </symbol>
+      </defs>
+    </svg>
+    <section id="titleScreen" class="title-screen">
+      <div class="title-vignette"></div>
+      <a class="corner-mark" href="play.html"
+        ><svg><use href="#i-spark" /></svg> AN ATELIER STORY</a
+      >
+      <div class="title-copy">
+        <span class="overline">SOME WONDERS ARE MADE BY HAND</span>
+        <h1>Ink <i>&</i><br />Wonder<span>A WITCH’S ATELIER</span></h1>
+        <p>
+          Every line holds a possibility.<br />Every journey begins with a
+          little ink.
+        </p>
+        <div class="title-actions">
+          <button id="continueGame" class="button gold">
+            Begin your story <svg><use href="#i-arrow" /></svg></button
+          ><button id="titleWorkshop" class="button glass">
+            <svg><use href="#i-quill" /></svg> Free drawing studio
+          </button>
+        </div>
+        <div class="title-meta">
+          <button id="titleAccount" class="title-account" data-account="open">
+            Sign in · keep your story with you <span>↗</span>
+          </button>
+          <span>✦ A STORY IN THREE CHAPTERS</span
+          ><span>DESIGNED FOR PEN & TABLET</span>
+        </div>
+      </div>
+      <div class="title-bottom">
+        <span>AN UNOFFICIAL WITCH HAT ATELIER FAN ADVENTURE</span
+        ><button id="titleSettings">Settings & accessibility</button
+        ><span>ORIGINAL ART · ORIGINAL SPELL EXERCISES</span>
+      </div>
+    </section>
+    <section id="gameScreen" class="game-screen hidden">
+      <header class="game-header">
+        <button id="home" class="wordmark" aria-label="Return to title">
+          Ink <i>&</i> Wonder <span>A WITCH’S ATELIER</span>
+        </button>
+        <nav aria-label="Game navigation">
+          <button data-page="journey" class="active">
+            <svg><use href="#i-map" /></svg><span>Journey</span></button
+          ><button data-page="studio">
+            <svg><use href="#i-quill" /></svg><span>Free drawing</span></button
+          ><button data-page="grimoire">
+            <svg><use href="#i-book" /></svg><span>Grimoire</span>
+          </button>
+        </nav>
+        <div class="player-chip">
+          <span class="player-seal">✧</span>
+          <div id="playerRank">
+            New apprentice<small id="xpLabel">0 insight</small>
+          </div>
+        </div>
+        <button
+          id="accountButton"
+          class="account-button"
+          data-account="open"
+          aria-label="Sign in or manage your account"
+        >
+          <span class="account-avatar">◈</span
+          ><span id="accountLabel">Sign in<small>Cloud saves</small></span>
+        </button>
+        <button id="settings" class="icon-button" aria-label="Settings">
+          <svg><use href="#i-settings" /></svg>
+        </button>
+      </header>
+      <main id="page"></main>
+      <footer class="game-footer">
+        <span id="saveStatus">Progress saved on this device</span
+        ><span>Draw slowly. Wonder is worth the time.</span
+        ><button id="help">Field guide <span>?</span></button>
+      </footer>
+    </section>
+    <dialog id="dialog">
+      <button id="closeDialog" class="dialog-close" aria-label="Close dialog">
+        ×
+      </button>
+      <div id="dialogBody"></div>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <input type="file" id="saveImport" accept="application/json,.json" hidden />
+    <script>
+(()=>{
+/* data.js */
+const ELEMENTS = {
+  light: {
+    name: "Light",
+    color: "#f5d98b",
+    glyph: "☼",
+    description:
+      "A clear circle with eight rays. The language of illumination.",
+  },
+  water: {
+    name: "Water",
+    color: "#8bd8e7",
+    glyph: "♧",
+    description: "A single falling droplet. The language of water and rain.",
+  },
+  wind: {
+    name: "Wind",
+    color: "#b6d4b0",
+    glyph: "≋",
+    description: "Three moving currents. The language of air and motion.",
+  },
+  fire: {
+    name: "Warmth",
+    color: "#efa97a",
+    glyph: "♨",
+    description: "A flame with a smaller flame inside. The language of heat.",
+  },
+};
+const MODIFIERS = {
+  focus: {
+    name: "Gather",
+    label: "A diamond on a stem",
+    description: "Diamond signs gather an element into one place.",
+  },
+  flow: {
+    name: "Lift",
+    label: "An outward arrow",
+    description: "Outward-pointing arrows send an element into motion.",
+  },
+  spread: {
+    name: "Scatter",
+    label: "Three branching lines",
+    description: "A branching fan lets an element spread across an area.",
+  },
+};
+const CHAPTERS = [
+  {
+    name: "The first line",
+    subtitle: "CHAPTER I",
+    place: "Qifrey’s atelier",
+    art: "atelier",
+    description:
+      "An invitation, a blank page, and the four things every apprentice learns to see.",
+  },
+  {
+    name: "Beyond the doorstep",
+    subtitle: "CHAPTER II",
+    place: "Bellweather village",
+    art: "village",
+    description:
+      "Magic finds its purpose in the small things people need. Follow the road to Bellweather.",
+  },
+  {
+    name: "The forgotten sky",
+    subtitle: "CHAPTER III",
+    place: "The starfall observatory",
+    art: "forest",
+    description:
+      "Four empty braziers. An unfinished promise. A sky waiting to be remembered.",
+  },
+];
+const s = (element, modifier = "focus", signs = 1) => ({
+  element,
+  modifier,
+  signs,
+});
+const MISSIONS = [
+  {
+    id: "first-light",
+    title: "A light in the quiet",
+    chapter: 0,
+    location: "The writing desk",
+    object: "lantern",
+    brief:
+      "Dusk is settling over the atelier. Give the reading lantern its first light.",
+    steps: [s("light")],
+    before: {
+      speaker: "Qifrey",
+      text: "There is no need to hurry. A spell begins with an intention. Draw the light sigil, give it a gathering sign, then close the ring. The last line is the one that wakes it.",
+    },
+    after:
+      "A quiet glow spills across the page. The letters you could barely see become a whole new world.",
+    reward: "Lantern keeper",
+    memory:
+      "The first light you made was small enough to fit in your hands. It was still magic.",
+  },
+  {
+    id: "morning-dew",
+    title: "A cup of morning dew",
+    chapter: 0,
+    location: "The windowsill",
+    object: "plant",
+    brief:
+      "The little silverleaf plant has begun to droop. Gather water at its roots.",
+    steps: [s("water")],
+    before: {
+      speaker: "Qifrey",
+      text: "Look closely at a raindrop. A line can remember its shape. This time, make water and bring it gently to the roots.",
+    },
+    after:
+      "Silverleaf uncurls, one leaf at a time. A single drop hangs from its tip like a tiny glass world.",
+    reward: "Silverleaf sprig",
+    memory:
+      "Water never keeps a shape for long. Your ink gave it a moment of purpose.",
+  },
+  {
+    id: "paper-wings",
+    title: "Paper wings",
+    chapter: 0,
+    location: "The open window",
+    object: "paper",
+    brief: "Give the folded paper bird a current of air and an outward sign.",
+    steps: [s("wind", "flow")],
+    before: {
+      speaker: "Qifrey",
+      text: "The heart tells your spell what to make. The surrounding signs tell it how to behave. Try the lifting sign. Let the air travel outward.",
+    },
+    after:
+      "The little bird rises, catches the breeze, and circles back to land by your pen.",
+    reward: "Paper swallow",
+    memory: "For a breath, a folded page remembered what it meant to fly.",
+  },
+  {
+    id: "tea-for-two",
+    title: "Tea for two",
+    chapter: 0,
+    location: "The hearth",
+    object: "kettle",
+    brief:
+      "The kettle has gone cold. Gather a small, careful warmth beneath it.",
+    steps: [s("fire", "focus", 2)],
+    before: {
+      speaker: "Qifrey",
+      text: "Heat calls for care. Give it two gathering signs and keep your lines steady. We are making tea, after all, not a bonfire.",
+    },
+    after:
+      "A curl of steam rises. Outside, the day is beginning. Inside, there is just enough time for tea.",
+    reward: "Apprentice’s ribbon",
+    memory:
+      "Your first morning ended with four spells and two cups of tea. Tomorrow, the road.",
+  },
+  {
+    id: "bridge-lamps",
+    title: "The lamplighter’s errand",
+    chapter: 1,
+    location: "Bellweather bridge",
+    object: "lamps",
+    brief: "The bridge lamps are dark. Scatter light across the crossing.",
+    steps: [s("light", "spread", 2)],
+    before: {
+      speaker: "The lamplighter",
+      text: "The path is easy by daylight. It is different after dusk. Can your little light become a few lights, spread along the bridge?",
+    },
+    after:
+      "One lamp, then another. The bridge becomes a bright ribbon over the water, and footsteps begin to cross.",
+    reward: "Bellweather token",
+    memory:
+      "The lamplighter thanked you without asking where the magic came from.",
+  },
+  {
+    id: "thirsty-garden",
+    title: "Rain for the kitchen garden",
+    chapter: 1,
+    location: "The terraced garden",
+    object: "garden",
+    brief: "Scatter water gently over the kitchen garden’s thirsty beds.",
+    steps: [s("water", "spread", 3)],
+    before: {
+      speaker: "The gardener",
+      text: "Not a flood, if you please! Just a little rain. The kind that makes the leaves shine and never bends the stems.",
+    },
+    after:
+      "Fine drops settle across the garden. The smell of wet earth rises to meet you.",
+    reward: "Rain-glass bead",
+    memory:
+      "A garden cannot say thank you. The gardener insisted that the flowers did.",
+  },
+  {
+    id: "idle-mill",
+    title: "The sleeping windmill",
+    chapter: 1,
+    location: "The hill above the village",
+    object: "mill",
+    brief:
+      "Still air has stopped the mill. Lift a steady current toward its sails.",
+    steps: [s("wind", "flow", 3)],
+    before: {
+      speaker: "The miller",
+      text: "There is flour enough for today. Tomorrow is another matter. Could you persuade the wind to visit for a while?",
+    },
+    after:
+      "The great sails turn slowly, then settle into a patient rhythm. Somewhere inside, grain begins to sing.",
+    reward: "Brass wind vane",
+    memory:
+      "You had never thought of bread as something the wind helped to make.",
+  },
+  {
+    id: "evening-market",
+    title: "The last stall at sunset",
+    chapter: 1,
+    location: "The evening market",
+    object: "market",
+    brief: "Warm the baker’s oven, then carry a little light above the stall.",
+    steps: [s("fire", "focus", 2), s("light", "flow", 2)],
+    before: {
+      speaker: "The baker",
+      text: "One more tray, and a light to see it by. Two small kindnesses. That is all I need before I close up.",
+    },
+    after:
+      "The last warm loaf is yours. From the hill, the village lights look like a second sky.",
+    reward: "The road’s kindness",
+    memory:
+      "You left Bellweather with warm bread and a promise to return. Above the trees, a broken observatory waited.",
+  },
+  {
+    id: "stone-and-rain",
+    title: "The path under the moss",
+    chapter: 2,
+    location: "The forest gate",
+    object: "gate",
+    brief: "Scatter water to soften the moss, then lift it away with wind.",
+    steps: [s("water", "spread", 3), s("wind", "flow", 2)],
+    before: {
+      speaker: "Qifrey",
+      text: "A closed path is sometimes a question with more than one answer. Do not force the stone. Work with what grows upon it.",
+    },
+    after:
+      "The moss falls away. A carved star emerges, and the gate opens onto a forgotten courtyard.",
+    reward: "Stone star fragment",
+    memory:
+      "Someone had drawn this star long before you were born. You traced its shape with your eyes.",
+  },
+  {
+    id: "sleeping-spring",
+    title: "The sleeping spring",
+    chapter: 2,
+    location: "The moon pool",
+    object: "pool",
+    brief: "Warm the frozen inlet, then lift fresh water into the empty basin.",
+    steps: [s("fire", "focus", 3), s("water", "flow", 3)],
+    before: {
+      speaker: "Qifrey",
+      text: "Listen beneath the ice. The spring is still there. First warmth, then water. Each spell has its moment.",
+    },
+    after:
+      "The ice loosens its hold. Clear water crosses the courtyard and fills the old basin with a reflection of the sky.",
+    reward: "Moonwater vial",
+    memory:
+      "For the first time in years, the observatory could see the sky reflected at its feet.",
+  },
+  {
+    id: "lost-constellation",
+    title: "The stars beneath the dust",
+    chapter: 2,
+    location: "The celestial gallery",
+    object: "orrery",
+    brief:
+      "Gather wind to clear the old chart, then scatter light across its stars.",
+    steps: [s("wind", "focus", 3), s("light", "spread", 4)],
+    before: {
+      speaker: "Qifrey",
+      text: "These were not predictions. They were observations. Someone loved the sky enough to draw it, night after night. Let us see what they saw.",
+    },
+    after:
+      "Dust rises in a silver cloud. One by one, the chart’s stars shine back into being.",
+    reward: "The astronomer’s page",
+    memory:
+      "The same hands that drew spells had drawn the stars. Both were ways of paying attention.",
+  },
+  {
+    id: "sky-we-make",
+    title: "The sky we make",
+    chapter: 2,
+    location: "The starfall observatory",
+    object: "observatory",
+    brief:
+      "Wake four channels: moving water, gathered warmth, scattered wind, and light.",
+    steps: [
+      s("water", "flow", 3),
+      s("fire", "focus", 3),
+      s("wind", "spread", 3),
+      s("light", "spread", 4),
+    ],
+    before: {
+      speaker: "Qifrey",
+      text: "There is no single spell for everything. There is water, warmth, air, and light. There is what you have learned. And there are your hands. That is enough.",
+    },
+    after:
+      "The observatory opens like a flower. Above the courtyard, a thousand little lights turn together. You made no new stars. You simply helped the world remember them.",
+    reward: "Witch of little wonders",
+    memory:
+      "An empty page is no longer empty to you. It is full of things that have not happened yet.",
+  },
+];
+const OBJECT_NAMES = {
+  lantern: "Reading lantern",
+  plant: "Silverleaf",
+  paper: "Paper swallow",
+  kettle: "Copper kettle",
+  lamps: "Bridge lamps",
+  garden: "Kitchen garden",
+  mill: "Windmill",
+  market: "Market stall",
+  gate: "Moss-covered gate",
+  pool: "Moon pool",
+  orrery: "Star chart",
+  observatory: "Celestial lens",
+};
+const RANKS = [
+  "New apprentice",
+  "Keeper of little lights",
+  "Witch of the open road",
+  "Witch of little wonders",
+];
+
+/* engine.js */
+/* Local geometric recognition. The ring defines a coordinate system, so seals
+   may be drawn anywhere on the page and at any useful size. */
+const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const point = (x, y) => ({ x, y }),
+  path = (a) => a.map(([x, y]) => point(x, y));
+function circle(radius = 1, cx = 0, cy = 0, count = 96) {
+  return Array.from({ length: count + 1 }, (_, i) =>
+    point(
+      cx + Math.cos((i / count) * Math.PI * 2) * radius,
+      cy + Math.sin((i / count) * Math.PI * 2) * radius,
+    ),
+  );
+}
+function heart(element) {
+  if (element === "light") {
+    const a = [circle(0.21)];
+    for (let i = 0; i < 8; i++) {
+      const t = (i * Math.PI) / 4;
+      a.push(
+        path([
+          [Math.cos(t) * 0.3, Math.sin(t) * 0.3],
+          [Math.cos(t) * 0.43, Math.sin(t) * 0.43],
+        ]),
+      );
+    }
+    return a;
+  }
+  if (element === "water")
+    return [
+      path([
+        [0, -0.45],
+        [-0.18, -0.18],
+        [-0.24, 0.04],
+        [-0.22, 0.2],
+        [-0.12, 0.32],
+        [0, 0.36],
+        [0.15, 0.3],
+        [0.24, 0.17],
+        [0.23, 0],
+        [0.15, -0.2],
+        [0, -0.45],
+      ]),
+      path([
+        [-0.12, 0.1],
+        [-0.1, 0.2],
+        [0, 0.25],
+      ]),
+    ];
+  if (element === "wind")
+    return [
+      path([
+        [-0.4, -0.16],
+        [0.02, -0.16],
+        [0.19, -0.21],
+        [0.23, -0.31],
+        [0.17, -0.38],
+        [0.07, -0.34],
+      ]),
+      path([
+        [-0.44, 0],
+        [0.44, 0],
+      ]),
+      path([
+        [-0.32, 0.16],
+        [0.03, 0.16],
+        [0.21, 0.24],
+        [0.24, 0.34],
+        [0.17, 0.39],
+        [0.07, 0.34],
+      ]),
+    ];
+  return [
+    path([
+      [0, -0.46],
+      [-0.04, -0.18],
+      [-0.17, -0.28],
+      [-0.26, -0.05],
+      [-0.24, 0.17],
+      [-0.08, 0.33],
+      [0.1, 0.34],
+      [0.25, 0.17],
+      [0.25, -0.1],
+      [0.13, 0.02],
+      [0.07, -0.22],
+      [0, -0.46],
+    ]),
+    path([
+      [-0.04, 0.28],
+      [-0.1, 0.12],
+      [0, -0.05],
+      [0.1, 0.13],
+      [0.04, 0.31],
+    ]),
+  ];
+}
+function sign(modifier, angle) {
+  const source =
+    modifier === "flow"
+      ? [
+          path([
+            [-0.09, 0.8],
+            [0, 0.94],
+            [0.09, 0.8],
+          ]),
+          path([
+            [0, 0.94],
+            [0, 0.62],
+          ]),
+        ]
+      : modifier === "spread"
+        ? [
+            path([
+              [0, 0.63],
+              [0, 0.91],
+            ]),
+            path([
+              [0, 0.63],
+              [-0.13, 0.85],
+            ]),
+            path([
+              [0, 0.63],
+              [0.13, 0.85],
+            ]),
+          ]
+        : [
+            path([
+              [0, 0.63],
+              [-0.085, 0.76],
+              [0, 0.9],
+              [0.085, 0.76],
+              [0, 0.63],
+              [0, 0.54],
+            ]),
+          ];
+  return source.map((p) =>
+    p.map((q) =>
+      point(
+        q.x * Math.cos(angle) - q.y * Math.sin(angle),
+        q.x * Math.sin(angle) + q.y * Math.cos(angle),
+      ),
+    ),
+  );
+}
+function recipePaths(element, modifier = "focus", signs = 1) {
+  const p = heart(element);
+  for (let i = 0; i < signs; i++)
+    p.push(...sign(modifier, -Math.PI + (i * Math.PI * 2) / signs));
+  p.push(circle());
+  return p;
+}
+function pagePaths(element, modifier, signs) {
+  return recipePaths(element, modifier, signs).map((p) =>
+    p.map((q) => point(300 + q.x * 211, 300 + q.y * 211)),
+  );
+}
+function resample(paths, spacing = 5, max = 3500) {
+  const out = [];
+  for (const p of paths) {
+    if (!p?.length) continue;
+    out.push(p[0]);
+    for (let i = 1; i < p.length; i++) {
+      const a = p[i - 1],
+        b = p[i],
+        n = Math.max(1, Math.ceil(distance(a, b) / spacing));
+      for (let j = 1; j <= n; j++) {
+        out.push(
+          point(a.x + ((b.x - a.x) * j) / n, a.y + ((b.y - a.y) * j) / n),
+        );
+        if (out.length >= max) return out;
+      }
+    }
+  }
+  return out;
+}
+const nearest = (p, points) => {
+  let best = Infinity;
+  for (const q of points) {
+    const d = (p.x - q.x) ** 2 + (p.y - q.y) ** 2;
+    if (d < best) best = d;
+  }
+  return Math.sqrt(best);
+};
+function similarity(actual, expected, tolerance = 0.11) {
+  if (actual.length < 4) return 0;
+  const a =
+    actual.reduce(
+      (n, p) => n + Math.max(0, 1 - nearest(p, expected) / tolerance),
+      0,
+    ) / actual.length;
+  const b =
+    expected.reduce(
+      (n, p) => n + Math.max(0, 1 - nearest(p, actual) / tolerance),
+      0,
+    ) / expected.length;
+  return 0.43 * a + 0.57 * b;
+}
+function fitRing(p) {
+  if (p.length < 12) return null;
+  const sampled = resample([p], 5, 1200),
+    xs = sampled.map((q) => q.x),
+    ys = sampled.map((q) => q.y);
+  const minX = Math.min(...xs),
+    maxX = Math.max(...xs),
+    minY = Math.min(...ys),
+    maxY = Math.max(...ys),
+    cx = (minX + maxX) / 2,
+    cy = (minY + maxY) / 2,
+    r = (maxX - minX + (maxY - minY)) / 4;
+  if (r < 35 || r > 425) return null;
+  const closure = distance(p[0], p.at(-1)) / r;
+  const deviation =
+    sampled.reduce(
+      (n, q) => n + Math.abs(Math.hypot(q.x - cx, q.y - cy) - r) / r,
+      0,
+    ) / sampled.length;
+  const bins = new Set(
+    sampled.map(
+      (q) =>
+        Math.floor(
+          ((Math.atan2(q.y - cy, q.x - cx) + Math.PI) / (Math.PI * 2)) * 24,
+        ) % 24,
+    ),
+  );
+  const ratio = (maxX - minX) / (maxY - minY);
+  if (
+    closure > 0.24 ||
+    deviation > 0.12 ||
+    bins.size < 22 ||
+    ratio < 0.72 ||
+    ratio > 1.38
+  )
+    return null;
+  return {
+    cx,
+    cy,
+    r,
+    quality: Math.max(0, 1 - deviation * 3 - closure * 0.35),
+  };
+}
+function recognize(strokes) {
+  const all = resample(strokes, 5);
+  if (all.length < 20)
+    return {
+      ok: false,
+      reason:
+        "Begin with a central sigil. Add signs around it, then close an enclosing ring.",
+    };
+  const rings = strokes
+    .map(fitRing)
+    .filter(Boolean)
+    .sort((a, b) => b.r - a.r);
+  if (!rings.length)
+    return {
+      ok: false,
+      reason:
+        "The seal needs a closed ring. Draw one continuous circle around the sigil and signs.",
+    };
+  const ring = rings[0],
+    normalized = all.map((q) =>
+      point((q.x - ring.cx) / ring.r, (q.y - ring.cy) / ring.r),
+    );
+  const outside =
+    normalized.filter((q) => Math.hypot(q.x, q.y) > 1.17).length /
+    normalized.length;
+  if (outside > 0.13)
+    return {
+      ok: false,
+      reason:
+        "Some ink lies outside the seal. Erase stray strokes or draw a larger enclosing ring.",
+    };
+  const core = normalized.filter((q) => Math.hypot(q.x, q.y) < 0.5);
+  if (core.length < 8)
+    return {
+      ok: false,
+      reason:
+        "The ring is ready, but its heart is empty. Draw an elemental sigil inside it.",
+    };
+  const matches = ["light", "water", "wind", "fire"]
+      .map((element) => ({
+        element,
+        score: similarity(core, resample(heart(element), 0.035), 0.15),
+      }))
+      .sort((a, b) => b.score - a.score),
+    best = matches[0];
+  if (best.score < 0.43 || best.score - matches[1].score < 0.018)
+    return {
+      ok: false,
+      reason:
+        "The heart is not clear yet. Keep the sigil near the center, about half the width of your ring. Open the field guide for its shape.",
+      candidates: matches,
+    };
+  const annulus = normalized.filter((q) => {
+      const r = Math.hypot(q.x, q.y);
+      return r >= 0.52 && r < 0.95;
+    }),
+    signs = [];
+  const candidates = [];
+  for (let n = 0; n < 72; n++) {
+    const angle = (n * Math.PI * 2) / 72,
+      sector = annulus.filter((q) => {
+        const a = Math.atan2(q.y, q.x) - Math.PI / 2 - angle;
+        return Math.abs(Math.atan2(Math.sin(a), Math.cos(a))) < 0.21;
+      });
+    if (sector.length < 4) continue;
+    const rotated = sector.map((q) =>
+      point(
+        q.x * Math.cos(-angle) - q.y * Math.sin(-angle),
+        q.x * Math.sin(-angle) + q.y * Math.cos(-angle),
+      ),
+    );
+    const scores = ["focus", "flow", "spread"]
+      .map((modifier) => ({
+        modifier,
+        score: similarity(rotated, resample(sign(modifier, 0), 0.025), 0.095),
+      }))
+      .sort((a, b) => b.score - a.score);
+    if (scores[0].score > 0.43) candidates.push({ ...scores[0], angle });
+  }
+  candidates.sort((a, b) => b.score - a.score);
+  for (const candidate of candidates) {
+    if (
+      !signs.some(
+        (s) =>
+          Math.abs(
+            Math.atan2(
+              Math.sin(s.angle - candidate.angle),
+              Math.cos(s.angle - candidate.angle),
+            ),
+          ) < 0.4,
+      )
+    )
+      signs.push(candidate);
+  }
+  const dominant = ["focus", "flow", "spread"]
+    .map((modifier) => ({
+      modifier,
+      count: signs.filter((s) => s.modifier === modifier).length,
+    }))
+    .sort((a, b) => b.count - a.count)[0];
+  const quality = Math.round(
+      Math.min(100, (best.score * 0.7 + ring.quality * 0.3) * 100),
+    ),
+    count = signs.length;
+  return {
+    ok: true,
+    element: best.element,
+    modifier: count ? dominant.modifier : "focus",
+    signs: count,
+    quality,
+    power: Math.min(1, 0.32 + count * 0.14 + quality * 0.003),
+    ring: { x: ring.cx, y: ring.cy, r: ring.r },
+    heartQuality: best.score,
+    components: signs,
+    matches,
+  };
+}
+function checkObjective(result, requirement) {
+  if (!result.ok) return { ok: false, reason: result.reason };
+  if (result.element !== requirement.element)
+    return {
+      ok: false,
+      reason: `That seal makes ${result.element === "fire" ? "warmth" : result.element}. This moment calls for ${requirement.element === "fire" ? "warmth" : requirement.element}. Change the central sigil.`,
+    };
+  if (result.signs < requirement.signs)
+    return {
+      ok: false,
+      reason: `Your spell is alive, but needs ${requirement.signs} ${requirement.modifier === "focus" ? "gathering" : requirement.modifier === "flow" ? "lifting" : "scattering"} sign${requirement.signs > 1 ? "s" : ""}. You have ${result.signs}.`,
+    };
+  const matching = result.components.filter(
+    (s) => s.modifier === requirement.modifier,
+  ).length;
+  if (matching < requirement.signs)
+    return {
+      ok: false,
+      reason: `The element is right. Use ${requirement.modifier === "focus" ? "diamond gathering" : requirement.modifier === "flow" ? "outward lifting-arrow" : "branching scattering"} signs to give it the needed direction.`,
+    };
+  return { ok: true };
+}
+function strokeLength(strokes) {
+  return strokes.reduce(
+    (n, p) => n + p.reduce((a, q, i) => a + (i ? distance(q, p[i - 1]) : 0), 0),
+    0,
+  );
+}
+function validateDrawing(value) {
+  return (
+    Array.isArray(value) &&
+    value.length <= 150 &&
+    value.every(
+      (s) =>
+        Array.isArray(s) &&
+        s.length <= 5000 &&
+        s.every(
+          (p) =>
+            p &&
+            Number.isFinite(p.x) &&
+            Number.isFinite(p.y) &&
+            p.x >= -20 &&
+            p.x <= 620 &&
+            p.y >= -20 &&
+            p.y <= 620 &&
+            (p.p === undefined ||
+              (Number.isFinite(p.p) && p.p >= 0 && p.p <= 1)),
+        ),
+    )
+  );
+}
+
+/* state.js */
+
+
+const SAVE_KEY = "ink-wonder-adventure-v2";
+const freshSave = () => ({
+  version: 2,
+  completed: {},
+  seals: [],
+  discoveries: [],
+  settings: {
+    sound: true,
+    penOnly: false,
+    autoCast: true,
+    reducedMotion: false,
+    largeText: false,
+  },
+  lastMission: 0,
+});
+function validateSave(input) {
+  if (
+    !input ||
+    input.version !== 2 ||
+    !input.completed ||
+    typeof input.completed !== "object" ||
+    !Array.isArray(input.seals) ||
+    input.seals.length > 40 ||
+    !Array.isArray(input.discoveries)
+  )
+    throw Error("This is not an Ink & Wonder adventure save.");
+  const clean = freshSave();
+  for (const [id, value] of Object.entries(input.completed)) {
+    if (
+      !MISSIONS.some((m) => m.id === id) ||
+      !value ||
+      !Number.isInteger(value.stars) ||
+      value.stars < 1 ||
+      value.stars > 3 ||
+      !Number.isFinite(value.quality) ||
+      value.quality < 0 ||
+      value.quality > 100
+    )
+      throw Error("The save contains invalid mission progress.");
+    clean.completed[id] = {
+      stars: value.stars,
+      quality: Math.round(value.quality),
+    };
+  }
+  clean.seals = input.seals.map((s) => {
+    if (
+      !s ||
+      typeof s.name !== "string" ||
+      s.name.length > 60 ||
+      !validateDrawing(s.strokes) ||
+      !["light", "water", "wind", "fire", "sketch"].includes(s.element) ||
+      !["focus", "flow", "spread"].includes(s.modifier)
+    )
+      throw Error("The save contains an invalid seal.");
+    return {
+      id: String(s.id).slice(0, 80),
+      name: s.name,
+      strokes: s.strokes,
+      element: s.element,
+      modifier: s.modifier,
+      quality: Math.max(0, Math.min(100, Number(s.quality) || 0)),
+    };
+  });
+  clean.discoveries = [
+    ...new Set(
+      input.discoveries.filter(
+        (s) =>
+          typeof s === "string" &&
+          /^(light|water|wind|fire)-(focus|flow|spread)$/.test(s),
+      ),
+    ),
+  ];
+  for (const k of Object.keys(clean.settings))
+    if (typeof input.settings?.[k] === "boolean")
+      clean.settings[k] = input.settings[k];
+  if (Number.isInteger(input.lastMission))
+    clean.lastMission = Math.max(0, Math.min(11, input.lastMission));
+  return clean;
+}
+function available(index, save) {
+  return index === 0 || !!save.completed[MISSIONS[index - 1].id];
+}
+function nextMission(save) {
+  const index = MISSIONS.findIndex((m) => !save.completed[m.id]);
+  return index === -1 ? 11 : index;
+}
+function insight(save) {
+  return (
+    Object.values(save.completed).reduce(
+      (sum, m) => sum + 80 + m.stars * 20,
+      0,
+    ) +
+    save.discoveries.length * 10
+  );
+}
+function completeMission(save, index, scores, usedGuide) {
+  if (
+    !available(index, save) ||
+    scores.length !== MISSIONS[index].steps.length ||
+    scores.some((s) => !Number.isFinite(s) || s < 0 || s > 100)
+  )
+    throw Error("Mission is not complete.");
+  const quality = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
+    stars = quality >= 85 && !usedGuide ? 3 : quality >= 65 ? 2 : 1,
+    old = save.completed[MISSIONS[index].id];
+  save.completed[MISSIONS[index].id] = {
+    quality: Math.max(quality, old?.quality || 0),
+    stars: Math.max(stars, old?.stars || 0),
+  };
+  save.lastMission = Math.min(11, index + 1);
+  return { quality, stars, isNew: !old };
+}
+
+/* cloud-config.js */
+// Public browser configuration for the game's Free Supabase project.
+// Never put a Supabase secret key or service_role key in this file.
+const CLOUD_CONFIG = Object.freeze({
+  supabaseUrl: "https://egsgdsloizieszebrhbn.supabase.co",
+  publishableKey: "sb_publishable_KC4NTrDwPCcn_NkvtGF13w_a65lFPKx",
+});
+
+/* cloud.js */
+
+
+const accountSaveKey = (id) =>
+  id ? `${SAVE_KEY}:user:${id}` : SAVE_KEY;
+const hasStory = (save) =>
+  !!(
+    Object.keys(save.completed).length ||
+    save.seals.length ||
+    save.discoveries.length
+  );
+function checkCloudConfig(config) {
+  if (!config?.supabaseUrl && !config?.publishableKey)
+    return { ready: false, reason: "Cloud saves have not been connected yet." };
+  let url;
+  try {
+    url = new URL(config.supabaseUrl);
+  } catch {
+    return { ready: false, reason: "The cloud project URL is invalid." };
+  }
+  if (
+    url.protocol !== "https:" ||
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash ||
+    url.pathname !== "/"
+  )
+    return { ready: false, reason: "Use the HTTPS project URL from Supabase." };
+  const key = config.publishableKey || "";
+  if (key.startsWith("sb_secret_") || key.includes("service_role"))
+    return {
+      ready: false,
+      reason:
+        "A private database key cannot be used in the browser. Use the public publishable key.",
+    };
+  let publicKey = key.startsWith("sb_publishable_") && key.length > 25;
+  if (key.startsWith("eyJ"))
+    try {
+      const payload = JSON.parse(
+        atob(key.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+      );
+      publicKey = payload.role === "anon";
+    } catch {}
+  return publicKey
+    ? { ready: true, url: url.origin, key }
+    : {
+        ready: false,
+        reason:
+          "Use a Supabase publishable key or legacy anon key, never a secret/service-role key.",
+      };
+}
+function cloudError(error) {
+  const message = String(error?.message || "");
+  if (
+    error?.code === "42P01" ||
+    /relation .*does not exist|could not find the table|could not find the function/i.test(
+      message,
+    )
+  )
+    return "The cloud database needs its setup script. Run supabase/schema.sql in your project.";
+  if (
+    error?.code === "42501" ||
+    /row.level security|permission denied/i.test(message)
+  )
+    return "The cloud database permissions need checking. Your device copy is safe.";
+  if (/invalid login credentials/i.test(message))
+    return "The email or password did not match. Please try again.";
+  if (/email not confirmed/i.test(message))
+    return "Confirm your email first, then sign in here.";
+  if (
+    /email address not authorized|email.*rate limit|over_email_send_rate_limit/i.test(
+      message,
+    ) ||
+    error?.status === 429
+  )
+    return "Email delivery is limited by the project. Try again later or ask the game owner to check the email setup.";
+  if (/fetch|network|offline|timeout|aborted/i.test(message))
+    return "Cloud connection unavailable. Your story is kept on this device; reconnect to sync.";
+  if (/database.*paused|project.*paused/i.test(message))
+    return "The database is paused. Resume the free project in Supabase, then retry.";
+  if (/password/i.test(message))
+    return "Please use a password of at least 8 characters that meets the account requirements.";
+  return "The cloud request could not finish. Your device copy is safe. Please try again.";
+}
+
+class CloudAccount {
+  constructor({
+    config,
+    storage,
+    getSave,
+    onIdentity = () => {},
+    onSave = () => {},
+    onStatus = () => {},
+    onRecovery = () => {},
+    loadClient = () => import("./vendor/supabase.js"),
+    isWeb = () => typeof location !== "undefined" && /^https?:$/.test(location.protocol),
+    schedule = setTimeout,
+    cancel = clearTimeout,
+  }) {
+    this.config = checkCloudConfig(config);
+    this.storage = storage;
+    this.getSave = getSave;
+    this.onIdentity = onIdentity;
+    this.onSave = onSave;
+    this.onStatus = onStatus;
+    this.onRecovery = onRecovery;
+    this.loadClient = loadClient;
+    this.isWeb = isWeb;
+    this.schedule = schedule;
+    this.cancel = cancel;
+    this.user = null;
+    this.client = null;
+    this.phase = this.config.ready ? "guest" : "unconfigured";
+    this.message =
+      this.config.reason ||
+      "Play as a guest or sign in to save across devices.";
+    this.epoch = 0;
+    this.version = 0;
+    this.meta = { revision: 0, dirty: false };
+    this.timer = null;
+    this.task = null;
+    this.conflict = null;
+    this.startTask = null;
+  }
+  get info() {
+    return {
+      configured: this.config.ready,
+      user: this.user,
+      phase: this.phase,
+      message: this.message,
+      pending: this.meta.dirty,
+      conflict: this.conflict,
+    };
+  }
+  status(phase, message) {
+    this.phase = phase;
+    this.message = message;
+    this.onStatus(this.info);
+  }
+  writeMeta() {
+    try {
+      this.storage.setItem(
+        accountSaveKey(this.user.id) + ":sync",
+        JSON.stringify(this.meta),
+      );
+    } catch {
+      this.status(
+        "error",
+        "Cloud sync metadata could not be saved. Export your story before closing this browser.",
+      );
+    }
+  }
+  readMeta(id) {
+    try {
+      const m = JSON.parse(
+        this.storage.getItem(accountSaveKey(id) + ":sync") || "null",
+      );
+      if (m && Number.isSafeInteger(m.revision) && m.revision >= 0)
+        return { revision: m.revision, dirty: m.dirty === true };
+    } catch {}
+    return { revision: 0, dirty: hasStory(this.getSave()) };
+  }
+  start() {
+    if (this.startTask) return this.startTask;
+    this.startTask = this.initialize();
+    return this.startTask;
+  }
+  async initialize() {
+    if (!this.config.ready) {
+      this.status("unconfigured", this.config.reason);
+      return;
+    }
+    if (!this.isWeb()) {
+      this.status(
+        "unavailable",
+        "Open the web edition to sign in. The direct-file edition supports guest play.",
+      );
+      return;
+    }
+    try {
+      this.status("loading", "Opening your account…");
+      const { createClient } = await this.loadClient();
+      this.subscription?.unsubscribe();
+      this.client = createClient(this.config.url, this.config.key, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          flowType: "pkce",
+          storageKey: "ink-wonder-auth-" + new URL(this.config.url).hostname,
+        },
+        global: {
+          fetch: cloudFetch,
+          headers: { "X-Client-Info": "ink-wonder/2.1" },
+        },
+      });
+      const subscription = this.client.auth.onAuthStateChange(
+        (event, session) => {
+          // Never await another Supabase call inside its auth callback.
+          this.schedule(
+            () =>
+              this.acceptSession(session, event).catch(() =>
+                this.status(
+                  "error",
+                  "Could not restore the account. Please sign in again.",
+                ),
+              ),
+            0,
+          );
+        },
+      );
+      this.subscription = subscription.data.subscription;
+      const { data, error } = await this.client.auth.getSession();
+      if (error) throw error;
+      await this.acceptSession(data.session, "INITIAL_SESSION");
+    } catch (error) {
+      this.status("error", cloudError(error));
+      this.startTask = null;
+    }
+  }
+  async acceptSession(session, event) {
+    const user = session?.user || null;
+    if (user?.id !== this.user?.id) {
+      this.epoch++;
+      this.version = 0;
+      this.cancel(this.timer);
+      this.task = null;
+      this.conflict = null;
+      this.user = user;
+      this.meta = { revision: 0, dirty: false };
+      this.onIdentity(user);
+      if (user) {
+        this.meta = this.readMeta(user.id);
+        await this.sync();
+      } else this.status("guest", "Guest story · saved on this device");
+    } else if (!user)
+      this.status("guest", "Guest story · saved on this device");
+    if (event === "PASSWORD_RECOVERY" && user) this.onRecovery();
+  }
+  async signIn(email, password) {
+    await this.start();
+    if (!this.client) throw Error("Account service unavailable");
+    const { data, error } = await this.client.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) throw error;
+    await this.acceptSession(data.session, "SIGNED_IN");
+    return data;
+  }
+  async signUp(email, password, name, redirectTo) {
+    await this.start();
+    if (!this.client) throw Error("Account service unavailable");
+    const { data, error } = await this.client.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: { display_name: name.trim() },
+        emailRedirectTo: redirectTo,
+      },
+    });
+    if (error) throw error;
+    if (data.session) await this.acceptSession(data.session, "SIGNED_IN");
+    return !!data.session;
+  }
+  async resetPassword(email, redirectTo) {
+    await this.start();
+    if (!this.client) throw Error("Account service unavailable");
+    const { error } = await this.client.auth.resetPasswordForEmail(
+      email.trim(),
+      { redirectTo },
+    );
+    if (error) throw error;
+  }
+  async updatePassword(password) {
+    if (!this.client || !this.user)
+      throw Error("Sign in before changing your password");
+    const { error } = await this.client.auth.updateUser({ password });
+    if (error) throw error;
+  }
+  async resendConfirmation(email, redirectTo) {
+    await this.start();
+    if (!this.client) throw Error("Account service unavailable");
+    const { error } = await this.client.auth.resend({
+      type: "signup",
+      email: email.trim(),
+      options: { emailRedirectTo: redirectTo },
+    });
+    if (error) throw error;
+  }
+  async signOut() {
+    if (!this.client) return;
+    this.cancel(this.timer);
+    const { error } = await this.client.auth.signOut({ scope: "local" });
+    if (error) throw error;
+    await this.acceptSession(null, "SIGNED_OUT");
+  }
+  changed() {
+    if (!this.user) return;
+    this.version++;
+    this.meta.dirty = true;
+    this.writeMeta();
+    if (this.conflict) {
+      this.status("conflict", "Two versions of your story need a choice.");
+      return;
+    }
+    this.status("pending", "Saved on this device · waiting to sync");
+    this.cancel(this.timer);
+    this.timer = this.schedule(() => this.sync(), 900);
+  }
+  async readRemote(userId) {
+    const { data, error } = await this.client
+      .from("game_saves")
+      .select("payload,revision,updated_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    if (!Number.isSafeInteger(data.revision) || data.revision < 1)
+      throw Error("Invalid cloud revision");
+    return { ...data, payload: validateSave(data.payload) };
+  }
+  sync() {
+    if (!this.client || !this.user || this.conflict)
+      return Promise.resolve(false);
+    if (this.task) return this.task;
+    const epoch = this.epoch;
+    this.task = this.syncOnce(epoch).finally(() => {
+      if (epoch !== this.epoch) return;
+      this.task = null;
+      if (this.meta.dirty && this.phase === "pending")
+        this.timer = this.schedule(() => this.sync(), 900);
+    });
+    return this.task;
+  }
+  async syncOnce(epoch) {
+    const userId = this.user.id;
+    this.status("syncing", "Saving your story to the cloud…");
+    try {
+      const remote = await this.readRemote(userId);
+      if (epoch !== this.epoch) return false;
+      const revision = remote?.revision || 0;
+      if (this.meta.dirty) {
+        if (revision !== this.meta.revision) {
+          this.setConflict(remote);
+          return false;
+        }
+        const payload = validateSave(this.getSave()),
+          sentVersion = this.version;
+        if (
+          new TextEncoder().encode(JSON.stringify(payload)).length > 7_500_000
+        )
+          throw Error("Cloud save too large");
+        const { data, error } = await this.client.rpc("commit_game_save", {
+          expected_revision: revision,
+          new_payload: payload,
+        });
+        if (epoch !== this.epoch) return false;
+        if (error) throw error;
+        const row = Array.isArray(data) ? data[0] : null;
+        if (!row) {
+          const latest = await this.readRemote(userId);
+          if (epoch === this.epoch) this.setConflict(latest);
+          return false;
+        }
+        if (!Number.isSafeInteger(row.revision) || row.revision <= revision)
+          throw Error("Invalid cloud revision");
+        this.meta = {
+          revision: row.revision,
+          dirty: this.version !== sentVersion,
+        };
+        this.writeMeta();
+        this.status(
+          this.meta.dirty ? "pending" : "saved",
+          this.meta.dirty
+            ? "Saving your latest changes…"
+            : "Your story is safe in the cloud",
+        );
+        return true;
+      }
+      if (remote) {
+        this.onSave(remote.payload);
+        this.meta = { revision, dirty: false };
+        this.writeMeta();
+        this.status("saved", "Your story is safe in the cloud");
+      } else {
+        this.meta = { revision: 0, dirty: false };
+        this.writeMeta();
+        this.status("ready", "Cloud ready · your next moment will be saved");
+      }
+      return true;
+    } catch (error) {
+      if (epoch !== this.epoch) return false;
+      this.status(
+        "error",
+        /too large/i.test(error?.message)
+          ? "This grimoire is too large to sync. Export a backup and remove a few pages."
+          : cloudError(error),
+      );
+      return false;
+    }
+  }
+  setConflict(remote) {
+    this.conflict = { remote, local: validateSave(this.getSave()) };
+    this.status(
+      "conflict",
+      "This story changed on another device. Choose which version to keep.",
+    );
+  }
+  async resolveConflict(choice) {
+    if (!this.conflict || !this.user) return;
+    const { remote } = this.conflict;
+    if (choice === "cloud") {
+      // Keep the displaced device copy recoverable, including experimental pages.
+      this.storage.setItem(
+        accountSaveKey(this.user.id) + ":backup",
+        JSON.stringify(validateSave(this.getSave())),
+      );
+      this.conflict = null;
+      this.version++;
+      this.onSave(remote?.payload || freshSave());
+      this.meta = { revision: remote?.revision || 0, dirty: false };
+      this.writeMeta();
+      this.status(
+        "saved",
+        "Loaded the cloud story · the device copy is backed up locally",
+      );
+    } else if (choice === "device") {
+      this.conflict = null;
+      this.meta = { revision: remote?.revision || 0, dirty: true };
+      this.writeMeta();
+      await this.sync();
+    } else throw Error("Choose a story version");
+  }
+  destroy() {
+    this.epoch++;
+    this.cancel(this.timer);
+    this.subscription?.unsubscribe();
+  }
+}
+
+async function cloudFetch(input, options = {}) {
+  const controller = new AbortController(),
+    abort = () => controller.abort(options.signal?.reason);
+  if (options.signal?.aborted) abort();
+  else options.signal?.addEventListener("abort", abort, { once: true });
+  const timer = setTimeout(
+    () => controller.abort(Error("Network timeout")),
+    15000,
+  );
+  try {
+    return await fetch(input, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener("abort", abort);
+  }
+}
+
+/* drawing.js */
+
+class DrawingDesk {
+  constructor(canvas, { settings, onChange, onFinish }) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.settings = settings;
+    this.onChange = onChange;
+    this.onFinish = onFinish;
+    this.strokes = [];
+    this.history = [];
+    this.future = [];
+    this.active = null;
+    this.pointer = null;
+    this.tool = "pen";
+    this.guide = null;
+    this.lastPen = -Infinity;
+    this.frame = 0;
+    this.abort = new AbortController();
+    const opts = { signal: this.abort.signal };
+    canvas.addEventListener("pointerdown", (e) => this.down(e), opts);
+    canvas.addEventListener("pointermove", (e) => this.move(e), opts);
+    canvas.addEventListener("pointerup", (e) => this.end(e), opts);
+    canvas.addEventListener("pointercancel", (e) => this.end(e, true), opts);
+    canvas.addEventListener("lostpointercapture", (e) => this.end(e), opts);
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault(), opts);
+    this.observer = new ResizeObserver(() => this.resize());
+    this.observer.observe(canvas);
+    this.resize();
+  }
+  resize() {
+    const width = this.canvas.clientWidth;
+    if (!width) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    this.canvas.width = Math.round(width * dpr);
+    this.canvas.height = Math.round(width * dpr);
+    this.ctx.setTransform(
+      this.canvas.width / 600,
+      0,
+      0,
+      this.canvas.height / 600,
+      0,
+      0,
+    );
+    this.paint();
+  }
+  setGuide(recipe) {
+    this.guide = recipe
+      ? pagePaths(recipe.element, recipe.modifier, recipe.signs)
+      : null;
+    this.requestPaint();
+  }
+  setTool(tool) {
+    this.tool = tool;
+    this.canvas.classList.toggle("erase-cursor", tool === "erase");
+  }
+  position(e) {
+    const r = this.canvas.getBoundingClientRect();
+    return {
+      x: Math.max(0, Math.min(600, ((e.clientX - r.left) / r.width) * 600)),
+      y: Math.max(0, Math.min(600, ((e.clientY - r.top) / r.height) * 600)),
+      p: e.pointerType === "pen" ? Math.max(0.08, e.pressure) : 0.5,
+    };
+  }
+  remember() {
+    this.history.push(structuredClone(this.strokes));
+    if (this.history.length > 35) this.history.shift();
+    this.future = [];
+  }
+  down(e) {
+    if (e.button > 0) return;
+    if (e.pointerType === "pen") {
+      this.lastPen = performance.now();
+      if (this.pointer !== null && this.pointerType === "touch") {
+        this.strokes = this.history.pop() || this.strokes;
+        this.active = null;
+        this.canvas.releasePointerCapture?.(this.pointer);
+        this.pointer = null;
+      }
+    }
+    if (this.pointer !== null) return;
+    if (
+      (this.settings.penOnly && e.pointerType !== "pen") ||
+      (e.pointerType === "touch" && performance.now() - this.lastPen < 1000)
+    )
+      return;
+    if (this.strokes.length >= 150) {
+      this.onChange("The page is full. Save your seal or start a new page.");
+      return;
+    }
+    e.preventDefault();
+    this.pointer = e.pointerId;
+    this.pointerType = e.pointerType;
+    this.canvas.setPointerCapture(e.pointerId);
+    this.remember();
+    const p = this.position(e);
+    if (this.tool === "erase") {
+      this.erasing = true;
+      this.erase(p);
+    } else {
+      this.erasing = false;
+      this.active = [p];
+    }
+    this.requestPaint();
+    this.onChange(null, e.pointerType);
+  }
+  move(e) {
+    if (e.pointerType === "pen") this.lastPen = performance.now();
+    if (this.pointer !== e.pointerId) return;
+    e.preventDefault();
+    if (this.erasing) {
+      this.erase(this.position(e));
+      return;
+    }
+    const events = e.getCoalescedEvents?.();
+    for (const event of events?.length ? events : [e]) {
+      const p = this.position(event);
+      if (
+        this.active &&
+        this.active.length < 5000 &&
+        distance(p, this.active.at(-1)) > 0.65
+      )
+        this.active.push(p);
+    }
+    this.requestPaint();
+  }
+  erase(p) {
+    this.strokes = this.strokes.filter(
+      (stroke) =>
+        !stroke.some((q, i) => {
+          if (distance(q, p) < 15) return true;
+          if (!i) return false;
+          const a = stroke[i - 1],
+            dx = q.x - a.x,
+            dy = q.y - a.y,
+            t = Math.max(
+              0,
+              Math.min(
+                1,
+                ((p.x - a.x) * dx + (p.y - a.y) * dy) /
+                  (dx * dx + dy * dy || 1),
+              ),
+            );
+          return Math.hypot(a.x + t * dx - p.x, a.y + t * dy - p.y) < 15;
+        }),
+    );
+    this.requestPaint();
+  }
+  end(e, cancel = false) {
+    if (this.pointer !== e.pointerId) return;
+    const finished = this.active;
+    this.pointer = null;
+    if (cancel) {
+      this.strokes = this.history.pop() || this.strokes;
+    } else if (this.active?.length) this.strokes.push(this.active);
+    this.active = null;
+    this.erasing = false;
+    this.requestPaint();
+    this.onChange();
+    if (!cancel && finished) this.onFinish(finished);
+  }
+  undo() {
+    if (!this.history.length) return;
+    this.future.push(structuredClone(this.strokes));
+    this.strokes = this.history.pop();
+    this.active = null;
+    this.requestPaint();
+    this.onChange();
+  }
+  redo() {
+    if (!this.future.length) return;
+    this.history.push(structuredClone(this.strokes));
+    this.strokes = this.future.pop();
+    this.requestPaint();
+    this.onChange();
+  }
+  clear() {
+    if (this.active) return;
+    this.remember();
+    this.strokes = [];
+    this.requestPaint();
+    this.onChange();
+  }
+  load(strokes) {
+    this.remember();
+    this.strokes = structuredClone(strokes);
+    this.active = null;
+    this.requestPaint();
+    this.onChange();
+  }
+  requestPaint() {
+    if (!this.frame)
+      this.frame = requestAnimationFrame(() => {
+        this.frame = 0;
+        this.paint();
+      });
+  }
+  paint() {
+    const c = this.ctx;
+    c.clearRect(0, 0, 600, 600);
+    if (this.guide) {
+      c.strokeStyle = "#9d9b7e66";
+      c.lineWidth = 1.6;
+      c.setLineDash([3, 6]);
+      for (const p of this.guide) {
+        c.beginPath();
+        p.forEach((q, i) => (i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)));
+        c.stroke();
+      }
+      c.setLineDash([]);
+      c.fillStyle = "#8f927b";
+      c.font = "italic 12px Georgia";
+      c.textAlign = "center";
+      c.fillText(
+        "Draw the heart · add the signs · close the ring last",
+        300,
+        559,
+      );
+    }
+    c.lineCap = "round";
+    c.lineJoin = "round";
+    c.strokeStyle = "#263b35";
+    c.fillStyle = "#263b35";
+    for (const p of [...this.strokes, ...(this.active ? [this.active] : [])]) {
+      if (p.length === 1) {
+        c.beginPath();
+        c.arc(p[0].x, p[0].y, 1.4, 0, Math.PI * 2);
+        c.fill();
+      }
+      for (let i = 1; i < p.length; i++) {
+        c.lineWidth = 1.2 + (p[i].p ?? 0.5) * 3;
+        c.beginPath();
+        c.moveTo(p[i - 1].x, p[i - 1].y);
+        c.lineTo(p[i].x, p[i].y);
+        c.stroke();
+      }
+    }
+  }
+  download() {
+    const output = document.createElement("canvas");
+    output.width = 1200;
+    output.height = 1200;
+    const c = output.getContext("2d");
+    c.fillStyle = "#f4f0e2";
+    c.fillRect(0, 0, 1200, 1200);
+    c.scale(2, 2);
+    c.strokeStyle = "#263b35";
+    c.lineCap = "round";
+    c.lineJoin = "round";
+    for (const p of this.strokes) {
+      c.beginPath();
+      c.lineWidth = 2.3;
+      p.forEach((q, i) => (i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)));
+      c.stroke();
+    }
+    c.fillStyle = "#8a856c";
+    c.font = "12px Georgia";
+    c.textAlign = "center";
+    c.fillText("INK & WONDER · MY SPELLBOOK", 300, 581);
+    const a = document.createElement("a");
+    a.href = output.toDataURL("image/png");
+    a.download = "ink-and-wonder-seal.png";
+    a.click();
+  }
+  destroy() {
+    this.abort.abort();
+    this.observer.disconnect();
+    cancelAnimationFrame(this.frame);
+  }
+}
+
+/* world.js */
+const shell = (content) =>
+  `<svg viewBox="0 0 340 310" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="object-shadow" cx="170" cy="280" rx="111" ry="14" fill="#081c1b" opacity=".28"/><g stroke="#e8ddbd" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${content}</g></svg>`;
+const lantern = (x) =>
+  `<g transform="translate(${x} 0)"><path fill="#203b37" d="m120 109 25-30h50l25 30v139H120Z"/><path d="M110 109h120M115 248h110M145 79v-9a25 25 0 0 1 50 0v9M133 119v116m73-116v116"/><path class="lit-fill" d="M143 124h54v109h-54Z" fill="#c4b58b" fill-opacity=".15"/><path d="M170 123v111m-27-55h54"/><circle class="core-glow" cx="170" cy="179" r="19" fill="var(--spell-color)" stroke="none"/></g>`;
+const plant = `<path fill="#a38b66" d="m118 208 14 64h76l14-64Z"/><path d="M110 207h120v13H110m60-16v-93"/><g class="leaves" fill="#657f60"><path d="M170 177c-48 1-70-25-62-54 36-2 61 21 62 54Zm0-27c50 2 71-28 63-55-37 0-60 24-63 55Zm0-22c-29-16-28-53-5-69 29 17 30 47 5 69Z"/></g><g class="water-drops" fill="#a7e0e4"><path d="M105 105q-15 23 0 23t0-23m132 56q-15 23 0 23t0-23"/></g>`;
+const kettle = `<g class="kettle"><path fill="#8d7257" d="M100 174c0-64 140-64 140 0v44c0 51-140 51-140 0Z"/><path d="M116 135c-22-78 129-78 108 0M98 181l-39-24 14 61 34 14M240 176c66-28 60 65-4 48M126 140h88m-47-14h9v-13h-9Z"/><path class="steam" d="M142 91q-20-20 0-37t0-28m28 65q-20-20 0-37t0-28m28 65q-20-20 0-37t0-28"/></g><path class="fire-glow" d="M140 282c-30-30 20-42 22-63 12 17 9 30 17 29l14-17c10 22 33 44 6 51Z" fill="var(--spell-color)"/>`;
+const mill = `<path fill="#506458" d="m123 274 13-147 34-27 35 27 13 147Z"/><path d="m126 133 44-50 45 50M156 275v-48h29v48"/><g class="mill-sails"><path fill="#d6cba8" d="m164 152-4-96h23l-6 96Zm13 13 95-4v23l-95-6Zm-13 11 4 96h-23l6-96Zm-13-13-95 4v-23l95 6Z"/><circle cx="164" cy="164" r="12" fill="#8a7352"/></g>`;
+const arch = `<path fill="#52685a" d="M80 275V124a90 90 0 0 1 180 0v151h-36V124a54 54 0 0 0-108 0v151Z"/><path d="M75 276h47m96 0h48M82 181h34m108 0h34M82 226h34m108 0h34M88 91l33 13m99 0 33-13M168 37v36"/><path class="moss" d="M92 136q40 14 1 40t5 36m145-80q-35 20 0 42t-4 45M116 70q24 32 26-8m50 0q30 37 30 12" stroke="#82945b" stroke-width="15"/><path class="star-mark" d="m170 88 6 15 17 1-13 11 4 16-14-9-14 9 4-16-13-11 17-1Z" fill="var(--spell-color)"/>`;
+const observatory = `<ellipse cx="170" cy="257" rx="102" ry="24" fill="#284c4c"/><path d="M68 257v17c60 34 144 34 204 0v-17m-149-9 16-111h62l16 111" fill="#526965"/><g class="orrery"><ellipse cx="170" cy="133" rx="92" ry="30" transform="rotate(-30 170 133)"/><ellipse cx="170" cy="133" rx="86" ry="35" transform="rotate(45 170 133)"/><circle cx="170" cy="133" r="67"/><path d="M81 133h178M170 44v178"/><circle class="core-glow" cx="170" cy="133" r="24" fill="var(--spell-color)"/></g><path d="M145 256h50M152 239h36"/>`;
+function objectArt(type) {
+  if (type === "market")
+    return shell(
+      `<path fill="#675d4a" d="M55 270V183a80 80 0 0 1 160 0v87Z"/><path d="M49 270h173M70 190h130M84 154h101M110 125h49M55 222h29m103 0h28M105 171v19m59-19v19"/><path fill="#1c3029" d="M90 265v-59a45 45 0 0 1 90 0v59Z"/><path class="fire-glow" d="M112 259c-15-23 11-29 13-52 15 18 7 23 17 25l9-15c3 22 22 27 8 42Z" fill="#efac70"/><g transform="translate(150 80) scale(.6)">${lantern(0)}</g>`,
+    );
+  if (["lantern", "lamps"].includes(type))
+    return shell(
+      type === "lamps"
+        ? `<g transform="translate(-62 5) scale(.85)">${lantern(0)}</g><g transform="translate(125 25) scale(.75)">${lantern(0)}</g>`
+        : lantern(0),
+    );
+  if (["plant", "garden"].includes(type)) return shell(plant);
+  if (type === "paper")
+    return shell(
+      `<g class="paper-bird" fill="#e2dbc4"><path d="m55 180 111-28 123-73-72 110-35 17-55 44 12-57-84-13Z"/><path d="m166 152 16 54 35-17m-78 4 27-41m16 54 107-127"/></g><path class="air-trails" d="M64 236h47m-62 14h32m155-38h45"/>`,
+    );
+  if (type === "kettle") return shell(kettle);
+  if (type === "mill") return shell(mill);
+  if (type === "gate") return shell(arch);
+  if (type === "pool")
+    return shell(
+      `<path d="M61 210c0-64 218-64 218 0v35c-18 55-201 55-218 0Z" fill="#455f61"/><ellipse class="pool-water" cx="170" cy="211" rx="105" ry="33" fill="#a8c8d0"/><path class="ice" d="m79 206 59-14 24 18 55-18 39 18-52 19-37-13-47 15-41-25Z" fill="#c6d8d5"/><path d="M72 243q100 50 196 0"/>`,
+    );
+  const channels =
+    type === "observatory"
+      ? ["#8bd8e7", "#efa97a", "#b6d4b0", "#f5d98b"]
+          .map(
+            (color, i) =>
+              `<circle class="channel" style="--channel-color:${color}" cx="${110 + i * 40}" cy="265" r="10"/>`,
+          )
+          .join("")
+      : "";
+  return shell(observatory + channels);
+}
+class WorldEffects {
+  constructor(canvas, reduced = false) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.particles = [];
+    this.reduced = reduced;
+    this.time = 0;
+    this.frame = 0;
+    this.resize = new ResizeObserver(() => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+    });
+    this.resize.observe(canvas);
+    this.loop = this.loop.bind(this);
+  }
+  cast(result) {
+    const colors = {
+        light: "#ffe2a0",
+        water: "#a0e6f0",
+        wind: "#cbe2bf",
+        fire: "#ffc08b",
+      },
+      range = result.modifier === "spread" ? 0.65 : 0.2;
+    for (
+      let i = 0;
+      i < (this.reduced ? 12 : 25 + Math.round(result.power * 80));
+      i++
+    )
+      this.particles.push({
+        x: 0.48 + (Math.random() - 0.5) * range,
+        y: 0.6 + (Math.random() - 0.5) * 0.25,
+        vx: (Math.random() - 0.5) * 0.0015,
+        vy: -0.0005 - Math.random() * 0.0015,
+        life: 1,
+        age: 0,
+        size: 1 + Math.random() * 3,
+        color: colors[result.element],
+        kind: result.element,
+        modifier: result.modifier,
+      });
+    this.color = colors[result.element];
+    this.pulse = 1;
+    if (!this.frame) {
+      this.time = 0;
+      this.frame = requestAnimationFrame(this.loop);
+    }
+  }
+  loop(now) {
+    const dt = Math.min(now - this.time || 16, 40);
+    this.time = now;
+    const c = this.ctx,
+      w = this.canvas.width,
+      h = this.canvas.height;
+    c.clearRect(0, 0, w, h);
+    if (this.pulse > 0) {
+      const g = c.createRadialGradient(
+        w * 0.48,
+        h * 0.61,
+        0,
+        w * 0.48,
+        h * 0.61,
+        w * 0.45,
+      );
+      g.addColorStop(0, this.color + "44");
+      g.addColorStop(1, this.color + "00");
+      c.globalAlpha = this.pulse;
+      c.fillStyle = g;
+      c.fillRect(0, 0, w, h);
+      this.pulse -= dt * 0.00035;
+      c.globalAlpha = 1;
+    }
+    for (const p of this.particles) {
+      p.age += dt;
+      p.life = 1 - p.age / 4200;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      if (p.modifier === "spread") p.x += p.vx * dt;
+      if (p.kind === "water") p.vy += dt * 0.000001;
+      c.globalAlpha = Math.max(0, p.life);
+      c.fillStyle = p.color;
+      c.shadowBlur = this.reduced ? 0 : 14;
+      c.shadowColor = p.color;
+      c.beginPath();
+      c.ellipse(
+        p.x * w,
+        p.y * h,
+        p.size * (w / 750),
+        p.size * (p.kind === "water" ? 2.5 : 1) * (w / 750),
+        0,
+        0,
+        Math.PI * 2,
+      );
+      c.fill();
+    }
+    c.globalAlpha = 1;
+    c.shadowBlur = 0;
+    this.particles = this.particles.filter((p) => p.life > 0);
+    this.frame =
+      this.particles.length || this.pulse > 0
+        ? requestAnimationFrame(this.loop)
+        : 0;
+  }
+  destroy() {
+    cancelAnimationFrame(this.frame);
+    this.resize.disconnect();
+  }
+}
+
+/* game.js */
+
+
+
+
+
+
+
+const $ = (s) => document.querySelector(s),
+  $$ = (s) => [...document.querySelectorAll(s)];
+const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
+const escape = (value) =>
+  String(value).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+const stars = (n) =>
+  `<span class="stars" aria-label="${n} of 3 stars">${[1, 2, 3].map((i) => `<span class="${i <= n ? "earned" : ""}">✦</span>`).join("")}</span>`;
+let save = freshSave(),
+  saveError = false,
+  hadSave = false;
+try {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (raw) {
+    save = validateSave(JSON.parse(raw));
+    hadSave = true;
+  }
+} catch {
+  saveError = true;
+}
+if (!hadSave && matchMedia("(prefers-reduced-motion: reduce)").matches)
+  save.settings.reducedMotion = true;
+let installPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  installPrompt = e;
+});
+let page = "journey",
+  desk = null,
+  effects = null,
+  missionIndex = 0,
+  stepIndex = 0,
+  scores = [],
+  usedGuide = false,
+  assisted = true,
+  busy = false,
+  stageFinished = false,
+  lastResult = null,
+  lastReward = null,
+  studioRecipe = { element: "light", modifier: "focus", signs: 1 },
+  studioStrokes = [],
+  studioScene = "atelier",
+  studioGuide = false,
+  bookTab = "seals",
+  toastTimer,
+  timers = [],
+  audioContext;
+let activeUser = null,
+  localSaveKey = SAVE_KEY,
+  accountMode = "signin",
+  cloudState = {
+    phase: "unconfigured",
+    configured: false,
+    user: null,
+    message: "Cloud saves are being prepared.",
+  };
+const cloud = new CloudAccount({
+  config: CLOUD_CONFIG,
+  storage: localStorage,
+  getSave: () => save,
+  onIdentity: switchAccount,
+  onSave: restoreCloudStory,
+  onStatus: (state) => {
+    cloudState = state;
+    updateAccountUi();
+  },
+  onRecovery: () => showAccount("recovery"),
+});
+try {
+  const draft = JSON.parse(
+    sessionStorage.getItem("ink-wonder-draft") || "null",
+  );
+  if (validateDrawing(draft)) studioStrokes = draft;
+} catch {}
+function persist() {
+  try {
+    localStorage.setItem(localSaveKey, JSON.stringify(save));
+    $("#saveStatus").textContent = "Progress saved on this device";
+  } catch {
+    $("#saveStatus").textContent = "Storage unavailable · export your save";
+    toast("Your browser could not save progress. Use Settings → Export save.");
+  }
+  updateHeader();
+  cloud.changed();
+}
+function updateHeader() {
+  const count = Object.keys(save.completed).length,
+    rank = count === 12 ? 3 : count >= 8 ? 2 : count >= 4 ? 1 : 0;
+  $("#playerRank").innerHTML =
+    `${RANKS[rank]}<small id="xpLabel">${insight(save)} insight · ${count}/12 moments</small>`;
+  $("#continueGame").innerHTML =
+    `${count ? "Continue your story" : "Begin your story"} ${icon("arrow")}`;
+  document.body.classList.toggle("large-text", save.settings.largeText);
+  document.body.classList.toggle("reduced-motion", save.settings.reducedMotion);
+  updateAccountUi();
+}
+function toast(text) {
+  clearTimeout(toastTimer);
+  $("#toast").textContent = text;
+  $("#toast").classList.add("visible");
+  toastTimer = setTimeout(() => $("#toast").classList.remove("visible"), 4200);
+}
+function later(fn, time) {
+  const id = setTimeout(fn, time);
+  timers.push(id);
+  return id;
+}
+function cleanup() {
+  if (page === "studio" && desk) studioStrokes = structuredClone(desk.strokes);
+  desk?.destroy();
+  effects?.destroy();
+  desk = null;
+  effects = null;
+  for (const timer of timers) clearTimeout(timer);
+  timers = [];
+  busy = false;
+  stageFinished = false;
+}
+function openDialog(html) {
+  $("#dialogBody").innerHTML = html;
+  if (!$("#dialog").open) $("#dialog").showModal();
+}
+function closeDialog() {
+  $("#dialog").close();
+}
+function updateAccountUi() {
+  const label = $("#accountLabel"),
+    title = $("#titleAccount"),
+    footer = $("#saveStatus");
+  if (!label) return;
+  const user = cloudState.user,
+    name =
+      user?.user_metadata?.display_name ||
+      user?.email?.split("@")[0] ||
+      "Apprentice";
+  label.innerHTML = user
+    ? `${escape(name.slice(0, 24))}<small>${cloudState.phase === "conflict" ? "Choose a save" : cloudState.pending ? "Sync pending" : "My account"}</small>`
+    : "Sign in<small>Cloud saves</small>";
+  title.innerHTML = user
+    ? `Welcome back, ${escape(name.slice(0, 30))} <span>↗</span>`
+    : "Sign in · keep your story with you <span>↗</span>";
+  if (user) footer.textContent = cloudState.message;
+  else footer.textContent = "Guest story · saved on this device";
+  $("#accountButton").classList.toggle(
+    "needs-attention",
+    cloudState.phase === "conflict" || cloudState.phase === "error",
+  );
+  $$(".account-status-text").forEach(
+    (node) => (node.textContent = cloudState.message),
+  );
+  const dashboard = $("#accountDashboard");
+  if (dashboard && dashboard.dataset.phase !== cloudState.phase) showAccount();
+}
+function rememberDraft(key) {
+  if (page !== "studio" || !desk) return;
+  try {
+    sessionStorage.setItem(key + ":draft", JSON.stringify(desk.strokes));
+  } catch {}
+}
+function switchAccount(user) {
+  rememberDraft(localSaveKey);
+  cleanup();
+  activeUser = user;
+  localSaveKey = accountSaveKey(user?.id);
+  studioStrokes = [];
+  try {
+    const draft = JSON.parse(
+      sessionStorage.getItem(localSaveKey + ":draft") || "null",
+    );
+    if (validateDrawing(draft)) studioStrokes = draft;
+  } catch {}
+  try {
+    const raw = localStorage.getItem(localSaveKey);
+    save = raw ? validateSave(JSON.parse(raw)) : freshSave();
+  } catch {
+    save = freshSave();
+    toast(
+      "The device copy could not be read. Cloud recovery will be attempted.",
+    );
+  }
+  updateHeader();
+  if (!$("#gameScreen").classList.contains("hidden")) navigate("journey");
+}
+function restoreCloudStory(payload) {
+  save = validateSave(payload);
+  try {
+    localStorage.setItem(localSaveKey, JSON.stringify(save));
+  } catch {
+    toast(
+      "The cloud story loaded, but this browser could not keep an offline copy.",
+    );
+  }
+  if (desk) desk.settings = save.settings;
+  updateHeader();
+  if (!$("#gameScreen").classList.contains("hidden")) {
+    if (page === "journey") renderJourney();
+    else if (page === "grimoire") renderGrimoire();
+  }
+}
+function readGuestStory() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    return raw ? validateSave(JSON.parse(raw)) : null;
+  } catch {
+    return null;
+  }
+}
+function storySummary(payload) {
+  return `${Object.keys(payload.completed).length} moments · ${payload.seals.length} grimoire pages`;
+}
+function authRedirectUrl() {
+  return new URL("./", location.href).href;
+}
+function showAccount(mode = "signin") {
+  accountMode = mode;
+  if (activeUser && mode !== "recovery") {
+    const guest = readGuestStory(),
+      backup = (() => {
+        try {
+          return localStorage.getItem(localSaveKey + ":backup");
+        } catch {
+          return null;
+        }
+      })();
+    const conflict = cloudState.conflict;
+    openDialog(
+      `<div class="dialog-content" id="accountDashboard" data-phase="${cloudState.phase}"><div class="account-crest">${icon("book")}</div><span class="overline">YOUR PLACE IN THE ATELIER</span><h2>Welcome back, ${escape((activeUser.user_metadata?.display_name || "apprentice").slice(0, 40))}.</h2><p class="account-email">${escape(activeUser.email || "")}</p><div class="cloud-status ${cloudState.phase}" role="status"><span class="status-dot"></span><span class="account-status-text">${escape(cloudState.message)}</span></div><div class="account-story-summary"><b>${Object.keys(save.completed).length}<small>moments</small></b><b>${save.seals.length}<small>saved pages</small></b><b>${save.discoveries.length}<small>discoveries</small></b></div>${conflict ? `<section class="sync-conflict"><span class="overline">TWO VERSIONS OF YOUR STORY</span><p>This device and the cloud both have changes. Choose a version; neither is replaced automatically.</p><button class="conflict-choice" data-account="use-cloud"><b>Use the cloud story</b><small>${storySummary(conflict.remote?.payload || freshSave())}</small><span>Keep a local backup of the device copy.</span></button><button class="conflict-choice" data-account="use-device"><b>Keep this device’s story</b><small>${storySummary(save)}</small><span>Replace the cloud version with this copy.</span></button><button class="text-button" data-act="export">Export this device’s copy first ↓</button></section>` : `<button class="button dark wide" data-account="sync" ${cloudState.phase === "syncing" ? "disabled" : ""}>${cloudState.phase === "syncing" ? "Syncing…" : "Sync now"} ${icon("spark")}</button>`}${guest && hasStory(guest) ? `<div class="guest-transfer"><h3>Your guest story is still here.</h3><p>${storySummary(guest)}. Bring it into this account when you are ready.</p><button class="text-button" data-account="import-guest" ${cloudState.phase === "syncing" ? "disabled" : ""}>Bring guest progress into this account ↗</button></div>` : ""}${backup ? '<button class="text-button" data-account="download-backup">Download the displaced device backup ↓</button>' : ""}<div class="account-bottom-actions"><button class="text-button" data-account="change-password">Change password</button><button class="text-button" data-account="signout">Sign out on this device</button></div><p class="auth-privacy">Your story belongs to your account. Guest progress and other accounts stay separate on this device.</p></div>`,
+    );
+    return;
+  }
+  if (!cloudState.configured || cloudState.phase === "unavailable") {
+    openDialog(
+      `<div class="dialog-content auth-intro"><div class="account-crest">${icon("book")}</div><span class="overline">A STORY THAT TRAVELS WITH YOU</span><h2>Your own place in the atelier.</h2><p>Sign in to carry your journey, keepsakes, and spellbook between devices.</p><div class="cloud-status"><span class="status-dot"></span><span>${cloudState.phase === "unavailable" ? "Sign-in is available in the web edition. You can continue as a guest here." : "Cloud accounts have not been connected for this build yet. Your guest story is still saved on this device."}</span></div><button class="button dark wide" data-account="guest">Continue as guest ${icon("quill")}</button><p class="auth-privacy">You can export your story from Settings and bring it into an account once cloud saves are available.</p></div>`,
+    );
+    return;
+  }
+  const signup = mode === "signup",
+    reset = mode === "reset",
+    recovery = mode === "recovery",
+    confirm = mode === "confirm";
+  openDialog(
+    `<div class="dialog-content auth-intro"><div class="account-crest">${icon("quill")}</div><span class="overline">${recovery ? "A FRESH START" : signup ? "A PLACE FOR YOUR STORY" : "WELCOME TO THE ATELIER"}</span><h2>${recovery ? "Choose a new password." : reset ? "Find your way back." : confirm ? "A letter is on its way." : signup ? "Every witch has a story." : "Your story is waiting."}</h2><p>${recovery ? "Your recovery link is ready. Set a new password to continue." : reset ? "We’ll send a password reset link to your email." : confirm ? "Confirm your email using the link we sent, then return here to sign in." : "Sign in to remember your journey and keep your grimoire across devices."}</p>${!reset && !recovery && !confirm ? `<div class="auth-tabs"><button data-account="signin" class="${!signup ? "active" : ""}">Sign in</button><button data-account="signup" class="${signup ? "active" : ""}">Create account</button></div>` : ""}<form id="authForm" data-mode="${mode}">${signup ? '<label class="form-label">Your name<input name="displayName" autocomplete="nickname" maxlength="40" placeholder="What should we call you?" required></label>' : ""}${!recovery ? '<label class="form-label">Email address<input name="email" type="email" autocomplete="username" inputmode="email" maxlength="254" placeholder="you@example.com" required></label>' : ""}${!reset && !confirm ? `<label class="form-label">${recovery ? "New password" : "Password"}<input name="password" type="password" autocomplete="${signup || recovery ? "new-password" : "current-password"}" minlength="${signup || recovery ? 8 : 1}" maxlength="128" ${signup || recovery ? 'placeholder="At least 8 characters"' : ""} required></label>` : ""}<p id="authMessage" class="auth-message" role="status" aria-live="polite"></p><button class="button dark wide" type="submit">${recovery ? "Save new password" : reset ? "Send reset link" : confirm ? "Resend confirmation email" : signup ? "Create my account" : "Sign in"} ${icon("arrow")}</button></form>${!signup && !reset && !recovery && !confirm ? '<button class="text-button auth-forgot" data-account="reset">Forgot your password?</button>' : ""}${reset || confirm ? '<button class="text-button auth-forgot" data-account="signin">← Back to sign in</button>' : ""}<button class="auth-guest" data-account="guest">Continue as guest</button><p class="auth-privacy">Your password is handled by the account service. Your private cloud save contains your game progress and grimoire.</p></div>`,
+  );
+}
+async function submitAccount(form) {
+  if (form.reportValidity && !form.reportValidity()) return;
+  const field = (name) => form.querySelector(`[name="${name}"]`)?.value || "",
+    mode = form.dataset.mode,
+    email = field("email"),
+    password = field("password"),
+    name = field("displayName"),
+    message = $("#authMessage"),
+    button = form.querySelector('[type="submit"]');
+  if ((mode === "signup" || mode === "recovery") && password.length < 8) {
+    message.textContent = "Use at least 8 characters for your password.";
+    return;
+  }
+  if (mode === "signup" && !name.trim()) {
+    message.textContent = "Please choose a name for your account.";
+    return;
+  }
+  button.disabled = true;
+  message.className = "auth-message";
+  message.textContent = "Opening your place in the atelier…";
+  try {
+    if (mode === "signin") {
+      await cloud.signIn(email, password);
+      if (form.isConnected) showAccount();
+    } else if (mode === "signup") {
+      const signedIn = await cloud.signUp(
+        email,
+        password,
+        name,
+        authRedirectUrl(),
+      );
+      if (form.isConnected) {
+        showAccount(signedIn ? "signin" : "confirm");
+        const emailField = $('#authForm [name="email"]');
+        if (emailField) emailField.value = email;
+      }
+    } else if (mode === "reset") {
+      await cloud.resetPassword(email, authRedirectUrl());
+      if (form.isConnected) {
+        message.textContent =
+          "If this address has an account, a reset link is on its way. Check your inbox and spam folder.";
+        message.classList.add("success");
+      }
+    } else if (mode === "confirm") {
+      await cloud.resendConfirmation(email, authRedirectUrl());
+      if (form.isConnected) {
+        message.textContent =
+          "If confirmation is needed, a new email is on its way.";
+        message.classList.add("success");
+      }
+    } else if (mode === "recovery") {
+      await cloud.updatePassword(password);
+      if (form.isConnected) showAccount();
+      toast("Your password has been updated.");
+    }
+  } catch (error) {
+    if (form.isConnected) {
+      message.textContent = cloudError(error);
+      message.classList.add("error");
+    }
+  } finally {
+    if (form.isConnected) button.disabled = false;
+    const passwordField = form.querySelector('[name="password"]');
+    if (passwordField) passwordField.value = "";
+  }
+}
+document.addEventListener("submit", (event) => {
+  if (event.target.id === "authForm") {
+    event.preventDefault();
+    submitAccount(event.target);
+  }
+});
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-account]");
+  if (!button || button.disabled) return;
+  const action = button.dataset.account;
+  if (action === "open") showAccount();
+  else if (["signin", "signup", "reset", "confirm"].includes(action))
+    showAccount(action);
+  else if (action === "guest") closeDialog();
+  else if (action === "change-password") showAccount("recovery");
+  else if (action === "sync") {
+    button.disabled = true;
+    await cloud.sync();
+    if ($("#accountDashboard")) showAccount();
+  } else if (action === "use-cloud" || action === "use-device") {
+    button.disabled = true;
+    try {
+      await cloud.resolveConflict(action === "use-cloud" ? "cloud" : "device");
+      if ($("#accountDashboard")) showAccount();
+    } catch {
+      toast(
+        "The backup could not be saved. Export your device story before switching versions.",
+      );
+      button.disabled = false;
+    }
+  } else if (action === "signout") {
+    button.disabled = true;
+    try {
+      if (!cloud.conflict) await cloud.sync();
+      await cloud.signOut();
+      showAccount();
+      toast("Signed out. Your guest story is ready on this device.");
+    } catch (error) {
+      toast(cloudError(error));
+      button.disabled = false;
+    }
+  } else if (action === "import-guest") {
+    const guest = readGuestStory();
+    if (!guest) return;
+    openDialog(
+      `<div class="dialog-content"><span class="overline">BRING YOUR STORY WITH YOU</span><h2>Continue your guest journey?</h2><p>Your guest story has ${storySummary(guest)}. Your account currently has ${storySummary(save)}.</p><p>Using the guest story replaces the account’s current story and syncs it to the cloud. The original guest copy stays on this device.</p><div class="dialog-actions"><button class="button light" data-act="export">Export account story first ↓</button><button class="button dark" data-account="confirm-guest">Use my guest story</button></div></div>`,
+    );
+  } else if (action === "confirm-guest") {
+    const guest = readGuestStory();
+    if (!guest || !activeUser) return;
+    cleanup();
+    save = guest;
+    persist();
+    closeDialog();
+    enter("journey");
+    toast("Your guest story is now part of this account.");
+  } else if (action === "download-backup") {
+    try {
+      const text = localStorage.getItem(localSaveKey + ":backup");
+      if (!text) return;
+      const url = URL.createObjectURL(
+          new Blob([text], { type: "application/json" }),
+        ),
+        a = document.createElement("a");
+      a.href = url;
+      a.download = "ink-and-wonder-device-backup.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      toast("The device backup could not be downloaded.");
+    }
+  }
+});
+function enter(next = "journey") {
+  $("#titleScreen").classList.add("hidden");
+  $("#gameScreen").classList.remove("hidden");
+  navigate(next);
+}
+function navigate(next) {
+  cleanup();
+  page = next;
+  $$("[data-page]").forEach((b) =>
+    b.classList.toggle(
+      "active",
+      b.dataset.page === next ||
+        (next === "mission" && b.dataset.page === "journey"),
+    ),
+  );
+  if (next === "journey") renderJourney();
+  else if (next === "studio") renderStudio();
+  else if (next === "grimoire") renderGrimoire();
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+function svgPaths(paths, viewBox = "-1.15 -1.15 2.3 2.3") {
+  return `<svg viewBox="${viewBox}" class="seal-preview" fill="none" aria-hidden="true">${paths.map((p) => `<path d="${p.map((q, i) => `${i ? "L" : "M"}${q.x.toFixed(3)},${q.y.toFixed(3)}`).join(" ")}"/>`).join("")}</svg>`;
+}
+function renderJourney() {
+  const next = nextMission(save),
+    count = Object.keys(save.completed).length,
+    all = count === 12;
+  $("#page").innerHTML =
+    `<section class="journey-page"><div class="page-heading"><div><span class="overline">YOUR APPRENTICESHIP</span><h1>${all ? "A world made a little brighter." : "There is a world beyond the page."}</h1><p>${all ? "Your story is complete. Revisit your favorite moments, perfect your seals, or make something entirely your own." : "Follow the road. Meet the people. Leave a little wonder behind."}</p></div><div class="journey-count"><b>${String(count).padStart(2, "0")}<i>/12</i></b><span>MOMENTS OF MAGIC</span></div></div><div class="chapter-grid">${CHAPTERS.map(
+      (c, ci) => {
+        const chapterMissions = MISSIONS.map((m, i) => ({
+            ...m,
+            index: i,
+          })).filter((m) => m.chapter === ci),
+          unlocked = available(chapterMissions[0].index, save),
+          complete = chapterMissions.filter((m) => save.completed[m.id]).length;
+        return `<article class="chapter-card ${unlocked ? "" : "locked"}"><div class="chapter-art art-${c.art}"><div class="chapter-badge">${c.subtitle} <span>${complete}/4</span></div><div class="chapter-art-copy"><span>${c.place}</span><h2>${c.name}</h2></div></div><div class="chapter-description">${escape(c.description)}</div><div class="mission-list">${chapterMissions
+          .map((m) => {
+            const done = save.completed[m.id],
+              open = available(m.index, save);
+            return `<button class="mission-row ${m.index === next && !all ? "next" : ""}" data-act="mission" data-index="${m.index}" ${open ? "" : "disabled"}><span class="mission-number">${done ? "✓" : open ? String(m.index + 1).padStart(2, "0") : "·"}</span><span><b>${m.title}</b><small>${m.location}</small></span>${done ? stars(done.stars) : `<span class="mission-arrow">${open ? "↗" : "⌑"}</span>`}</button>`;
+          })
+          .join(
+            "",
+          )}</div><div class="chapter-foot">${!unlocked ? "Finish the previous chapter to follow this road." : complete === 4 ? "A chapter to remember." : "There is no hurry. Every line is a lesson."}</div></article>`;
+      },
+    ).join(
+      "",
+    )}</div><div class="journey-lower"><div class="studio-invite"><div class="invite-icon">${icon("quill")}</div><div><span class="overline">A PAGE WITH NO INSTRUCTIONS</span><h2>What will your hands discover?</h2><p>Draw freely, invent combinations, and collect your own working seals.</p></div><button class="button outline" data-act="studio">Enter the studio ${icon("arrow")}</button></div><div class="mastery-note"><b>${Object.values(save.completed).reduce((n, m) => n + m.stars, 0)}<span>/ 36</span></b><p>Mastery stars<br><small>Draw without guides for a third star.</small></p></div></div></section>`;
+}
+function beginMission(index) {
+  if (!available(index, save)) return;
+  cleanup();
+  page = "mission";
+  missionIndex = index;
+  stepIndex = 0;
+  scores = [];
+  usedGuide = false;
+  assisted = index < 4;
+  lastResult = null;
+  save.lastMission = index;
+  persist();
+  $$("[data-page]").forEach((b) =>
+    b.classList.toggle("active", b.dataset.page === "journey"),
+  );
+  renderMission();
+  const m = MISSIONS[index];
+  openDialog(
+    `<div class="story-intro art-${CHAPTERS[m.chapter].art}"><span>${CHAPTERS[m.chapter].subtitle} · MOMENT ${String(index + 1).padStart(2, "0")}</span></div><div class="dialog-content"><span class="overline">${m.location}</span><h2>${m.title}</h2><blockquote>“${m.before.text}”</blockquote><div class="speaker"><span>Q</span><div>${m.before.speaker}<small>${m.before.speaker === "Qifrey" ? "Your teacher" : "A voice along the road"}</small></div></div><button class="button dark wide" data-act="begin-drawing">Take out your pen ${icon("quill")}</button></div>`,
+  );
+}
+function requirement() {
+  return MISSIONS[missionIndex].steps[stepIndex];
+}
+function targetMarkup(type) {
+  return `<div class="world-object" id="worldObject" data-object="${type}">${objectArt(type)}</div><button class="target-label" data-act="inspect">${icon("spark")}<span>${OBJECT_NAMES[type]}<small>YOUR SPELL’S FOCUS</small></span></button>`;
+}
+function sceneMarkup({ art, location, title, brief, type, studio = false }) {
+  return `<div class="stage-scene art-${art}" id="stageScene"><div class="scene-shade"></div><canvas class="effects-canvas" id="effects" aria-hidden="true"></canvas><div class="scene-location"><span class="location-dot"></span>${location}<span class="scene-time">${art === "forest" ? "BLUE HOUR" : "LATE AFTERNOON"}</span></div><div class="scene-heading"><span class="overline">${studio ? "THE DRAWING STUDIO" : `MOMENT ${String(missionIndex + 1).padStart(2, "0")}`}</span><h1>${title}</h1><p>${brief}</p></div>${targetMarkup(type)}<div class="scene-caption"><span>✦</span><p id="sceneCaption">${studio ? "No instructions. No wrong turns. Just ink and possibility." : "The world is waiting for a little magic."}</p></div>${studio ? `<div class="scene-selector" aria-label="Practice environment">${["atelier", "village", "forest"].map((a) => `<button data-act="environment" data-environment="${a}" class="${a === studioScene ? "active" : ""}">${a === "atelier" ? "Atelier" : a === "village" ? "Village" : "Observatory"}</button>`).join("")}</div>` : ""}</div>`;
+}
+function deskMarkup(studio = false) {
+  const r = studio ? studioRecipe : requirement();
+  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} CONJURING DESK</span><div class="desk-utilities"><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Guide ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "A thought, made visible." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${ELEMENTS[r.element].glyph}</span></div>${studio ? `<p class="desk-instruction">Draw any elemental sigil inside a ring. Add signs to change its behavior. Your pen decides what happens.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close a ring to give your spell a home." : "Begin with the heart. Add the signs. Close the ring last."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
+}
+function recipeInstruction(r) {
+  return `Draw the ${ELEMENTS[r.element].name.toLowerCase()} sigil with <b>${r.signs} ${MODIFIERS[r.modifier].name.toLowerCase()} sign${r.signs > 1 ? "s" : ""}</b>, then finish with one closed ring.`;
+}
+function mountDesk(studio = false) {
+  desk = new DrawingDesk($("#drawing"), {
+    settings: save.settings,
+    onChange: (message, pointer) => {
+      if (message) setFeedback(message, "warning");
+      if (pointer && page === "mission" && assisted) usedGuide = true;
+      if (pointer)
+        $("#penStatus").textContent =
+          pointer === "pen"
+            ? "Pen connected · pressure-sensitive ink"
+            : `${pointer === "touch" ? "Touch" : "Mouse"} input · drawing`;
+      $("#strokeCount").textContent = `${desk?.strokes.length || 0} lines`;
+      if (lastResult) lastResult = null;
+    },
+    onFinish: (last) => {
+      if (!save.settings.autoCast || busy || stageFinished || last.length < 12)
+        return;
+      const xs = last.map((p) => p.x),
+        ys = last.map((p) => p.y);
+      if (
+        Math.max(...xs) - Math.min(...xs) > 100 &&
+        Math.max(...ys) - Math.min(...ys) > 100 &&
+        distance(last[0], last.at(-1)) < 45
+      ) {
+        const r = recognize(desk.strokes);
+        if (r.ok) castSpell();
+      }
+    },
+  });
+  desk.setGuide(
+    studio
+      ? studioGuide
+        ? studioRecipe
+        : null
+      : assisted
+        ? requirement()
+        : null,
+  );
+  if (studio && studioStrokes.length) desk.load(studioStrokes);
+  effects = new WorldEffects($("#effects"), save.settings.reducedMotion);
+}
+function renderMission() {
+  window.scrollTo({ top: 0, behavior: "instant" });
+  const m = MISSIONS[missionIndex],
+    c = CHAPTERS[m.chapter];
+  $("#page").innerHTML =
+    `<div class="encounter-bar"><button class="text-button" data-act="journey">← Journey</button><span>${c.subtitle} <i>/</i> ${m.location}</span><button class="text-button" data-act="dialogue">Hear the introduction</button></div><section class="play-layout">${sceneMarkup({ art: c.art, location: c.place, title: m.title, brief: m.brief, type: m.object })}${deskMarkup()}</section>`;
+  mountDesk();
+}
+function renderStudio() {
+  $("#page").innerHTML =
+    `<div class="encounter-bar"><button class="text-button" data-act="journey">← Journey</button><span>THE STUDIO <i>/</i> AN UNWRITTEN PAGE</span><button class="text-button" data-act="field-guide">How drawn magic works ↗</button></div><section class="play-layout studio-layout">${sceneMarkup({ art: studioScene, location: studioScene === "atelier" ? "The quiet atelier" : studioScene === "village" ? "The village at rest" : "The open observatory", title: "A little ink.<br>Unlimited possibility.", brief: "Draw from memory. Try a new arrangement. Give an old spell a different intention.", type: "lantern", studio: true })}${deskMarkup(true)}</section>`;
+  lastResult = null;
+  mountDesk(true);
+}
+function setFeedback(text, kind = "neutral") {
+  const e = $("#spellFeedback");
+  if (!e) return;
+  e.className = "spell-feedback " + kind;
+  $("#feedbackText").textContent = text;
+}
+function castSpell() {
+  if (!desk || desk.active || busy || stageFinished) return;
+  const r = recognize(desk.strokes);
+  lastResult = r;
+  if (!r.ok) {
+    setFeedback(r.reason, "warning");
+    sound("miss");
+    return;
+  }
+  const element = ELEMENTS[r.element];
+  $("#stageScene").style.setProperty("--spell-color", element.color);
+  effects.cast(r);
+  $("#stageScene").classList.remove("casting");
+  void $("#stageScene").offsetWidth;
+  $("#stageScene").classList.add("casting");
+  sound(r.element);
+  discover(r);
+  if (page === "studio") {
+    const objectType = {
+      light: "lantern",
+      water: "plant",
+      wind: "paper",
+      fire: "kettle",
+    }[r.element];
+    $("#worldObject").innerHTML = objectArt(objectType);
+    $("#worldObject").dataset.object = objectType;
+    $(".target-label>span").innerHTML =
+      `${OBJECT_NAMES[objectType]}<small>YOUR SPELL’S FOCUS</small>`;
+    $("#worldObject").className = "world-object awakened " + r.modifier;
+    $("#worldObject").dataset.element = r.element;
+    $("#sceneCaption").textContent =
+      `${element.name}, ${{ focus: "gathering", flow: "lifting", spread: "scattering" }[r.modifier]} · ${r.signs} sign${r.signs === 1 ? "" : "s"} · ${r.quality}% clarity`;
+    setFeedback(
+      `${element.name} awakened. ${r.signs ? MODIFIERS[r.modifier].name + " signs shape its motion." : "A simple elemental spell, without directional signs."} Save this seal to keep it.`,
+      "success",
+    );
+    $("#orderElement").textContent = element.glyph;
+    return;
+  }
+  const objective = checkObjective(r, requirement());
+  if (!objective.ok) {
+    setFeedback(objective.reason, "warning");
+    $("#sceneCaption").textContent =
+      "Magic answered, but the task needs a different intention.";
+    return;
+  }
+  usedGuide = usedGuide || assisted;
+  scores.push(r.quality);
+  busy = true;
+  $("#castButton").disabled = true;
+  $("#worldObject").className = "world-object awakened " + r.modifier;
+  $("#worldObject").dataset.element = r.element;
+  $("#stageScene").dataset.completedSteps = String(stepIndex + 1);
+  $$("#worldObject .channel").forEach((channel, index) =>
+    channel.classList.toggle("filled", index <= stepIndex),
+  );
+  $("#sceneCaption").textContent =
+    stepIndex === MISSIONS[missionIndex].steps.length - 1
+      ? MISSIONS[missionIndex].after
+      : "The first part of your intention settles into the world.";
+  setFeedback(
+    `${element.name} awakened · ${r.quality}% clarity. ${stepIndex < MISSIONS[missionIndex].steps.length - 1 ? "The next seal is ready when you are." : "A small wonder, made by your hands."}`,
+    "success",
+  );
+  if (stepIndex < MISSIONS[missionIndex].steps.length - 1) {
+    $("#nextSeal").classList.remove("hidden");
+    $("#castButton").parentElement.classList.add("hidden");
+    busy = false;
+  } else {
+    stageFinished = true;
+    const reward = completeMission(save, missionIndex, scores, usedGuide);
+    lastReward = reward;
+    persist();
+    $("#nextSeal").classList.remove("hidden");
+    $("#nextSeal").dataset.act = "show-result";
+    $("#nextSeal").innerHTML = `Read this moment ${icon("book")}`;
+    $("#castButton").parentElement.classList.add("hidden");
+    later(
+      () => showCompletion(reward),
+      save.settings.reducedMotion ? 200 : 1600,
+    );
+  }
+}
+function discover(r) {
+  const key = r.element + "-" + r.modifier;
+  if (!save.discoveries.includes(key)) {
+    save.discoveries.push(key);
+    persist();
+    toast(
+      `New discovery · ${ELEMENTS[r.element].name} × ${MODIFIERS[r.modifier].name}`,
+    );
+  }
+}
+function nextSeal() {
+  if (!desk || stepIndex >= MISSIONS[missionIndex].steps.length - 1) return;
+  stepIndex++;
+  busy = false;
+  lastResult = null;
+  desk.clear();
+  $("#orderTitle").textContent =
+    ELEMENTS[requirement().element].name +
+    " · " +
+    MODIFIERS[requirement().modifier].name;
+  $("#orderElement").textContent = ELEMENTS[requirement().element].glyph;
+  $(".spell-order .overline").textContent =
+    `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`;
+  $("#deskInstruction").innerHTML = recipeInstruction(requirement());
+  $$(".step-track>span").forEach((el, i) => {
+    el.className =
+      i < stepIndex ? "complete" : i === stepIndex ? "current" : "";
+    el.innerHTML = `${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[MISSIONS[missionIndex].steps[i].element].name}</small>`;
+  });
+  desk.setGuide(assisted ? requirement() : null);
+  $("#nextSeal").classList.add("hidden");
+  $("#castButton").parentElement.classList.remove("hidden");
+  $("#castButton").disabled = false;
+  setFeedback("Fresh parchment. Let the next spell complete your intention.");
+}
+function showCompletion(reward) {
+  const m = MISSIONS[missionIndex],
+    chapterEnd = missionIndex % 4 === 3,
+    final = missionIndex === 11;
+  openDialog(
+    `<div class="completion-seal">${icon("spark")}</div><div class="dialog-content completion"><span class="overline">${final ? "YOUR STORY, WRITTEN IN INK" : chapterEnd ? "A CHAPTER TO REMEMBER" : "A MOMENT OF MAGIC"}</span><h2>${final ? "The sky we make." : m.title}</h2>${stars(reward.stars)}<p>${m.after}</p><div class="reward-line"><span>KEEPSAKE EARNED</span><b>✧ ${m.reward}</b></div><div class="result-stats"><span><b>${reward.quality}%</b>Seal clarity</span><span><b>${reward.isNew ? 80 + reward.stars * 20 : 0}</b>Insight gained</span><span><b>${usedGuide ? "Guided" : "From memory"}</b>Your craft</span></div>${reward.stars < 3 ? '<p class="mastery-tip">For three stars, revisit this moment without the trace guide and reach 85% clarity.</p>' : ""}<div class="dialog-actions"><button class="button dark" data-act="${final ? "ending" : "mission"}" ${final ? "" : `data-index="${missionIndex + 1}"`}>${final ? "Read your epilogue" : chapterEnd ? "Follow the road" : "The next moment"} ${icon("arrow")}</button><button class="button light" data-act="journey">Return to journey</button></div></div>`,
+  );
+}
+function ending() {
+  closeDialog();
+  openDialog(
+    `<div class="story-intro ending-art art-forest"></div><div class="dialog-content"><span class="overline">EPILOGUE · THE NEXT EMPTY PAGE</span><h2>Wonder is a practice.</h2><p>The road home is the same road. The village is the same village. Yet the little things look different now: the rain caught on a leaf, the wind in a mill’s sails, the light in someone’s window.</p><p>You know what your hands can do. More than that, you know why they might do it.</p><blockquote>“There will always be another blank page.”</blockquote><p class="epilogue-signature">Thank you for making a little wonder.</p><div class="dialog-actions"><button class="button dark" data-act="studio">Write your own spells ${icon("quill")}</button><button class="button light" data-act="journey">Revisit the journey</button></div><small class="fan-note">An original unofficial fan story inspired by Witch Hat Atelier. Story dialogue, locations outside the atelier, and practice seals are game adaptations.</small></div>`,
+  );
+}
+function openRecipe() {
+  openDialog(
+    `<div class="dialog-content"><span class="overline">THE REFERENCE PAGE</span><h2>A spell is a small language.</h2><p>Choose a reference to study. These controls change only the example; your drawing determines the spell.</p><label class="form-label">Element<select id="recipeElement">${Object.entries(
+      ELEMENTS,
+    )
+      .map(
+        ([id, e]) =>
+          `<option value="${id}" ${id === studioRecipe.element ? "selected" : ""}>${e.name}</option>`,
+      )
+      .join(
+        "",
+      )}</select></label><label class="form-label">Direction<select id="recipeModifier">${Object.entries(
+      MODIFIERS,
+    )
+      .map(
+        ([id, m]) =>
+          `<option value="${id}" ${id === studioRecipe.modifier ? "selected" : ""}>${m.name} — ${m.label}</option>`,
+      )
+      .join(
+        "",
+      )}</select></label><label class="form-label">Number of signs<select id="recipeSigns">${[0, 1, 2, 3, 4, 5, 6].map((n) => `<option ${n === studioRecipe.signs ? "selected" : ""}>${n}</option>`).join("")}</select></label><div id="recipePreview" class="recipe-preview">${svgPaths(recipePaths(studioRecipe.element, studioRecipe.modifier, studioRecipe.signs))}</div><button class="button dark wide" data-act="apply-recipe">Keep this reference ${icon("book")}</button></div>`,
+  );
+}
+function applyRecipe() {
+  studioRecipe = {
+    element: $("#recipeElement").value,
+    modifier: $("#recipeModifier").value,
+    signs: Number($("#recipeSigns").value),
+  };
+  $("#recipeLabel").textContent =
+    ELEMENTS[studioRecipe.element].name +
+    " / " +
+    MODIFIERS[studioRecipe.modifier].name;
+  desk.setGuide(studioGuide ? studioRecipe : null);
+  closeDialog();
+}
+function saveSeal() {
+  if (!desk?.strokes.length) {
+    toast("Put a little ink on the page first.");
+    return;
+  }
+  if (save.seals.length >= 40) {
+    toast(
+      "Your grimoire holds 40 pages. Export your save or remove a page to make room.",
+    );
+    return;
+  }
+  const r = recognize(desk.strokes);
+  openDialog(
+    `<div class="dialog-content"><span class="overline">A PAGE FOR YOUR GRIMOIRE</span><h2>Give your idea a name.</h2><p>${r.ok ? `${ELEMENTS[r.element].name} · ${MODIFIERS[r.modifier].name} · ${r.quality}% clarity` : "An experimental sketch. You can keep drawings even before they awaken."}</p><label class="form-label">Seal name<input id="sealName" maxlength="60" value="${r.ok ? ELEMENTS[r.element].name + " of " + ["the quiet morning", "the open road", "the silver sky"][Math.floor(Math.random() * 3)] : "An unfinished possibility"}" autocomplete="off"></label><button class="button dark wide" data-act="confirm-save-seal">Place in grimoire ${icon("book")}</button></div>`,
+  );
+  $("#sealName").focus();
+  $("#sealName").select();
+}
+function confirmSaveSeal() {
+  const name = $("#sealName").value.trim();
+  if (!name) {
+    $("#sealName").focus();
+    return;
+  }
+  const r = recognize(desk.strokes);
+  save.seals.unshift({
+    id: crypto.randomUUID(),
+    name,
+    element: r.ok ? r.element : "sketch",
+    modifier: r.ok ? r.modifier : "focus",
+    quality: r.ok ? r.quality : 0,
+    strokes: structuredClone(desk.strokes),
+  });
+  persist();
+  closeDialog();
+  toast("A new page has been placed in your grimoire.");
+}
+function fieldGuide() {
+  openDialog(
+    `<div class="dialog-content field-guide"><span class="overline">THE APPRENTICE’S FIELD GUIDE</span><h2>A language drawn by hand.</h2><p>In Witch Hat Atelier, magic is a craft of ink and drawn seals. This game uses original, simplified exercises inspired by that idea.</p><div class="guide-rule"><b>01</b><div><h3>Begin with a heart</h3><p>Keep the elemental sigil near the center. Its width is roughly half the ring’s diameter.</p></div></div><div class="element-guide">${Object.entries(
+      ELEMENTS,
+    )
+      .map(
+        ([id, e]) =>
+          `<div>${svgPaths(heart(id), "-.6 -.6 1.2 1.2")}<b>${e.name}</b><small>${e.description}</small></div>`,
+      )
+      .join(
+        "",
+      )}</div><div class="guide-rule"><b>02</b><div><h3>Give it an intention</h3><p>Place signs around the heart, inside the ring. Their tips point outward. More signs strengthen the effect. Missions tell you how many to use.</p></div></div><div class="modifier-guide">${Object.entries(
+      MODIFIERS,
+    )
+      .map(
+        ([id, m]) =>
+          `<div>${svgPaths(sign(id, Math.PI), "-.3 -1.1 .6 .7")}<b>${m.name}</b><small>${m.description}</small></div>`,
+      )
+      .join(
+        "",
+      )}</div><div class="guide-rule"><b>03</b><div><h3>Give it a home</h3><p>Enclose everything in one continuous ring. Close it carefully. Seals may be drawn anywhere, at different sizes; their proportions still matter.</p></div></div><p>Free drawing accepts your own arrangements, without a guide. The game reads four elemental hearts and three directional signs. Unrecognized sketches can still be saved as grimoire pages.</p><p><b>Pen tips:</b> Enable Pen only in Settings for palm rejection. Use the eraser to remove a stroke, Undo to take it back, or hide the trace guide to draw from memory.</p><p class="keyboard-hints">P · pen &nbsp; E · eraser &nbsp; Ctrl/⌘ Z · undo &nbsp; Shift Ctrl/⌘ Z · redo &nbsp; Space · cast</p><button class="button dark wide" data-act="close-dialog">Back to the page ${icon("quill")}</button></div>`,
+  );
+}
+function renderGrimoire() {
+  $("#page").innerHTML =
+    `<section class="grimoire-page"><div class="page-heading"><div><span class="overline">THE THINGS YOUR HANDS REMEMBER</span><h1>Your personal grimoire.</h1><p>A collection of working seals, unfinished ideas, and moments along the road.</p></div><div class="book-emblem">${icon("book")}</div></div><div class="book-tabs">${[
+      ["seals", "My seals", save.seals.length],
+      ["discoveries", "Discoveries", save.discoveries.length + "/12"],
+      ["memories", "Memories", Object.keys(save.completed).length + "/12"],
+    ]
+      .map(
+        ([id, label, count]) =>
+          `<button class="${bookTab === id ? "active" : ""}" data-act="book-tab" data-tab="${id}">${label}<span>${count}</span></button>`,
+      )
+      .join(
+        "",
+      )}<button data-act="field-guide" class="book-guide">Field guide ↗</button></div><div class="book-content">${bookTab === "seals" ? sealsMarkup() : bookTab === "discoveries" ? discoveriesMarkup() : memoriesMarkup()}</div></section>`;
+}
+function sealsMarkup() {
+  if (!save.seals.length)
+    return `<div class="empty-book"><span>✧</span><h2>Your next idea belongs here.</h2><p>Save a working spell or an experimental sketch from the drawing desk.<br>This grimoire is yours to fill.</p><button class="button dark" data-act="studio">Find a blank page ${icon("quill")}</button></div>`;
+  return `<div class="seal-grid">${save.seals.map((s, i) => `<article class="saved-seal"><div class="saved-seal-art">${svgPaths(s.strokes, "0 0 600 600")}</div><span class="overline">${s.element === "sketch" ? "EXPERIMENTAL PAGE" : ELEMENTS[s.element].name + " / " + MODIFIERS[s.modifier].name}</span><h2>${escape(s.name)}</h2><p>${s.quality ? s.quality + "% clarity" : "An idea still taking shape"}</p><div><button class="text-button" data-act="open-seal" data-index="${i}">Open in studio ↗</button><button class="text-button remove-page" data-act="remove-seal" data-index="${i}" aria-label="Remove ${escape(s.name)}">×</button></div></article>`).join("")}</div>`;
+}
+function discoveriesMarkup() {
+  return `<div class="discovery-grid">${Object.entries(ELEMENTS)
+    .flatMap(([element, e]) =>
+      Object.entries(MODIFIERS).map(([modifier, m]) => {
+        const found = save.discoveries.includes(element + "-" + modifier);
+        return `<article class="discovery ${found ? "found" : ""}"><div>${found ? svgPaths(recipePaths(element, modifier, 3)) : '<span class="unknown">?</span>'}</div><span class="overline">${found ? "DISCOVERED" : "UNEXPLORED"}</span><h2>${e.name} × ${m.name}</h2><p>${found ? m.description : "Try this combination in the free drawing studio."}</p><button class="text-button" data-act="try-combination" data-element="${element}" data-modifier="${modifier}">${found ? "Draw again" : "Experiment"} ↗</button></article>`;
+      }),
+    )
+    .join("")}</div>`;
+}
+function memoriesMarkup() {
+  return `<div class="memory-list">${MISSIONS.map((m, i) => {
+    const done = save.completed[m.id];
+    return `<article class="memory ${done ? "" : "unwritten"}"><span class="memory-number">${String(i + 1).padStart(2, "0")}</span><div><span class="overline">${CHAPTERS[m.chapter].subtitle} · ${done ? m.reward : "AN UNWRITTEN MOMENT"}</span><h2>${m.title}</h2><p>${done ? m.memory : "Follow the road to find out what this page will hold."}</p></div>${done ? stars(done.stars) : '<span class="memory-lock">◇</span>'}</article>`;
+  }).join("")}</div>`;
+}
+function settings() {
+  openDialog(
+    `<div class="dialog-content"><span class="overline">MAKE YOURSELF AT HOME</span><h2>Your atelier, your pace.</h2><div class="settings-list">${[
+      ["sound", "Sound", "Original soft chimes when a spell awakens."],
+      [
+        "penOnly",
+        "Pen only",
+        "Reject fingers and palms on the drawing page. Turn off for touch-only styluses.",
+      ],
+      [
+        "autoCast",
+        "Awaken on ring closure",
+        "A readable seal casts when you finish its enclosing ring.",
+      ],
+      [
+        "reducedMotion",
+        "Reduce motion",
+        "Gentler effects and no animated world objects.",
+      ],
+      ["largeText", "Larger text", "More room for instructions and dialogue."],
+    ]
+      .map(
+        ([id, label, description]) =>
+          `<label class="setting-row"><span><b>${label}</b><small>${description}</small></span><input type="checkbox" data-setting="${id}" ${save.settings[id] ? "checked" : ""}></label>`,
+      )
+      .join(
+        "",
+      )}</div><div class="data-settings"><span class="overline">KEEP YOUR STORY SAFE</span><p>Progress is saved in this browser. Export it before moving to GitHub hosting or to another tablet.</p><div class="dialog-actions"><button class="button light" data-act="export">Export save ↓</button><button class="button light" data-act="import">Import save ↑</button></div></div><button class="button light wide install-button" data-act="install">Install on your tablet ↗</button><button class="button dark wide" data-act="close-dialog">Back to the story</button><p class="fan-note">Original fan story, art, and practice seals inspired by Witch Hat Atelier. No account or network is needed to play after the first load.</p></div>`,
+  );
+}
+function exportSave() {
+  const blob = new Blob([JSON.stringify(save, null, 2)], {
+      type: "application/json",
+    }),
+    url = URL.createObjectURL(blob),
+    a = document.createElement("a");
+  a.href = url;
+  a.download = "ink-and-wonder-save.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("Your story has been exported. Keep this file for the move to GitHub.");
+}
+function sound(type) {
+  if (!save.settings.sound) return;
+  try {
+    audioContext ??= new AudioContext();
+    audioContext.resume();
+    const notes =
+      type === "miss"
+        ? [220, 196]
+        : type === "water"
+          ? [440, 587.33, 880, 1174.66]
+          : type === "wind"
+            ? [392, 523.25, 783.99, 1046.5]
+            : type === "fire"
+              ? [329.63, 440, 659.25, 880]
+              : [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((f, i) => {
+      const o = audioContext.createOscillator(),
+        g = audioContext.createGain(),
+        at = audioContext.currentTime + i * 0.1;
+      o.type = "sine";
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0, at);
+      g.gain.linearRampToValueAtTime(
+        type === "miss" ? 0.012 : 0.035,
+        at + 0.015,
+      );
+      g.gain.exponentialRampToValueAtTime(0.0001, at + 1.9);
+      o.connect(g).connect(audioContext.destination);
+      o.start(at);
+      o.stop(at + 2);
+    });
+  } catch {}
+}
+function setTool(tool) {
+  desk?.setTool(tool);
+  $$('[data-act="pen"],[data-act="erase"]').forEach((b) => {
+    const selected = b.dataset.act === (tool === "erase" ? "erase" : "pen");
+    b.classList.toggle("active", selected);
+    b.setAttribute("aria-pressed", String(selected));
+  });
+}
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-act]");
+  if (!button || button.disabled) return;
+  const act = button.dataset.act;
+  if (["journey", "studio", "grimoire", "mission", "ending"].includes(act))
+    closeDialog();
+  if (act === "journey" || act === "studio" || act === "grimoire")
+    navigate(act);
+  else if (act === "mission") beginMission(Number(button.dataset.index));
+  else if (act === "begin-drawing") closeDialog();
+  else if (act === "close-dialog") closeDialog();
+  else if (act === "field-guide") fieldGuide();
+  else if (act === "dialogue") {
+    const m = MISSIONS[missionIndex];
+    openDialog(
+      `<div class="dialog-content"><span class="overline">${m.before.speaker}</span><h2>${m.title}</h2><blockquote>“${m.before.text}”</blockquote><button class="button dark wide" data-act="close-dialog">Return to your drawing</button></div>`,
+    );
+  } else if (act === "focus-desk") {
+    const expanded = $(".play-layout").classList.toggle("focused");
+    button.textContent = expanded ? "Back to scene ↙" : "Expand ↗";
+  } else if (act === "cast") castSpell();
+  else if (act === "pen" || act === "erase") setTool(act);
+  else if (act === "undo" || act === "redo") desk?.[act]();
+  else if (act === "clear") {
+    desk?.clear();
+    lastResult = null;
+    setFeedback("A fresh page. Every attempt teaches your hand something.");
+  } else if (act === "next-seal") nextSeal();
+  else if (act === "show-result" && lastReward) showCompletion(lastReward);
+  else if (act === "save-seal") saveSeal();
+  else if (act === "confirm-save-seal") confirmSaveSeal();
+  else if (act === "recipe") openRecipe();
+  else if (act === "apply-recipe") applyRecipe();
+  else if (act === "download-seal") desk?.download();
+  else if (act === "ending") ending();
+  else if (act === "environment") {
+    studioScene = button.dataset.environment;
+    navigate("studio");
+  } else if (act === "book-tab") {
+    bookTab = button.dataset.tab;
+    renderGrimoire();
+  } else if (act === "open-seal") {
+    const s = save.seals[Number(button.dataset.index)];
+    if (!s) return;
+    studioStrokes = structuredClone(s.strokes);
+    if (s.element !== "sketch")
+      studioRecipe = {
+        element: s.element,
+        modifier: s.modifier,
+        signs: recognize(s.strokes).signs || 1,
+      };
+    navigate("studio");
+  } else if (act === "remove-seal") {
+    const index = Number(button.dataset.index),
+      s = save.seals[index];
+    openDialog(
+      `<div class="dialog-content"><span class="overline">A PAGE FROM YOUR GRIMOIRE</span><h2>Remove this page?</h2><p>“${escape(s.name)}” will be removed from this browser’s grimoire. Export your save first if you want to keep a copy.</p><div class="dialog-actions"><button class="button dark" data-act="confirm-remove" data-index="${index}">Remove page</button><button class="button light" data-act="close-dialog">Keep it</button></div></div>`,
+    );
+  } else if (act === "confirm-remove") {
+    save.seals.splice(Number(button.dataset.index), 1);
+    persist();
+    closeDialog();
+    renderGrimoire();
+  } else if (act === "try-combination") {
+    studioRecipe = {
+      element: button.dataset.element,
+      modifier: button.dataset.modifier,
+      signs: 3,
+    };
+    studioGuide = false;
+    navigate("studio");
+    openRecipe();
+  } else if (act === "install") installGame();
+  else if (act === "export") exportSave();
+  else if (act === "import") $("#saveImport").click();
+  else if (act === "inspect")
+    toast(
+      page === "studio"
+        ? "Your spell will transform this object. Try different elements and signs."
+        : MISSIONS[missionIndex].brief,
+    );
+});
+document.addEventListener("change", (e) => {
+  if (e.target.id === "traceGuide") {
+    if (page === "studio") {
+      studioGuide = e.target.checked;
+      desk.setGuide(studioGuide ? studioRecipe : null);
+    } else {
+      assisted = e.target.checked;
+      desk.setGuide(assisted ? requirement() : null);
+      if (assisted) usedGuide = true;
+    }
+  }
+  if (e.target.dataset.setting) {
+    save.settings[e.target.dataset.setting] = e.target.checked;
+    if (effects) effects.reduced = save.settings.reducedMotion;
+    persist();
+  }
+  if (["recipeElement", "recipeModifier", "recipeSigns"].includes(e.target.id))
+    $("#recipePreview").innerHTML = svgPaths(
+      recipePaths(
+        $("#recipeElement").value,
+        $("#recipeModifier").value,
+        Number($("#recipeSigns").value),
+      ),
+    );
+});
+$("#saveImport").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    if (file.size > 8_000_000) throw Error("This file is too large.");
+    const imported = validateSave(JSON.parse(await file.text()));
+    openDialog(
+      `<div class="dialog-content"><span class="overline">A STORY FROM ANOTHER PAGE</span><h2>Continue this saved story?</h2><p>This save has ${Object.keys(imported.completed).length} completed moments and ${imported.seals.length} grimoire pages. Importing replaces this browser’s current progress.</p><div class="dialog-actions"><button class="button light" data-act="export">Export current story first</button><button class="button dark" id="confirmImport">Import this story</button></div></div>`,
+    );
+    $("#confirmImport").onclick = () => {
+      save = imported;
+      cleanup();
+      persist();
+      closeDialog();
+      enter("journey");
+      toast("Your story is ready to continue.");
+    };
+  } catch (error) {
+    toast(error.message || "This save could not be read.");
+  }
+  e.target.value = "";
+});
+$("#continueGame").onclick = () => enter("journey");
+$("#titleWorkshop").onclick = () => enter("studio");
+$("#home").onclick = () => {
+  cleanup();
+  $("#gameScreen").classList.add("hidden");
+  $("#titleScreen").classList.remove("hidden");
+  updateHeader();
+};
+$$("[data-page]").forEach((b) => (b.onclick = () => navigate(b.dataset.page)));
+$("#settings").onclick = settings;
+$("#titleSettings").onclick = settings;
+$("#help").onclick = fieldGuide;
+$("#closeDialog").onclick = closeDialog;
+$("#dialog").addEventListener("click", (e) => {
+  if (e.target === $("#dialog")) closeDialog();
+});
+document.addEventListener("keydown", (e) => {
+  if (
+    $("#dialog").open ||
+    !desk ||
+    /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)
+  )
+    return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+    e.preventDefault();
+    e.shiftKey ? desk.redo() : desk.undo();
+  } else if (e.code === "Space") {
+    e.preventDefault();
+    castSpell();
+  } else if (e.key.toLowerCase() === "p") setTool("pen");
+  else if (e.key.toLowerCase() === "e") setTool("erase");
+});
+window.addEventListener("beforeunload", () => {
+  if (page === "studio" && desk?.strokes.length) {
+    try {
+      sessionStorage.setItem(
+        localSaveKey + ":draft",
+        JSON.stringify(desk.strokes),
+      );
+    } catch {}
+  }
+});
+updateHeader();
+cloud.start();
+window.addEventListener("online", () => cloud.sync());
+window.addEventListener("focus", () => {
+  if (cloud.user) cloud.sync();
+});
+if (saveError)
+  toast("An unreadable save was found. You can import a backup in Settings.");
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+
+function installGame() {
+  if (installPrompt) {
+    installPrompt.prompt();
+    installPrompt = null;
+    return;
+  }
+  openDialog(
+    `<div class="dialog-content"><span class="overline">YOUR ATELIER, WHEREVER YOU ARE</span><h2>A place on your home screen.</h2><p><b>Android:</b> Open this game in Chrome. In the browser menu, choose Install app or Add to Home screen.</p><p><b>iPad:</b> Open in Safari, tap Share, then Add to Home Screen.</p><p>Once the first load has finished, the game, illustrations, and fonts are available offline. Your saved story stays in this browser. Use Export save when moving to another device or host.</p><button class="button dark wide" data-act="close-dialog">Back to the page</button></div>`,
+  );
+}
+
+})();
+</script>
+  </body>
+</html>

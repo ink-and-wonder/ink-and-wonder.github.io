@@ -1,0 +1,37 @@
+name: Publish Ink and Wonder
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Verify spell engine and campaign
+        run: |
+          npx --yes pnpm@11.25.0 install --frozen-lockfile --ignore-scripts
+          node scripts/build-cloud.mjs
+          node scripts/build-standalone.mjs
+          node scripts/check-release.mjs --require-cloud
+          node --test tests/*.test.js
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - name: Publish game
+        id: deployment
+        uses: actions/deploy-pages@v4

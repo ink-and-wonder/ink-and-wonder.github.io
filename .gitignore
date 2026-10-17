@@ -1,0 +1,11 @@
+node_modules/
+.pnpm-store/
+site.tar.gz
+*.zip
+art-source/
+.sites-runtime/
+.env
+.env.*
+!.env.example
+supabase/.temp/
+output/

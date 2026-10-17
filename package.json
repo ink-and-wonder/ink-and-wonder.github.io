@@ -1,0 +1,19 @@
+{
+  "name": "ink-and-wonder",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "start": "node server.cjs",
+    "build": "node scripts/build-cloud.mjs && node scripts/build-standalone.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "esbuild": "0.28.2",
+    "linkedom": "0.18.13"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0"
+  }
+}
