@@ -1,4 +1,4 @@
-import { SIGILS, SIGNS } from "./vocabulary.js?v=3.1.0";
+import { SIGILS, SIGNS } from "./vocabulary.js?v=3.1.1";
 export const ELEMENTS = {
   light: {
     name: "Light",

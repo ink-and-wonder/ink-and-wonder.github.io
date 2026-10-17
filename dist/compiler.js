@@ -1,5 +1,5 @@
-import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.0";
-import { resample, distance, ringCandidates, fitRing, heart, sign, circle, recognize, validateDrawing } from "./engine.js?v=3.1.0";
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.1";
+import { resample, distance, ringCandidates, fitRing, heart, sign, circle, recognize, validateDrawing } from "./engine.js?v=3.1.1";
 const designed=CATALOGUE.filter(g=>g.paths.length), templateCache=new Map();
 const bounds=paths=>{
  const p=paths.flat();if(!p.length)return null;
@@ -59,6 +59,7 @@ function separatedGroups(paths,ring){
 }
 const radius=(p,r)=>Math.hypot((p.x-r.cx)/r.rx,(p.y-r.cy)/r.ry);
 function boundaryStroke(s,r){
+ if(r.strokes?.includes(s))return true;
  const fit=fitRing(s);if(fit&&distance({x:fit.cx,y:fit.cy},{x:r.cx,y:r.cy})<r.r*.12&&Math.abs(fit.r-r.r)<r.r*.12)return true;
  if(s.length<3||!s.every(p=>radius(p,r)>.84&&radius(p,r)<1.17))return false;
  const angles=s.map(p=>Math.atan2(p.y-r.cy,p.x-r.cx));let arc=0;

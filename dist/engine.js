@@ -1,4 +1,4 @@
-import { SIGILS, SIGNS } from "./vocabulary.js?v=3.1.0";
+import { SIGILS, SIGNS } from "./vocabulary.js?v=3.1.1";
 /* Local geometric recognition. The ring defines a coordinate system, so seals
    may be drawn anywhere on the page and at any useful size. */
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -132,7 +132,7 @@ export function fitRing(p) {
   };
 }
 export function ringCandidates(strokes) {
-  const candidates = strokes.map(fitRing).filter(Boolean);
+  const candidates = strokes.map(s=>{const fit=fitRing(s);return fit?{...fit,strokes:[s]}:null;}).filter(Boolean);
   const points = strokes.flat();
   if (!points.length) return candidates;
   const xs=points.map(p=>p.x), ys=points.map(p=>p.y);
@@ -142,7 +142,7 @@ export function ringCandidates(strokes) {
   const unused=new Set(arcs);
   for (const arc of arcs) {
     if (!unused.delete(arc)) continue;
-    let joined=[...arc];
+    let joined=[...arc],joinedStrokes=[arc];
     while (unused.size) {
       let nearestArc=null, reverse=false, gap=Infinity;
       for (const next of unused) for (const rev of [false,true]) {
@@ -151,9 +151,10 @@ export function ringCandidates(strokes) {
       }
       if(gap>r*0.16) break;
       unused.delete(nearestArc);
+      joinedStrokes.push(nearestArc);
       joined.push(...(reverse?[...nearestArc].reverse():nearestArc));
     }
-    const fit=fitRing(joined); if(fit) candidates.push(fit);
+    const fit=fitRing(joined); if(fit) candidates.push({...fit,strokes:joinedStrokes});
   }
   return candidates.sort((a,b)=>b.r-a.r);
 }

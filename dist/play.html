@@ -15,7 +15,7 @@
     <link rel="icon" href="assets/icon.svg" />
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="style.css?v=3.1.0" />
+    <link rel="stylesheet" href="style.css?v=3.1.1" />
   </head>
   <body>
     <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg">
@@ -614,7 +614,7 @@ function fitRing(p) {
   };
 }
 function ringCandidates(strokes) {
-  const candidates = strokes.map(fitRing).filter(Boolean);
+  const candidates = strokes.map(s=>{const fit=fitRing(s);return fit?{...fit,strokes:[s]}:null;}).filter(Boolean);
   const points = strokes.flat();
   if (!points.length) return candidates;
   const xs=points.map(p=>p.x), ys=points.map(p=>p.y);
@@ -624,7 +624,7 @@ function ringCandidates(strokes) {
   const unused=new Set(arcs);
   for (const arc of arcs) {
     if (!unused.delete(arc)) continue;
-    let joined=[...arc];
+    let joined=[...arc],joinedStrokes=[arc];
     while (unused.size) {
       let nearestArc=null, reverse=false, gap=Infinity;
       for (const next of unused) for (const rev of [false,true]) {
@@ -633,9 +633,10 @@ function ringCandidates(strokes) {
       }
       if(gap>r*0.16) break;
       unused.delete(nearestArc);
+      joinedStrokes.push(nearestArc);
       joined.push(...(reverse?[...nearestArc].reverse():nearestArc));
     }
-    const fit=fitRing(joined); if(fit) candidates.push(fit);
+    const fit=fitRing(joined); if(fit) candidates.push({...fit,strokes:joinedStrokes});
   }
   return candidates.sort((a,b)=>b.r-a.r);
 }
@@ -898,6 +899,7 @@ function separatedGroups(paths,ring){
 }
 const radius=(p,r)=>Math.hypot((p.x-r.cx)/r.rx,(p.y-r.cy)/r.ry);
 function boundaryStroke(s,r){
+ if(r.strokes?.includes(s))return true;
  const fit=fitRing(s);if(fit&&distance({x:fit.cx,y:fit.cy},{x:r.cx,y:r.cy})<r.r*.12&&Math.abs(fit.r-r.r)<r.r*.12)return true;
  if(s.length<3||!s.every(p=>radius(p,r)>.84&&radius(p,r)<1.17))return false;
  const angles=s.map(p=>Math.atan2(p.y-r.cy,p.x-r.cx));let arc=0;

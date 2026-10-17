@@ -1,4 +1,4 @@
-import { SAVE_KEY, freshSave, validateSave } from "./state.js?v=3.1.0";
+import { SAVE_KEY, freshSave, validateSave } from "./state.js?v=3.1.1";
 
 export const accountSaveKey = (id) =>
   id ? `${SAVE_KEY}:user:${id}` : SAVE_KEY;

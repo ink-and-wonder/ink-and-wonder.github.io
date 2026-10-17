@@ -60,3 +60,11 @@ test('orientation is relative to each seal and outside ink cannot silently becom
  assert.equal(compileSpell([[{x:NaN,y:4}]]).ok,false);
  assert.equal(compileSpell([]).ok,false);
 });
+test('a ring made from short connected strokes is not mistaken for shaping signs',()=>{
+ const paths=compositionPaths({element:'fire',modifier:'focus',signs:0});
+ const ring=paths.pop();
+ for(let i=0;i<16;i++)paths.push(ring.slice(i*6,i*6+7));
+ const result=compileSpell(paths);
+ assert.equal(result.ok,true);assert.equal(result.element,'fire');assert.equal(result.signs,0);
+ assert.deepEqual(result.symbols.map(s=>s.id),['sigil-fire']);
+});
