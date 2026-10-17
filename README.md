@@ -1,6 +1,6 @@
 # Ink & Wonder — A Witch’s Atelier
 
-An illustrated, pen-first adventure inspired by Witch Hat Atelier: three chapters, twelve encounters, nineteen spell steps, and an epilogue. Version 2.1 adds remembered accounts and private cloud saves with Supabase.
+An illustrated, pen-first adventure inspired by Witch Hat Atelier: three chapters, twelve encounters, nineteen spell steps, and an epilogue. Version 3 adds an attributed 83-entry symbol atlas, compound drawing recognition, and a paged screen-fit interface. Remembered accounts and private cloud saves use Supabase.
 
 ## Play the local build
 
@@ -22,7 +22,11 @@ Cloud saves use database-enforced user isolation and checked revision numbers. O
 
 Every encounter has an introduction, a task with visible world changes, an ending, a keepsake, and a memory page. Completed encounters unlock the next. Replay for up to three mastery stars. Three stars require 85% clarity and drawing without the trace guide; guided play can still finish the entire story.
 
-The **free drawing studio** is always open. Draw a supported elemental heart anywhere inside a closed ring, add gathering/lifting/scattering signs in your own arrangement, and cast it. Reference selections do not choose the result: recognition reads the actual ink. It supports four elements × three signs and variable seal size, position, and sign count. Working seals create effects and unlock discoveries. Save up to forty named working seals or unrecognized sketches, reopen them, and download drawings as PNGs.
+The **free drawing studio** reads the actual ink, independently of the reference controls. Its atlas contains 36 sigil entries and 47 sign entries from the Independent Witch Hat Atelier Wiki. 81 have study drawings; Gryphon and Pegasus remain explicitly unpublished. Source links, community naming, and uncertain functions are shown separately from documented shapes. Derived centerlines and their attribution are in `dist/assets/glyph-attribution.md`.
+
+Choose a reference with two sigils, mixed signs, a shared ring, nested rings or separate rings. Change sign count and inversion, or draw a new arrangement freely. Recognized compositions produce a bounded game visualization. Strict study mode withholds uncertain effects; optional interpretations are explicitly game approximations. Unknown functions never gain an invented canonical effect. Save up to forty named spells or sketches, reopen them, and export drawings as PNGs.
+
+The document does not scroll. Journey chapters, grimoire collections and the searchable atlas use page controls. The drawing desk keeps its canvas, tools, feedback and cast button together. Portrait tablets put tools under the canvas; Expand gives drawing the full screen.
 
 The illustrated scenes include an atelier, village, and twilight observatory. Code-native objects animate in response to your spells. Compound encounters change in stages. Graphics use pressure-sensitive ink, soft procedural audio, and motion settings, without runtime game libraries or external network requests.
 
@@ -35,7 +39,7 @@ The illustrated scenes include an atelier, village, and twilight observatory. Co
 - Keyboard: **P** pen; **E** eraser; **Ctrl/⌘ Z** undo; **Shift Ctrl/⌘ Z** redo; **Space** cast.
 - Settings include sound, reduced motion, larger text, installation guidance, and save export/import.
 
-A clear central sigil, surrounding signs, and a single enclosing ring are required for recognized spells. The studio accepts arbitrary sketches as saved pages; it does not turn every possible drawing into a unique spell. The field guide explains the supported grammar.
+Enclosing rings define the drawing coordinate systems. Recognition accepts connected ring arcs, modest oval distortion, reordered strokes and natural pen wobble. It rejects unclear or outside ink rather than choosing the selected reference. This is an unofficial study game, not a claim to reproduce every rule or unpublished spell in the manga. The campaign is an original fan story.
 
 ## Checks and development
 

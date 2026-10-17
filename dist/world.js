@@ -1,4 +1,4 @@
-import { SIGILS } from "./vocabulary.js?v=3.0.0";
+import { SIGILS } from "./vocabulary.js?v=3.0.1";
 const shell = (content) =>
   `<svg viewBox="0 0 340 310" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="object-shadow" cx="170" cy="280" rx="111" ry="14" fill="#081c1b" opacity=".28"/><g stroke="#e8ddbd" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${content}</g></svg>`;
 const lantern = (x) =>
@@ -59,6 +59,10 @@ export class WorldEffects {
     this.loop = this.loop.bind(this);
   }
   cast(result) {
+    this.forms=(result.symbols||[]).filter(s=>s.kind==='sigil'&&SIGILS[s.key]?.effect==='sculpture').slice(0,3).map(s=>SIGILS[s.key]);
+    const intentions=new Set((result.effects||[]).map(e=>e.effect));
+    this.intentions=intentions;
+    const palette=(result.symbols||[]).filter(s=>s.kind==='sigil').map(s=>SIGILS[s.key]?.color).filter(Boolean);
     const colors = {
         light: "#ffe2a0",
         water: "#a0e6f0",
@@ -80,9 +84,14 @@ export class WorldEffects {
         life: 1,
         age: 0,
         size: 1 + Math.random() * 3,
-        color: (colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0"),
+        color: palette.length?palette[i%palette.length]:(colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0"),
         kind: result.element,
         modifier: result.components?.length ? result.components[i % result.components.length].modifier : result.modifier,
+        orbit: intentions.has('rotation')||intentions.has('orb')||intentions.has('envelopment'),
+        converge: intentions.has('convergence')||intentions.has('collection')||intentions.has('attraction'),
+        fall: intentions.has('rain')||intentions.has('water'),
+        burst: intentions.has('burst')||intentions.has('projectile')||intentions.has('dispersion'),
+        still: intentions.has('anchor')||intentions.has('stability'),
       });
     this.color = (colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0");
     this.pulse = 1;
@@ -114,14 +123,23 @@ export class WorldEffects {
       c.fillRect(0, 0, w, h);
       this.pulse -= dt * 0.00035;
       c.globalAlpha = 1;
+      // Decorative sigils manifest their studied silhouette; this is a game visualization.
+      for(const [i,form] of (this.forms||[]).entries()){
+        c.save();c.globalAlpha=Math.max(0,this.pulse)*.8;c.strokeStyle=form.color;c.lineWidth=2;
+        c.translate(w*(.5+(i-(this.forms.length-1)/2)*.25),h*.5);
+        c.scale(w*.28,w*.28);c.lineWidth=2/(w*.28);
+        for(const path of form.paths){if(!path.length)continue;c.beginPath();c.moveTo(path[0].x,path[0].y);for(const p of path.slice(1))c.lineTo(p.x,p.y);c.stroke();}c.restore();
+      }
     }
     for (const p of this.particles) {
       p.age += dt;
       p.life = 1 - p.age / 4200;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
+      if(p.still){p.vx*=.94;p.vy*=.94;}
+      if(p.converge){p.vx+=(.5-p.x)*dt*.000008;p.vy+=(.5-p.y)*dt*.000008;}
+      if(p.orbit){const a=p.age*.001+p.size,r=.12+p.size*.018;p.x=.5+Math.cos(a)*r;p.y=.5+Math.sin(a)*r;}
+      else {p.x += p.vx * dt*(p.burst?2:1);p.y += p.vy * dt*(p.burst?2:1);}
       if (p.modifier === "spread") p.x += p.vx * dt;
-      if (p.kind === "water") p.vy += dt * 0.000001;
+      if (p.kind === "water" || p.fall) p.vy += dt * 0.000001;
       c.globalAlpha = Math.max(0, p.life);
       c.fillStyle = p.color;
       c.shadowBlur = this.reduced ? 0 : 14;

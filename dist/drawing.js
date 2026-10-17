@@ -1,5 +1,5 @@
-import { compositionPaths } from "./compiler.js?v=3.0.0";
-import { distance, pagePaths } from "./engine.js?v=3.0.0";
+import { compositionPaths } from "./compiler.js?v=3.0.1";
+import { distance, pagePaths } from "./engine.js?v=3.0.1";
 export class DrawingDesk {
   constructor(canvas, { settings, onChange, onFinish }) {
     this.canvas = canvas;

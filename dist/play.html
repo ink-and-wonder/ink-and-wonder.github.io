@@ -15,7 +15,7 @@
     <link rel="icon" href="assets/icon.svg" />
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="style.css?v=3.0.0" />
+    <link rel="stylesheet" href="style.css?v=3.0.1" />
   </head>
   <body>
     <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg">
@@ -891,7 +891,7 @@ function separatedGroups(paths,ring){
  let changed=true;
  while(changed){changed=false;outer:for(let i=0;i<groups.length;i++)for(let j=i+1;j<groups.length;j++){
   const a=bounds(groups[i]),b=bounds(groups[j]);
-  const gap=boxGap(a,b),threshold=Math.max(ring.r*.018,Math.min(a.size,b.size)*.5);
+  const gap=boxGap(a,b),threshold=Math.max(ring.r*.035,Math.min(a.size,b.size)*.5);
   if(gap<threshold && Math.max(a.size,b.size)<ring.r*1.5){groups[i].push(...groups[j]);groups.splice(j,1);changed=true;break outer;}
  }}
  return groups;
@@ -904,12 +904,18 @@ function boundaryStroke(s,r){
  for(let i=1;i<angles.length;i++)arc+=Math.abs(Math.atan2(Math.sin(angles[i]-angles[i-1]),Math.cos(angles[i]-angles[i-1])));
  return arc>.4;
 }
+const orientationCache=new Map();
+function referenceOrientation(key){
+ if(!orientationCache.has(key))orientationCache.set(key,matchGlyph(sign(key,0),'sign',3).find(m=>m.glyph.key===key)?.angle||0);
+ return orientationCache.get(key);
+}
 function symbol(paths,kind,ring){
  const matches=matchGlyph(paths,kind),m=matches[0];
- if(!m||m.score<.75||matches[1]&&m.score-matches[1].score<.022)return null;
+ if(!m||m.score<.72||matches[1]&&m.score-matches[1].score<.022)return null;
  const b=bounds(paths),g=m.glyph;
  const positionAngle=Math.atan2(b.y-ring.cy,b.x-ring.cx)-Math.PI/2;
- const offset=Math.atan2(Math.sin(m.angle-positionAngle),Math.cos(m.angle-positionAngle));
+ const expected=g.kind==='sign'?referenceOrientation(g.key):0;
+ const offset=Math.atan2(Math.sin(m.angle-positionAngle-expected),Math.cos(m.angle-positionAngle-expected));
  return {id:g.id,key:g.key,kind:g.kind,name:g.name,certainty:g.certainty,effect:g.effect,score:m.score,
   x:b.x,y:b.y,size:b.size,rotation:m.angle,inverted:g.kind==='sign'&&Math.cos(offset)<-.65,paths};
 }
@@ -918,7 +924,7 @@ function uniqueRings(strokes){
  return result.slice(0,24);
 }
 function compileSpell(strokes,{interpretations=false}={}){
- if(!Array.isArray(strokes)||strokes.length>1200)return {ok:false,reason:'This page has too many strokes. Start another grimoire page.'};
+ if(!validateDrawing(strokes))return {ok:false,reason:'This page has too many strokes. Start another grimoire page.'};
  const rings=uniqueRings(strokes);if(!rings.length)return {ok:false,reason:'Finish an enclosing ring before awakening this composition.'};
  let budget=16;
  function layer(r,depth=0){
@@ -962,18 +968,20 @@ function compileSpell(strokes,{interpretations=false}={}){
   return {ring:r,sigils,signs,children,unread,depth};
  }
  const roots=rings.filter(r=>!rings.some(q=>q!==r&&q.r>r.r*1.15&&Math.hypot(r.cx-q.cx,r.cy-q.cy)+r.r<q.r*1.08));
+ const outside=strokes.filter(s=>s.length&&!roots.some(r=>s.every(p=>radius(p,r)<1.17)));
+ if(outside.some(s=>{const b=bounds([s]);return b&&b.size>12;}))return {ok:false,reason:'Ink outside the rings. Enclose or erase it.'};
  const layers=roots.map(r=>layer(r)).filter(Boolean);
  if(!layers.length){
   const basic=recognize(strokes);
-  return basic.ok?{...basic,advanced:true,layers:[],symbols:[],warnings:[],effects:[],summary:basic.element+' seal'}:{ok:false,reason:'The ring is closed, but the symbols are ambiguous. Compare their full shapes in the atlas; separate adjacent glyphs or enlarge the page.'};
+  return basic.ok?{...basic,advanced:true,layers:[],symbols:[],warnings:[],effects:[],summary:basic.element+' seal'}:{ok:false,reason:'Unclear symbols. Enlarge the glyphs or check the atlas.'};
  }
  const flatten=nodes=>nodes.flatMap(n=>[n,...flatten(n.children)]),nodes=flatten(layers),symbols=nodes.flatMap(n=>[...n.sigils,...n.signs]);
  const unread=nodes.reduce((n,l)=>n+l.unread.length,0);
- if(unread>Math.max(2,strokes.length*.15))return {ok:false,reason:'Some marks are still unreadable. Open the atlas or separate overlapping symbols before casting.',layers,unread};
+ if(unread>Math.max(2,strokes.length*.15))return {ok:false,reason:'Unclear marks. Separate the symbols or check the atlas.',layers,unread};
  const warnings=[];
  const effects=symbols.filter(s=>s.effect&&(s.certainty==='observed'||interpretations&&s.certainty==='inferred')).map(s=>({effect:s.effect,inverted:s.inverted,node:nodes.findIndex(n=>n.sigils.includes(s)||n.signs.includes(s)),symbol:s.id}));
- for(const s of symbols)if(s.certainty==='unknown'||s.certainty==='unrecorded')warnings.push(s.name+': function or design unresolved; retained as a study symbol.');
- else if(s.certainty==='inferred'&&!interpretations)warnings.push(s.name+': interpretation withheld in strict study mode.');
+ for(const s of symbols)if(s.certainty==='unknown'||s.certainty==='unrecorded')warnings.push(s.name+': unresolved effect; study only.');
+ else if(s.certainty==='inferred'&&!interpretations)warnings.push(s.name+': uncertain effect; study only.');
  if(unread)warnings.push(unread+' small unclassified marks were ignored.');
  const primary=symbols.find(s=>s.kind==='sigil'&&['fire','water','wind','earth','light'].includes(s.key))||symbols.find(s=>s.kind==='sigil');
  const components=symbols.filter(s=>s.kind==='sign').map(s=>({modifier:s.key,angle:Math.atan2(s.y-layers[0].ring.cy,s.x-layers[0].ring.cx)-Math.PI/2,length:s.size/layers[0].ring.r,inverted:s.inverted,score:s.score}));
@@ -998,13 +1006,13 @@ function compositionPaths(plan){
  }else if(structure==='parallel'&&elements.length>1){
   elements.forEach((key,i)=>{const a=i*Math.PI*2/elements.length,cx=Math.cos(a)*.48,cy=Math.sin(a)*.48;
    add(heart(key),cx,cy,.30*scale);
-   for(let j=i;j<count;j+=elements.length){const key=modifiers[j%modifiers.length];if(key)add(sign(key,-Math.PI+j*Math.PI*2/Math.max(1,count)),cx,cy,.34);}
+   for(let j=i;j<count;j+=elements.length){const key=modifiers[j%modifiers.length];if(key){const a=-Math.PI+j*Math.PI*2/Math.max(1,count);let paths=sign(key,0);if(plan.inverted)paths=paths.map(s=>s.map(p=>({x:-p.x,y:1.54-p.y})));add(paths.map(s=>s.map(p=>({x:p.x*Math.cos(a)-p.y*Math.sin(a),y:p.x*Math.sin(a)+p.y*Math.cos(a)}))),cx,cy,.34);}}
    add([circle()],cx,cy,.34);});
  }else elements.forEach((key,i)=>{
   const angle=i*Math.PI*2/elements.length,r=elements.length>1?.3:0;
   add(heart(key),Math.cos(angle)*r,Math.sin(angle)*r,(elements.length>1?.35:.9)*scale);
  });
- for(let i=0;i<count && structure!=="parallel";i++){
+ for(let i=0;i<count && (structure!=="parallel"||elements.length<2);i++){
   const key=modifiers[i%modifiers.length];if(!key)continue;
   const angle=-Math.PI+i*Math.PI*2/count;
   let paths=sign(key,0);
@@ -2013,6 +2021,10 @@ class WorldEffects {
     this.loop = this.loop.bind(this);
   }
   cast(result) {
+    this.forms=(result.symbols||[]).filter(s=>s.kind==='sigil'&&SIGILS[s.key]?.effect==='sculpture').slice(0,3).map(s=>SIGILS[s.key]);
+    const intentions=new Set((result.effects||[]).map(e=>e.effect));
+    this.intentions=intentions;
+    const palette=(result.symbols||[]).filter(s=>s.kind==='sigil').map(s=>SIGILS[s.key]?.color).filter(Boolean);
     const colors = {
         light: "#ffe2a0",
         water: "#a0e6f0",
@@ -2034,9 +2046,14 @@ class WorldEffects {
         life: 1,
         age: 0,
         size: 1 + Math.random() * 3,
-        color: (colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0"),
+        color: palette.length?palette[i%palette.length]:(colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0"),
         kind: result.element,
         modifier: result.components?.length ? result.components[i % result.components.length].modifier : result.modifier,
+        orbit: intentions.has('rotation')||intentions.has('orb')||intentions.has('envelopment'),
+        converge: intentions.has('convergence')||intentions.has('collection')||intentions.has('attraction'),
+        fall: intentions.has('rain')||intentions.has('water'),
+        burst: intentions.has('burst')||intentions.has('projectile')||intentions.has('dispersion'),
+        still: intentions.has('anchor')||intentions.has('stability'),
       });
     this.color = (colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0");
     this.pulse = 1;
@@ -2068,14 +2085,23 @@ class WorldEffects {
       c.fillRect(0, 0, w, h);
       this.pulse -= dt * 0.00035;
       c.globalAlpha = 1;
+      // Decorative sigils manifest their studied silhouette; this is a game visualization.
+      for(const [i,form] of (this.forms||[]).entries()){
+        c.save();c.globalAlpha=Math.max(0,this.pulse)*.8;c.strokeStyle=form.color;c.lineWidth=2;
+        c.translate(w*(.5+(i-(this.forms.length-1)/2)*.25),h*.5);
+        c.scale(w*.28,w*.28);c.lineWidth=2/(w*.28);
+        for(const path of form.paths){if(!path.length)continue;c.beginPath();c.moveTo(path[0].x,path[0].y);for(const p of path.slice(1))c.lineTo(p.x,p.y);c.stroke();}c.restore();
+      }
     }
     for (const p of this.particles) {
       p.age += dt;
       p.life = 1 - p.age / 4200;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
+      if(p.still){p.vx*=.94;p.vy*=.94;}
+      if(p.converge){p.vx+=(.5-p.x)*dt*.000008;p.vy+=(.5-p.y)*dt*.000008;}
+      if(p.orbit){const a=p.age*.001+p.size,r=.12+p.size*.018;p.x=.5+Math.cos(a)*r;p.y=.5+Math.sin(a)*r;}
+      else {p.x += p.vx * dt*(p.burst?2:1);p.y += p.vy * dt*(p.burst?2:1);}
       if (p.modifier === "spread") p.x += p.vx * dt;
-      if (p.kind === "water") p.vy += dt * 0.000001;
+      if (p.kind === "water" || p.fall) p.vy += dt * 0.000001;
       c.globalAlpha = Math.max(0, p.life);
       c.fillStyle = p.color;
       c.shadowBlur = this.reduced ? 0 : 14;
@@ -2368,7 +2394,7 @@ function showAccount(mode = "signin") {
     recovery = mode === "recovery",
     confirm = mode === "confirm";
   openDialog(
-    `<div class="dialog-content auth-intro"><div class="account-crest">${icon("quill")}</div><span class="overline">${recovery ? "A FRESH START" : signup ? "A PLACE FOR YOUR STORY" : "WELCOME TO THE ATELIER"}</span><h2>${recovery ? "Choose a new password." : reset ? "Find your way back." : confirm ? "A letter is on its way." : signup ? "Every witch has a story." : "Your story is waiting."}</h2><p>${recovery ? "Your recovery link is ready. Set a new password to continue." : reset ? "We’ll send a password reset link to your email." : confirm ? "Confirm your email using the link we sent, then return here to sign in." : "Sign in to remember your journey and keep your grimoire across devices."}</p>${!reset && !recovery && !confirm ? `<div class="auth-tabs"><button data-account="signin" class="${!signup ? "active" : ""}">Sign in</button><button data-account="signup" class="${signup ? "active" : ""}">Create account</button></div>` : ""}<form id="authForm" data-mode="${mode}">${signup ? '<label class="form-label">Your name<input name="displayName" autocomplete="nickname" maxlength="40" placeholder="What should we call you?" required></label>' : ""}${!recovery ? '<label class="form-label">Email address<input name="email" type="email" autocomplete="username" inputmode="email" maxlength="254" placeholder="you@example.com" required></label>' : ""}${!reset && !confirm ? `<label class="form-label">${recovery ? "New password" : "Password"}<input name="password" type="password" autocomplete="${signup || recovery ? "new-password" : "current-password"}" minlength="${signup || recovery ? 8 : 1}" maxlength="128" ${signup || recovery ? 'placeholder="At least 8 characters"' : ""} required></label>` : ""}<p id="authMessage" class="auth-message" role="status" aria-live="polite"></p><button class="button dark wide" type="submit">${recovery ? "Save new password" : reset ? "Send reset link" : confirm ? "Resend confirmation email" : signup ? "Create my account" : "Sign in"} ${icon("arrow")}</button></form>${!signup && !reset && !recovery && !confirm ? '<button class="text-button auth-forgot" data-account="reset">Forgot your password?</button>' : ""}${reset || confirm ? '<button class="text-button auth-forgot" data-account="signin">← Back to sign in</button>' : ""}<button class="auth-guest" data-account="guest">Continue as guest</button><p class="auth-privacy">Your password is handled by the account service. Your private cloud save contains your game progress and grimoire.</p></div>`,
+    `<div class="dialog-content auth-intro"><div class="account-crest">${icon("quill")}</div><span class="overline">${recovery ? "A FRESH START" : signup ? "A PLACE FOR YOUR STORY" : "WELCOME TO THE ATELIER"}</span><h2>${recovery ? "Choose a new password." : reset ? "Find your way back." : confirm ? "A letter is on its way." : signup ? "Every witch has a story." : "Your story is waiting."}</h2><p>${recovery ? "Your recovery link is ready. Set a new password to continue." : reset ? "We’ll send a password reset link to your email." : confirm ? "Confirm your email using the link we sent, then return here to sign in." : "Keep your private grimoire across devices."}</p>${!reset && !recovery && !confirm ? `<div class="auth-tabs"><button data-account="signin" class="${!signup ? "active" : ""}">Sign in</button><button data-account="signup" class="${signup ? "active" : ""}">Create account</button></div>` : ""}<form id="authForm" data-mode="${mode}">${signup ? '<label class="form-label">Your name<input name="displayName" autocomplete="nickname" maxlength="40" placeholder="What should we call you?" required></label>' : ""}${!recovery ? '<label class="form-label">Email address<input name="email" type="email" autocomplete="username" inputmode="email" maxlength="254" placeholder="you@example.com" required></label>' : ""}${!reset && !confirm ? `<label class="form-label">${recovery ? "New password" : "Password"}<input name="password" type="password" autocomplete="${signup || recovery ? "new-password" : "current-password"}" minlength="${signup || recovery ? 8 : 1}" maxlength="128" ${signup || recovery ? 'placeholder="At least 8 characters"' : ""} required></label>` : ""}<p id="authMessage" class="auth-message" role="status" aria-live="polite"></p><button class="button dark wide" type="submit">${recovery ? "Save new password" : reset ? "Send reset link" : confirm ? "Resend confirmation email" : signup ? "Create my account" : "Sign in"} ${icon("arrow")}</button></form>${!signup && !reset && !recovery && !confirm ? '<button class="text-button auth-forgot" data-account="reset">Forgot your password?</button>' : ""}${reset || confirm ? '<button class="text-button auth-forgot" data-account="signin">← Back to sign in</button>' : ""}<button class="auth-guest" data-account="guest">Continue as guest</button><p class="auth-privacy">Private cloud saves. Passwords stay with the account service.</p></div>`,
   );
 }
 async function submitAccount(form) {
@@ -2605,7 +2631,7 @@ function sceneMarkup({ art, location, title, brief, type, studio = false }) {
 }
 function deskMarkup(studio = false) {
   const r = studio ? studioRecipe : requirement();
-  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "Your spell. Your ink." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Sigil. Signs. Close the ring.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).filter(([id])=>["fire","water","earth","wind","light"].includes(id)).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close the ring to cast." : "Sigil → signs → close the ring."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
+  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "Your spell. Your ink." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Sigil. Signs. Close the ring.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).filter(([id])=>["fire","water","earth","wind","light"].includes(id)).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas class="desk-effects" id="deskEffects" aria-hidden="true"></canvas><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close the ring to cast." : "Sigil → signs → close the ring."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
 }
 function recipeInstruction(r) {
   return `Draw the ${ELEMENTS[r.element].name.toLowerCase()} sigil with <b>${r.signs} ${MODIFIERS[r.modifier].name.toLowerCase()} sign${r.signs > 1 ? "s" : ""}</b>, then finish with one closed ring.`;
@@ -2642,7 +2668,7 @@ function mountDesk(studio = false) {
         : null,
   );
   if (studio && studioStrokes.length) desk.load(studioStrokes);
-  effects = new WorldEffects($("#effects"), save.settings.reducedMotion);
+  effects = new WorldEffects($("#deskEffects"), save.settings.reducedMotion);
 }
 function renderMission() {
   window.scrollTo({ top: 0, behavior: "instant" });
@@ -2853,8 +2879,9 @@ function confirmSaveSeal() {
 }
 function fieldGuide() {
   const entries=CATALOGUE.filter(g=>(atlasKind==="all"||g.kind===atlasKind)&&g.name.toLowerCase().includes(atlasQuery.toLowerCase()));
-  const total=Math.max(1,Math.ceil(entries.length/6));guidePage=Math.max(0,Math.min(total-1,guidePage));
-  openDialog(`<div class="dialog-content atlas"><span class="overline">THE DRAWN LANGUAGE · 83 REFERENCES</span><h2>Spell atlas</h2><div class="atlas-filters"><input id="atlasSearch" type="search" value="${escape(atlasQuery)}" placeholder="Find a symbol" aria-label="Find a symbol"><select id="atlasKind" aria-label="Symbol type">${["all","sigil","sign"].map(k=>`<option value="${k}" ${k===atlasKind?"selected":""}>${k==="all"?"All symbols":k==="sigil"?"Sigils":"Signs"}</option>`).join("")}</select></div><div class="atlas-grid">${entries.slice(guidePage*6,guidePage*6+6).map(g=>`<article class="atlas-card"><div class="atlas-glyph">${g.paths.length?svgPaths(g.paths,"-.65 -.65 1.3 1.3"):'<span>?</span>'}</div><div><h3>${escape(g.name)}</h3><span class="certainty">${g.kind} · ${g.certainty==="observed"?"documented":g.certainty==="inferred"?"interpretation":g.certainty==="unrecorded"?"design unpublished":"effect unknown"}</span><p>${escape(g.effect||"Study reference; no invented effect.")}</p><a href="${g.source}" target="_blank" rel="noopener noreferrer">Reference ↗</a>${g.paths.length?`<button class="text-button" data-act="atlas-use" data-id="${g.id}">Study ↗</button>`:""}</div></article>`).join("")||'<p>No symbols found.</p>'}</div><div class="book-turns"><button class="button light" data-act="guide-page" data-index="${guidePage-1}" ${guidePage===0?"disabled":""}>←</button><span>${guidePage+1} / ${total}</span><button class="button dark" data-act="guide-page" data-index="${guidePage+1}" ${guidePage===total-1?"disabled":""}>→</button></div><p class="atlas-note">Sigil → signs → close the ring. Effects are game approximations. <a href="assets/glyph-attribution.md" target="_blank" rel="noopener">Sources & credits ↗</a></p></div>`);
+  const atlasSize=(window.innerHeight||720)<620?4:6;
+  const total=Math.max(1,Math.ceil(entries.length/atlasSize));guidePage=Math.max(0,Math.min(total-1,guidePage));
+  openDialog(`<div class="dialog-content atlas"><span class="overline">THE DRAWN LANGUAGE · 83 REFERENCES</span><h2>Spell atlas</h2><div class="atlas-filters"><input id="atlasSearch" type="search" value="${escape(atlasQuery)}" placeholder="Find a symbol" aria-label="Find a symbol"><select id="atlasKind" aria-label="Symbol type">${["all","sigil","sign"].map(k=>`<option value="${k}" ${k===atlasKind?"selected":""}>${k==="all"?"All symbols":k==="sigil"?"Sigils":"Signs"}</option>`).join("")}</select></div><div class="atlas-grid">${entries.slice(guidePage*atlasSize,guidePage*atlasSize+atlasSize).map(g=>`<article class="atlas-card"><button class="atlas-glyph" data-act="atlas-detail" data-id="${g.id}" aria-label="Inspect ${escape(g.name)}">${g.paths.length?svgPaths(g.paths,"-.65 -.65 1.3 1.3"):'<span>?</span>'}</button><div><h3>${escape(g.name)}</h3><span class="certainty">${g.kind} · ${g.certainty==="observed"?"documented":g.certainty==="inferred"?"interpretation":g.certainty==="unrecorded"?"design unpublished":"effect unknown"}</span><p>${escape(g.effect||"Study reference; no invented effect.")}</p><a href="${g.source}" target="_blank" rel="noopener noreferrer">Reference ↗</a>${g.paths.length?`<button class="text-button" data-act="atlas-use" data-id="${g.id}">Study ↗</button>`:""}</div></article>`).join("")||'<p>No symbols found.</p>'}</div><div class="book-turns"><button class="button light" data-act="guide-page" data-index="${guidePage-1}" ${guidePage===0?"disabled":""}>←</button><span>${guidePage+1} / ${total}</span><button class="button dark" data-act="guide-page" data-index="${guidePage+1}" ${guidePage===total-1?"disabled":""}>→</button></div><p class="atlas-note">Sigil → signs → close the ring. Effects are game approximations. <a href="assets/glyph-attribution.md" target="_blank" rel="noopener">Sources & credits ↗</a></p></div>`);
 }
 function renderGrimoire() {
   $("#page").innerHTML =
@@ -2995,6 +3022,7 @@ document.addEventListener("click", (event) => {
     button.textContent=save.settings.music?"♫ On":"♫ Off";
     button.setAttribute("aria-pressed",String(save.settings.music));
   }
+  else if (act === "atlas-detail") {const g=CATALOGUE.find(g=>g.id===button.dataset.id);openDialog(`<div class="dialog-content glyph-detail"><span class="overline">${g.kind} · ${g.nameStatus==="community"?"community name":"reference name"}</span><h2>${escape(g.name)}</h2><div class="detail-glyph">${g.paths.length?svgPaths(g.paths,"-.65 -.65 1.3 1.3"):"<span>Design unpublished</span>"}</div><p>${g.certainty==="observed"?"Documented symbol. Game effects are approximations.":g.certainty==="inferred"?"Effect interpretation; not confirmed canon.":"Unresolved reference. Study only."}</p><div class="dialog-actions"><button class="button light" data-act="field-guide">← Atlas</button>${g.paths.length?`<button class="button dark" data-act="atlas-use" data-id="${g.id}">Use reference</button>`:""}<a href="${g.source}" target="_blank" rel="noopener noreferrer">Source ↗</a></div></div>`);}
   else if (act === "atlas-use") {const g=CATALOGUE.find(g=>g.id===button.dataset.id);if(g.kind==="sigil")studioRecipe.element=g.key;else studioRecipe.modifier=g.key;if(page!=="studio")navigate("studio");openRecipe();}
   else if (act === "deck-page") {const deck=document.getElementById(button.dataset.deck);deck.dataset.current=button.dataset.index;layoutDeck(deck);}
   else if (act === "guide-page") { guidePage=Number(button.dataset.index); fieldGuide(); }
@@ -3179,6 +3207,8 @@ function installGame() {
     `<div class="dialog-content"><span class="overline">YOUR ATELIER, WHEREVER YOU ARE</span><h2>A place on your home screen.</h2><p><b>Android:</b> Open this game in Chrome. In the browser menu, choose Install app or Add to Home screen.</p><p><b>iPad:</b> Open in Safari, tap Share, then Add to Home Screen.</p><p>Once the first load has finished, the game, illustrations, and fonts are available offline. Your saved story stays in this browser. Use Export save when moving to another device or host.</p><button class="button dark wide" data-act="close-dialog">Back to the page</button></div>`,
   );
 }
+
+window.addEventListener("resize",()=>{paginateCollections();if($("#dialog").open&&$(".atlas"))fieldGuide();});
 
 })();
 </script>

@@ -44,3 +44,19 @@ test('composition pages survive save validation without storing invented spell r
  assert.equal(restored.seals[0].element,'dragon');assert.equal(restored.seals[0].modifier,'convergence');assert.equal(restored.settings.interpretations,true);
  assert.ok(compileSpell(restored.seals[0].strokes).ok);
 });
+test('small pen wobble does not change the identity of any designed symbol',()=>{
+ for(const g of CATALOGUE.filter(g=>g.paths.length)){
+  const paths=compositionPaths({element:g.kind==='sigil'?g.key:'water',modifier:g.kind==='sign'?g.key:'focus',signs:1}).map((s,i)=>s.map((p,j)=>({x:p.x+Math.sin(j*1.7+i)*1.5,y:p.y+Math.cos(j*2.3+i)*1.5})));
+  const result=compileSpell(paths);assert.ok(result.ok&&result.symbols.some(s=>s.id===g.id),g.id);
+ }
+});
+test('orientation is relative to each seal and outside ink cannot silently become a spell',()=>{
+ for(const inverted of [false,true]){
+  const result=compileSpell(compositionPaths({element:'water',modifier:'focus',signs:3,inverted}));
+  assert.ok(result.ok);assert.ok(result.symbols.filter(s=>s.kind==='sign').every(s=>s.inverted===inverted));
+ }
+ const paths=compositionPaths({element:'water',modifier:'flow',signs:3});
+ assert.equal(compileSpell([...paths,[{x:5,y:5},{x:40,y:40}]]).ok,false);
+ assert.equal(compileSpell([[{x:NaN,y:4}]]).ok,false);
+ assert.equal(compileSpell([]).ok,false);
+});

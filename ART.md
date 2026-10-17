@@ -25,3 +25,7 @@ Runtime asset: `dist/assets/forest.webp`. Original local asset: `art-source/fore
 Prompt:
 
 > Original premium fantasy manga game background, wide 1536x1024 landscape. No text UI labels logos or lettering. A breathtaking ruined circular observatory deep in an ancient forest at blue twilight. White limestone arched gateways, delicate carved pillars, an open sky over a round stone dais in foreground center, ferns, luminescent wildflowers, a small shallow pool at lower left, a distant waterfall beyond trees on right. Midnight navy, muted teal, silver, faint warm gold. Fine elegant black pen crosshatching and exquisite architectural detail with translucent atmospheric watercolor washes. Ethereal and richly illustrated European fantasy storybook world inspired by magical ink drawing adventures. Center stone dais has no objects or runes, empty clear space for game overlays. Tiny floating golden motes among dark trees. Cinematic perspective, professional game environment, tranquil mystery, hand drawn manga, not photorealistic.
+
+## Symbol study collection
+
+The 83-entry atlas uses attributed vector centerlines derived from wiki contributor redraws, including Chromatic Flare. See [full attribution and per-file histories](dist/assets/glyph-attribution.md). These study vectors are CC BY-SA 3.0, separately from the original game code and environment artwork. No manga panels or scans are included. Two unpublished designs remain empty.
