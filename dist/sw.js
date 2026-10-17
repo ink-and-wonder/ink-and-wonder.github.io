@@ -1,6 +1,6 @@
 const PREFIX =
   "ink-wonder-" + encodeURIComponent(self.registration.scope) + "-";
-const CACHE = PREFIX + "v2.2.1";
+const CACHE = PREFIX + "v2.2.2";
 const FILES = [
   "./",
   "index.html",

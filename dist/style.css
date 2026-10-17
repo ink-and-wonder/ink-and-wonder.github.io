@@ -3344,3 +3344,5 @@ dialog::backdrop {
  .focused .desk-instruction {margin:8px 0;}
 }
 #dialog:has(.manuscript) {width:min(960px,calc(100% - 32px));max-width:960px;}
+
+.order-element svg {width:48px;height:48px;display:block;}

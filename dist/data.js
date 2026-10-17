@@ -119,11 +119,11 @@ export const MISSIONS = [
     chapter: 0,
     location: "The open window",
     object: "paper",
-    brief: "Give the folded paper bird a current of air and an outward sign.",
+    brief: "Give the folded paper bird a current of air and a Levitation sign.",
     steps: [s("wind", "flow")],
     before: {
       speaker: "Qifrey",
-      text: "The heart tells your spell what to make. The surrounding signs tell it how to behave. Try the lifting sign. Let the air travel outward.",
+      text: "The heart tells your spell what to make. The surrounding signs tell it how to behave. Try the Levitation sign. Let the air lift the folded bird.",
     },
     after:
       "The little bird rises, catches the breeze, and circles back to land by your pen.",
