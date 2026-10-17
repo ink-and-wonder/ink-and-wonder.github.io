@@ -3568,3 +3568,37 @@ button {min-height:44px;}
  .auth-intro>p {display:none;}.auth-intro .auth-forgot {min-height:32px;margin:0;}.auth-intro .auth-guest {min-height:32px;margin:0;}
  .auth-intro .form-label {margin:5px 0;}.auth-intro .form-label input {min-height:36px;padding:6px;}
 }
+.chapter-card {width:100%;max-width:none;margin:0;}
+.chapter-card.locked,.mission-row:disabled {opacity:1;}
+.mission-row:disabled {color:#65715d;}
+.mission-row:disabled small {color:#65715d;}
+.game-screen {grid-template-rows:70px minmax(0,1fr) 44px;}
+.game-footer {height:44px;}
+.game-footer button {height:44px;min-height:44px;}
+.button {font-size:14px!important;}
+@media(max-width:650px) {
+ .game-screen {grid-template-rows:60px minmax(0,1fr) 44px;}
+ .game-header {justify-content:space-between;}
+ .game-header nav {display:flex;gap:0;}
+ .game-header nav button {width:40px;min-width:40px;padding:8px;}
+ .game-header nav svg {display:inline-block!important;width:20px;height:20px;}
+ .game-header nav button span {display:none;}
+ .game-header .account-button {display:flex;width:36px;min-width:36px;padding:0;justify-content:center;}
+ .account-avatar {width:30px;height:30px;font-size:17px;}
+ .game-header #settings {width:36px;min-width:36px;}
+ .game-footer {height:44px;}
+}
+@media(max-height:600px) and (min-width:651px) {
+ .game-screen {grid-template-rows:54px minmax(0,1fr) 44px;}
+ .game-footer {height:44px;}
+}
+.atlas-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.atlas-heading button {font-size:13px;min-height:36px;}
+.basics-layout {display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:20px;}
+.basics-layout svg {width:100%;height:min(300px,36dvh);}
+.basics-layout ol {padding-left:24px;}
+.basics-layout li {padding:8px 0;}
+.basics-layout b {font-size:18px;}
+.basics-layout p {font-size:14px;margin:4px 0;}
+.seal-basics .wide {margin-top:16px;}
+@media(max-width:650px) {.basics-layout {gap:8px;grid-template-columns:.9fr 1fr;}.basics-layout b {font-size:16px;}.basics-layout li {padding:6px 0;}.basics-layout p {font-size:13px;}}

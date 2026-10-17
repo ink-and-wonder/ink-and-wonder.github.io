@@ -15,7 +15,7 @@
     <link rel="icon" href="assets/icon.svg" />
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="style.css?v=3.0.1" />
+    <link rel="stylesheet" href="style.css?v=3.0.2" />
   </head>
   <body>
     <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg">
@@ -94,11 +94,11 @@
           Ink <i>&</i> Wonder <span>A WITCH’S ATELIER</span>
         </button>
         <nav aria-label="Game navigation">
-          <button data-page="journey" class="active">
+          <button data-page="journey" aria-label="Journey" class="active">
             <svg><use href="#i-map" /></svg><span>Journey</span></button
-          ><button data-page="studio">
+          ><button data-page="studio" aria-label="Free drawing">
             <svg><use href="#i-quill" /></svg><span>Free drawing</span></button
-          ><button data-page="grimoire">
+          ><button data-page="grimoire" aria-label="Grimoire">
             <svg><use href="#i-book" /></svg><span>Grimoire</span>
           </button>
         </nav>
@@ -136,6 +136,6 @@
     </dialog>
     <div id="toast" role="status" aria-live="polite"></div>
     <input type="file" id="saveImport" accept="application/json,.json" hidden />
-    <script type="module" src="game.js?v=3.0.1"></script>
+    <script type="module" src="game.js?v=3.0.2"></script>
   </body>
 </html>

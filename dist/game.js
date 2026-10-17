@@ -1,5 +1,5 @@
-import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.0.1";
-import { compileSpell, compositionPaths } from "./compiler.js?v=3.0.1";
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.0.2";
+import { compileSpell, compositionPaths } from "./compiler.js?v=3.0.2";
 import {
   ELEMENTS,
   MODIFIERS,
@@ -7,7 +7,7 @@ import {
   MISSIONS,
   OBJECT_NAMES,
   RANKS,
-} from "./data.js?v=3.0.1";
+} from "./data.js?v=3.0.2";
 import {
   recognize,
   checkObjective,
@@ -16,7 +16,7 @@ import {
   recipePaths,
   distance,
   validateDrawing,
-} from "./engine.js?v=3.0.1";
+} from "./engine.js?v=3.0.2";
 import {
   SAVE_KEY,
   freshSave,
@@ -25,12 +25,12 @@ import {
   nextMission,
   insight,
   completeMission,
-} from "./state.js?v=3.0.1";
-import { AtelierMusic } from "./music.js?v=3.0.1";
-import { DrawingDesk } from "./drawing.js?v=3.0.1";
-import { objectArt, WorldEffects } from "./world.js?v=3.0.1";
-import { CLOUD_CONFIG } from "./cloud-config.js?v=3.0.1";
-import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.0.1";
+} from "./state.js?v=3.0.2";
+import { AtelierMusic } from "./music.js?v=3.0.2";
+import { DrawingDesk } from "./drawing.js?v=3.0.2";
+import { objectArt, WorldEffects } from "./world.js?v=3.0.2";
+import { CLOUD_CONFIG } from "./cloud-config.js?v=3.0.2";
+import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.0.2";
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
@@ -769,7 +769,7 @@ function fieldGuide() {
   const entries=CATALOGUE.filter(g=>(atlasKind==="all"||g.kind===atlasKind)&&g.name.toLowerCase().includes(atlasQuery.toLowerCase()));
   const atlasSize=(window.innerHeight||720)<620?4:6;
   const total=Math.max(1,Math.ceil(entries.length/atlasSize));guidePage=Math.max(0,Math.min(total-1,guidePage));
-  openDialog(`<div class="dialog-content atlas"><span class="overline">THE DRAWN LANGUAGE · 83 REFERENCES</span><h2>Spell atlas</h2><div class="atlas-filters"><input id="atlasSearch" type="search" value="${escape(atlasQuery)}" placeholder="Find a symbol" aria-label="Find a symbol"><select id="atlasKind" aria-label="Symbol type">${["all","sigil","sign"].map(k=>`<option value="${k}" ${k===atlasKind?"selected":""}>${k==="all"?"All symbols":k==="sigil"?"Sigils":"Signs"}</option>`).join("")}</select></div><div class="atlas-grid">${entries.slice(guidePage*atlasSize,guidePage*atlasSize+atlasSize).map(g=>`<article class="atlas-card"><button class="atlas-glyph" data-act="atlas-detail" data-id="${g.id}" aria-label="Inspect ${escape(g.name)}">${g.paths.length?svgPaths(g.paths,"-.65 -.65 1.3 1.3"):'<span>?</span>'}</button><div><h3>${escape(g.name)}</h3><span class="certainty">${g.kind} · ${g.certainty==="observed"?"documented":g.certainty==="inferred"?"interpretation":g.certainty==="unrecorded"?"design unpublished":"effect unknown"}</span><p>${escape(g.effect||"Study reference; no invented effect.")}</p><a href="${g.source}" target="_blank" rel="noopener noreferrer">Reference ↗</a>${g.paths.length?`<button class="text-button" data-act="atlas-use" data-id="${g.id}">Study ↗</button>`:""}</div></article>`).join("")||'<p>No symbols found.</p>'}</div><div class="book-turns"><button class="button light" data-act="guide-page" data-index="${guidePage-1}" ${guidePage===0?"disabled":""}>←</button><span>${guidePage+1} / ${total}</span><button class="button dark" data-act="guide-page" data-index="${guidePage+1}" ${guidePage===total-1?"disabled":""}>→</button></div><p class="atlas-note">Sigil → signs → close the ring. Effects are game approximations. <a href="assets/glyph-attribution.md" target="_blank" rel="noopener">Sources & credits ↗</a></p></div>`);
+  openDialog(`<div class="dialog-content atlas"><span class="overline">THE DRAWN LANGUAGE · 83 REFERENCES</span><div class="atlas-heading"><h2>Spell atlas</h2><button class="text-button" data-act="seal-basics">How to draw ↗</button></div><div class="atlas-filters"><input id="atlasSearch" type="search" value="${escape(atlasQuery)}" placeholder="Find a symbol" aria-label="Find a symbol"><select id="atlasKind" aria-label="Symbol type">${["all","sigil","sign"].map(k=>`<option value="${k}" ${k===atlasKind?"selected":""}>${k==="all"?"All symbols":k==="sigil"?"Sigils":"Signs"}</option>`).join("")}</select></div><div class="atlas-grid">${entries.slice(guidePage*atlasSize,guidePage*atlasSize+atlasSize).map(g=>`<article class="atlas-card"><button class="atlas-glyph" data-act="atlas-detail" data-id="${g.id}" aria-label="Inspect ${escape(g.name)}">${g.paths.length?svgPaths(g.paths,"-.65 -.65 1.3 1.3"):'<span>?</span>'}</button><div><h3>${escape(g.name)}</h3><span class="certainty">${g.kind} · ${g.certainty==="observed"?"documented":g.certainty==="inferred"?"interpretation":g.certainty==="unrecorded"?"design unpublished":"effect unknown"}</span><p>${escape(g.effect||"Study reference; no invented effect.")}</p><a href="${g.source}" target="_blank" rel="noopener noreferrer">Reference ↗</a>${g.paths.length?`<button class="text-button" data-act="atlas-use" data-id="${g.id}">Study ↗</button>`:""}</div></article>`).join("")||'<p>No symbols found.</p>'}</div><div class="book-turns"><button class="button light" data-act="guide-page" data-index="${guidePage-1}" ${guidePage===0?"disabled":""}>←</button><span>${guidePage+1} / ${total}</span><button class="button dark" data-act="guide-page" data-index="${guidePage+1}" ${guidePage===total-1?"disabled":""}>→</button></div><p class="atlas-note">Sigil → signs → close the ring. Effects are game approximations. <a href="assets/glyph-attribution.md" target="_blank" rel="noopener">Sources & credits ↗</a></p></div>`);
 }
 function renderGrimoire() {
   $("#page").innerHTML =
@@ -910,6 +910,7 @@ document.addEventListener("click", (event) => {
     button.textContent=save.settings.music?"♫ On":"♫ Off";
     button.setAttribute("aria-pressed",String(save.settings.music));
   }
+  else if (act === "seal-basics") {openDialog(`<div class="dialog-content seal-basics"><span class="overline">THE LANGUAGE OF DRAWN MAGIC</span><h2>Three parts. One intention.</h2><div class="basics-layout"><div>${svgPaths(recipePaths("water","flow",3))}</div><ol><li><b>Sigil</b><p>The element or material.</p></li><li><b>Signs</b><p>Shape, strength and motion.</p></li><li><b>Enclosing ring</b><p>Close it last to awaken the seal.</p></li></ol></div><p>Size and balance matter. Combine sigils or nest rings to experiment.</p><p class="atlas-note">Based on the volume 1 casting-seal introduction. Recognition and effects are game approximations.</p><button class="button dark wide" data-act="field-guide">Explore the atlas</button></div>`);}
   else if (act === "atlas-detail") {const g=CATALOGUE.find(g=>g.id===button.dataset.id);openDialog(`<div class="dialog-content glyph-detail"><span class="overline">${g.kind} · ${g.nameStatus==="community"?"community name":"reference name"}</span><h2>${escape(g.name)}</h2><div class="detail-glyph">${g.paths.length?svgPaths(g.paths,"-.65 -.65 1.3 1.3"):"<span>Design unpublished</span>"}</div><p>${g.certainty==="observed"?"Documented symbol. Game effects are approximations.":g.certainty==="inferred"?"Effect interpretation; not confirmed canon.":"Unresolved reference. Study only."}</p><div class="dialog-actions"><button class="button light" data-act="field-guide">← Atlas</button>${g.paths.length?`<button class="button dark" data-act="atlas-use" data-id="${g.id}">Use reference</button>`:""}<a href="${g.source}" target="_blank" rel="noopener noreferrer">Source ↗</a></div></div>`);}
   else if (act === "atlas-use") {const g=CATALOGUE.find(g=>g.id===button.dataset.id);if(g.kind==="sigil")studioRecipe.element=g.key;else studioRecipe.modifier=g.key;if(page!=="studio")navigate("studio");openRecipe();}
   else if (act === "deck-page") {const deck=document.getElementById(button.dataset.deck);deck.dataset.current=button.dataset.index;layoutDeck(deck);}

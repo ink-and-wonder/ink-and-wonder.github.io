@@ -218,3 +218,21 @@ test("spellbook pages, studio sigil references, and the music control work",()=>
  click('[data-act="music"]');
  assert.equal(JSON.parse(storage.get(SAVE_KEY)).settings.music,!before);
 });
+
+test('atlas pages expose the complete vocabulary, search finds a sign, and references never insert ink',()=>{
+ const before=$('#strokeCount').textContent;
+ click('[data-act="field-guide"]');
+ const names=new Set(),ids=new Set();
+ for(let page=0;page<14;page++){
+  if(page)click(`[data-act="guide-page"][data-index="${page}"]`);
+  for(const title of document.querySelectorAll('.atlas-card h3'))names.add(title.textContent);
+  for(const glyph of document.querySelectorAll('[data-act="atlas-detail"]'))ids.add(glyph.dataset.id);
+ }
+ assert.equal(ids.size,83);assert.ok(names.has('Convergence'));assert.ok(names.has('Gryphon'));
+ $('#atlasSearch').value='Convergence';$('#atlasSearch').dispatchEvent(new window.Event('change',{bubbles:true}));
+ assert.equal(document.querySelectorAll('.atlas-card').length,1);
+ click('[data-act="atlas-use"]');assert.ok($('#recipePreview'));
+ assert.equal($('#recipeModifier').value,'convergence');
+ click('[data-act="apply-recipe"]');
+ assert.equal($('#strokeCount').textContent,before);
+});

@@ -1,4 +1,4 @@
-import { SIGILS } from "./vocabulary.js?v=3.0.1";
+import { SIGILS } from "./vocabulary.js?v=3.0.2";
 const shell = (content) =>
   `<svg viewBox="0 0 340 310" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="object-shadow" cx="170" cy="280" rx="111" ry="14" fill="#081c1b" opacity=".28"/><g stroke="#e8ddbd" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${content}</g></svg>`;
 const lantern = (x) =>
