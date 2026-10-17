@@ -5,7 +5,7 @@ import {
   MISSIONS,
   OBJECT_NAMES,
   RANKS,
-} from "./data.js?v=2.2.3";
+} from "./data.js?v=2.2.4";
 import {
   recognize,
   checkObjective,
@@ -14,7 +14,7 @@ import {
   recipePaths,
   distance,
   validateDrawing,
-} from "./engine.js?v=2.2.3";
+} from "./engine.js?v=2.2.4";
 import {
   SAVE_KEY,
   freshSave,
@@ -23,12 +23,12 @@ import {
   nextMission,
   insight,
   completeMission,
-} from "./state.js?v=2.2.3";
-import { AtelierMusic } from "./music.js?v=2.2.3";
-import { DrawingDesk } from "./drawing.js?v=2.2.3";
-import { objectArt, WorldEffects } from "./world.js?v=2.2.3";
-import { CLOUD_CONFIG } from "./cloud-config.js?v=2.2.3";
-import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=2.2.3";
+} from "./state.js?v=2.2.4";
+import { AtelierMusic } from "./music.js?v=2.2.4";
+import { DrawingDesk } from "./drawing.js?v=2.2.4";
+import { objectArt, WorldEffects } from "./world.js?v=2.2.4";
+import { CLOUD_CONFIG } from "./cloud-config.js?v=2.2.4";
+import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=2.2.4";
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;

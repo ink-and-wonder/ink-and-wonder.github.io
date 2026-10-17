@@ -1,4 +1,4 @@
-import { distance, pagePaths } from "./engine.js?v=2.2.3";
+import { distance, pagePaths } from "./engine.js?v=2.2.4";
 export class DrawingDesk {
   constructor(canvas, { settings, onChange, onFinish }) {
     this.canvas = canvas;

@@ -3346,3 +3346,14 @@ dialog::backdrop {
 #dialog:has(.manuscript) {width:min(960px,calc(100% - 32px));max-width:960px;}
 
 .order-element svg {width:48px;height:48px;display:block;}
+
+@media(min-width:651px) and (max-width:900px) {
+ .focused .spell-desk {display:flex;flex-direction:column;padding:16px;}
+ .focused .drawing-surface {order:2;width:100%;flex-shrink:0;}
+ .focused .desk-header {order:0;}
+ .focused .spell-order,.focused .desk-instruction,.focused .studio-hints,.focused .step-track {order:1;}
+ .focused .desk-tools {order:3;position:sticky;bottom:0;background:#f8f5ebf5;z-index:4;box-shadow:0 -4px 16px #23322112;}
+ .focused .pen-status,.focused .spell-feedback,.focused .cast-actions,.focused #nextSeal,.focused .study-strip,.focused .desk-bottom {order:4;}
+ .focused .study-strip {width:100%;}
+ .focused .study-strip button {flex-direction:row;font-size:11px;gap:8px;}
+}
