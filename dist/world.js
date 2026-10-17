@@ -1,4 +1,20 @@
-import { SIGILS } from "./vocabulary.js?v=3.0.5";
+import { SIGILS } from "./vocabulary.js?v=3.1.0";
+export function spellArt(result) {
+ const shapes={
+  water:'<path d="M100 20C85 57 47 92 47 126a53 53 0 0 0 106 0c0-34-38-69-53-106Z"/><path class="spell-highlight" d="M70 126q-2 28 25 32"/>',
+  fire:'<path d="M101 15c17 46-23 48-5 85 10-6 19-22 20-36 35 40 51 65 31 94-25 37-89 24-96-16-6-34 25-57 24-82 10 15 13 22 13 34 18-26 7-47 13-79Z"/>',
+  wind:'<g fill="none"><path d="M25 75h111c43 0 39-55 7-50-22 3-23 28-7 30M15 105h149M35 132h89c40 0 37 48 7 48-20 0-23-23-9-28"/></g>',
+  earth:'<path d="m38 120 23-62 65-15 39 68-18 52-78 5Z"/><path class="spell-highlight" d="m61 58 38 47 66 6m-66-6-30 63m30-63 27-62"/>',
+  light:'<path d="m100 22 17 59 61 19-61 18-17 60-18-60-60-18 60-19Z"/><g class="spell-highlight"><path d="m36 36 15 15m98 98 15 15M164 36l-15 15M51 149l-15 15"/></g>'
+ };
+ const keys=[...new Set((result.symbols||[]).filter(s=>s.kind==='sigil').map(s=>s.key))];
+ if(!keys.length)keys.push(result.element);
+ return keys.slice(0,3).map(key=>{
+  const glyph=SIGILS[key],paths=glyph?.paths||[];
+  const shape=shapes[key]||paths.map(path=>`<path fill="none" d="${path.map((p,i)=>(i?'L':'M')+(100+p.x*135)+' '+(100+p.y*135)).join(' ')}"/>`).join('')||'<circle cx="100" cy="100" r="55"/>';
+  return `<svg class="spell-form form-${key}" viewBox="0 0 200 200" style="--form-color:${glyph?.color||'#d2bf76'}" aria-hidden="true">${shape}</svg>`;
+ }).join('');
+}
 const shell = (content) =>
   `<svg viewBox="0 0 340 310" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="object-shadow" cx="170" cy="280" rx="111" ry="14" fill="#081c1b" opacity=".28"/><g stroke="#e8ddbd" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${content}</g></svg>`;
 const lantern = (x) =>
@@ -64,11 +80,11 @@ export class WorldEffects {
     this.intentions=intentions;
     const palette=(result.symbols||[]).filter(s=>s.kind==='sigil').map(s=>SIGILS[s.key]?.color).filter(Boolean);
     const colors = {
-        light: "#ffe2a0",
-        water: "#a0e6f0",
-        wind: "#cbe2bf",
-        fire: "#ffc08b",
-        earth: "#d8bc86",
+        light: "#c99a28",
+        water: "#2689ab",
+        wind: "#548769",
+        fire: "#d86b32",
+        earth: "#92703b",
       },
       range = result.modifier === "spread" ? 0.65 : 0.2;
     for (
@@ -84,7 +100,7 @@ export class WorldEffects {
         life: 1,
         age: 0,
         size: 1 + Math.random() * 3,
-        color: palette.length?palette[i%palette.length]:(colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0"),
+        color: colors[result.element] || (palette.length?palette[i%palette.length]:"#7b6698"),
         kind: result.element,
         modifier: result.components?.length ? result.components[i % result.components.length].modifier : result.modifier,
         orbit: intentions.has('rotation')||intentions.has('orb')||intentions.has('envelopment'),
@@ -99,6 +115,12 @@ export class WorldEffects {
       this.time = 0;
       this.frame = requestAnimationFrame(this.loop);
     }
+  }
+  ink(point) {
+    if(this.reduced)return;
+    if(this.particles.length>160)return;
+    this.particles.push({x:point.x/600,y:point.y/600,vx:(Math.random()-.5)*.00012,vy:-.00008,life:1,age:0,size:1.5,color:'#aa8136',kind:'ink',duration:650});
+    if(!this.frame){this.time=0;this.frame=requestAnimationFrame(this.loop);}
   }
   loop(now) {
     const dt = Math.min(now - this.time || 16, 40);
@@ -133,7 +155,7 @@ export class WorldEffects {
     }
     for (const p of this.particles) {
       p.age += dt;
-      p.life = 1 - p.age / 4200;
+      p.life = 1 - p.age / (p.duration||4200);
       if(p.still){p.vx*=.94;p.vy*=.94;}
       if(p.converge){p.vx+=(.5-p.x)*dt*.000008;p.vy+=(.5-p.y)*dt*.000008;}
       if(p.orbit){const a=p.age*.001+p.size,r=.12+p.size*.018;p.x=.5+Math.cos(a)*r;p.y=.5+Math.sin(a)*r;}

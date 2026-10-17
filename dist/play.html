@@ -15,7 +15,7 @@
     <link rel="icon" href="assets/icon.svg" />
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="style.css?v=3.0.5" />
+    <link rel="stylesheet" href="style.css?v=3.1.0" />
   </head>
   <body>
     <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg">
@@ -1612,7 +1612,7 @@ async function cloudFetch(input, options = {}) {
 
 
 class DrawingDesk {
-  constructor(canvas, { settings, onChange, onFinish }) {
+  constructor(canvas, { settings, onChange, onFinish, onInk }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.ink = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(1,1) :
@@ -1622,6 +1622,7 @@ class DrawingDesk {
     this.settings = settings;
     this.onChange = onChange;
     this.onFinish = onFinish;
+    this.onInk = onInk;
     this.strokes = [];
     this.history = [];
     this.future = [];
@@ -1721,6 +1722,7 @@ class DrawingDesk {
     } else {
       this.erasing = false;
       this.active = [p];
+      this.onInk?.(p);
     }
     this.requestPaint();
     this.onChange(null, e.pointerType);
@@ -1741,7 +1743,7 @@ class DrawingDesk {
         this.active.length < 5000 &&
         distance(p, this.active.at(-1)) > 0.25
       )
-        this.active.push(p);
+        { this.active.push(p); this.onInk?.(p); }
     }
     this.requestPaint();
   }
@@ -1913,7 +1915,7 @@ class DrawingDesk {
 // Original, quiet pentatonic chamber sketch. No remote audio or soundtrack samples.
 class AtelierMusic {
   constructor(enabled = () => true) { this.enabled=enabled; this.timer=null; this.context=null; this.notes=new Set(); this.unlocked=false; this.phrase=0; }
-  start() { this.unlocked=true; this.sync(); }
+  start() { if(this.unlocked && this.timer!==null)return;this.unlocked=true; this.sync(); }
   sync() {
     if (!this.unlocked || !this.enabled() || document.hidden) { this.pause(); return; }
     const Audio=globalThis.AudioContext || globalThis.webkitAudioContext;
@@ -1922,10 +1924,12 @@ class AtelierMusic {
       if (!this.context) {
         this.context=new Audio(); this.master=this.context.createGain();
         this.master.gain.value=0; this.master.connect(this.context.destination);
+        // A quiet, single echo gives the locally synthesized score a soft room.
+        if(this.context.createDelay){this.echo=this.context.createDelay(2);this.echo.delayTime.value=.65;this.wet=this.context.createGain();this.wet.gain.value=.22;this.master.connect(this.echo);this.echo.connect(this.wet);this.wet.connect(this.context.destination);}
       }
       this.context.resume()?.catch(()=>{});
       this.master.gain.cancelScheduledValues(this.context.currentTime);
-      this.master.gain.setTargetAtTime(0.07,this.context.currentTime,0.7);
+      this.master.gain.setTargetAtTime(0.18,this.context.currentTime,1.2);
       if (this.timer===null) { this.next=this.context.currentTime+0.1; this.schedule(); }
     } catch { this.pause(); }
   }
@@ -1934,17 +1938,18 @@ class AtelierMusic {
     const c=this.context, progression=[[48,55,62,67],[45,52,60,64],[41,48,55,62],[43,50,57,62]];
     while(this.next<c.currentTime+2) {
       const beat=this.phrase++%32, chord=progression[Math.floor(beat/8)];
-      if(beat%8===0) for(const note of chord.slice(0,3)) this.note(note,this.next,6,0.12,'sine');
+      if(beat%8===0) for(const note of chord.slice(0,3)) this.note(note,this.next,11,0.10,'sine');
       const melody=[0,2,3,2,1,3,2,1][beat%8];
-      this.note(chord[melody]+12,this.next,2.8,0.20,'sine');
-      this.next+=0.9;
+      if(beat%8!==7)this.note(chord[melody]+12,this.next,4.8,0.22,'sine');
+      if(beat%4===2)this.note(chord[1]+24,this.next+.35,3.5,.045,'triangle');
+      this.next+=1.5;
     }
     this.timer=setTimeout(()=>{this.timer=null;this.schedule();},700);
   }
   note(midi,at,duration,volume,type) {
     const c=this.context,o=c.createOscillator(),g=c.createGain();
     o.type=type;o.frequency.value=440*2**((midi-69)/12);
-    g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(volume,at+0.12);
+    g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(volume,at+0.38);
     g.gain.exponentialRampToValueAtTime(0.0001,at+duration);
     o.connect(g).connect(this.master);o.start(at);o.stop(at+duration+0.05);
     this.notes.add(o);o.onended=()=>{o.disconnect();g.disconnect();this.notes.delete(o);};
@@ -1961,6 +1966,22 @@ class AtelierMusic {
 
 /* world.js */
 
+function spellArt(result) {
+ const shapes={
+  water:'<path d="M100 20C85 57 47 92 47 126a53 53 0 0 0 106 0c0-34-38-69-53-106Z"/><path class="spell-highlight" d="M70 126q-2 28 25 32"/>',
+  fire:'<path d="M101 15c17 46-23 48-5 85 10-6 19-22 20-36 35 40 51 65 31 94-25 37-89 24-96-16-6-34 25-57 24-82 10 15 13 22 13 34 18-26 7-47 13-79Z"/>',
+  wind:'<g fill="none"><path d="M25 75h111c43 0 39-55 7-50-22 3-23 28-7 30M15 105h149M35 132h89c40 0 37 48 7 48-20 0-23-23-9-28"/></g>',
+  earth:'<path d="m38 120 23-62 65-15 39 68-18 52-78 5Z"/><path class="spell-highlight" d="m61 58 38 47 66 6m-66-6-30 63m30-63 27-62"/>',
+  light:'<path d="m100 22 17 59 61 19-61 18-17 60-18-60-60-18 60-19Z"/><g class="spell-highlight"><path d="m36 36 15 15m98 98 15 15M164 36l-15 15M51 149l-15 15"/></g>'
+ };
+ const keys=[...new Set((result.symbols||[]).filter(s=>s.kind==='sigil').map(s=>s.key))];
+ if(!keys.length)keys.push(result.element);
+ return keys.slice(0,3).map(key=>{
+  const glyph=SIGILS[key],paths=glyph?.paths||[];
+  const shape=shapes[key]||paths.map(path=>`<path fill="none" d="${path.map((p,i)=>(i?'L':'M')+(100+p.x*135)+' '+(100+p.y*135)).join(' ')}"/>`).join('')||'<circle cx="100" cy="100" r="55"/>';
+  return `<svg class="spell-form form-${key}" viewBox="0 0 200 200" style="--form-color:${glyph?.color||'#d2bf76'}" aria-hidden="true">${shape}</svg>`;
+ }).join('');
+}
 const shell = (content) =>
   `<svg viewBox="0 0 340 310" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="object-shadow" cx="170" cy="280" rx="111" ry="14" fill="#081c1b" opacity=".28"/><g stroke="#e8ddbd" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${content}</g></svg>`;
 const lantern = (x) =>
@@ -2026,11 +2047,11 @@ class WorldEffects {
     this.intentions=intentions;
     const palette=(result.symbols||[]).filter(s=>s.kind==='sigil').map(s=>SIGILS[s.key]?.color).filter(Boolean);
     const colors = {
-        light: "#ffe2a0",
-        water: "#a0e6f0",
-        wind: "#cbe2bf",
-        fire: "#ffc08b",
-        earth: "#d8bc86",
+        light: "#c99a28",
+        water: "#2689ab",
+        wind: "#548769",
+        fire: "#d86b32",
+        earth: "#92703b",
       },
       range = result.modifier === "spread" ? 0.65 : 0.2;
     for (
@@ -2046,7 +2067,7 @@ class WorldEffects {
         life: 1,
         age: 0,
         size: 1 + Math.random() * 3,
-        color: palette.length?palette[i%palette.length]:(colors[result.element] || SIGILS[result.element]?.color || "#c8d8c0"),
+        color: colors[result.element] || (palette.length?palette[i%palette.length]:"#7b6698"),
         kind: result.element,
         modifier: result.components?.length ? result.components[i % result.components.length].modifier : result.modifier,
         orbit: intentions.has('rotation')||intentions.has('orb')||intentions.has('envelopment'),
@@ -2061,6 +2082,12 @@ class WorldEffects {
       this.time = 0;
       this.frame = requestAnimationFrame(this.loop);
     }
+  }
+  ink(point) {
+    if(this.reduced)return;
+    if(this.particles.length>160)return;
+    this.particles.push({x:point.x/600,y:point.y/600,vx:(Math.random()-.5)*.00012,vy:-.00008,life:1,age:0,size:1.5,color:'#aa8136',kind:'ink',duration:650});
+    if(!this.frame){this.time=0;this.frame=requestAnimationFrame(this.loop);}
   }
   loop(now) {
     const dt = Math.min(now - this.time || 16, 40);
@@ -2095,7 +2122,7 @@ class WorldEffects {
     }
     for (const p of this.particles) {
       p.age += dt;
-      p.life = 1 - p.age / 4200;
+      p.life = 1 - p.age / (p.duration||4200);
       if(p.still){p.vx*=.94;p.vy*=.94;}
       if(p.converge){p.vx+=(.5-p.x)*dt*.000008;p.vy+=(.5-p.y)*dt*.000008;}
       if(p.orbit){const a=p.age*.001+p.size,r=.12+p.size*.018;p.x=.5+Math.cos(a)*r;p.y=.5+Math.sin(a)*r;}
@@ -2631,7 +2658,7 @@ function sceneMarkup({ art, location, title, brief, type, studio = false }) {
 }
 function deskMarkup(studio = false) {
   const r = studio ? studioRecipe : requirement();
-  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "Your spell. Your ink." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Sigil. Signs. Close the ring.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).filter(([id])=>["fire","water","earth","wind","light"].includes(id)).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="canvas-slot"><div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><canvas class="desk-effects" id="deskEffects" aria-hidden="true"></canvas><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close the ring to cast." : "Sigil → signs → close the ring."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
+  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "Your spell. Your ink." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Sigil. Signs. Close the ring.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).filter(([id])=>["fire","water","earth","wind","light"].includes(id)).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="canvas-slot"><div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><div id="spellManifestation" class="spell-manifestation" aria-hidden="true"></div><canvas class="desk-effects" id="deskEffects" aria-hidden="true"></canvas><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close the ring to cast." : "Sigil → signs → close the ring."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
 }
 function recipeInstruction(r) {
   return `Draw the ${ELEMENTS[r.element].name.toLowerCase()} sigil with <b>${r.signs} ${MODIFIERS[r.modifier].name.toLowerCase()} sign${r.signs > 1 ? "s" : ""}</b>, then finish with one closed ring.`;
@@ -2639,6 +2666,7 @@ function recipeInstruction(r) {
 function mountDesk(studio = false) {
   desk = new DrawingDesk($("#drawing"), {
     settings: save.settings,
+    onInk: point => effects?.ink(point),
     onChange: (message, pointer) => {
       if (message) setFeedback(message, "warning");
       if (pointer && page === "mission" && assisted) usedGuide = true;
@@ -2655,7 +2683,7 @@ function mountDesk(studio = false) {
       const r = page === "studio" ? compileSpell(desk.strokes, {interpretations:save.settings.interpretations}) : recognize(desk.strokes);
       if (r.ok) setFeedback(`${ELEMENTS[r.element].name} sigil · ${r.composition.map(id=>MODIFIERS[id].name).join(" + ") || "no shaping signs"} · ${r.signs} signs. ${save.settings.autoCast ? "Seal is ready." : "Tap Awaken when ready."}`, "ready");
       else if (desk.strokes.length>1) setFeedback(r.reason);
-      if (save.settings.autoCast && r.ok && last.some(p=>Math.abs(Math.hypot(p.x-r.ring.x,p.y-r.ring.y)-r.ring.r)<r.ring.r*0.2)) castSpell();
+      if (save.settings.autoCast && r.ok) castSpell();
     },
   });
   desk.setGuide(
@@ -2707,6 +2735,14 @@ function castSpell() {
   const element = ELEMENTS[r.element];
   $("#stageScene").style.setProperty("--spell-color", element.color);
   effects.cast(r);
+  const manifestation=$("#spellManifestation");
+  manifestation.innerHTML=spellArt(r);
+  manifestation.style.left=(r.ring.x/6)+"%";
+  manifestation.style.top=(r.ring.y/6)+"%";
+  manifestation.dataset.modifier=r.modifier;
+  manifestation.classList.remove("active");
+  void manifestation.offsetWidth;
+  manifestation.classList.add("active");
   $("#stageScene").classList.remove("casting");
   void $("#stageScene").offsetWidth;
   $("#stageScene").classList.add("casting");

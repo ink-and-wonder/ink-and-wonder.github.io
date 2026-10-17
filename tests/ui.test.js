@@ -149,6 +149,7 @@ test("free drawings cast, save, reopen and render user names safely", () => {
   draw(pagePaths("water", "flow", 3));
   assert.match($("#feedbackText").textContent, /Water/);
   assert.equal($("#worldObject").dataset.element, "water");
+  assert.ok($('#spellManifestation.active .form-water'));
   assert.match($(".target-label").textContent, /Silverleaf/);
   click('[data-act="save-seal"]');
   $("#sealName").value = "<img src=x onerror=alert(1)> My rain";

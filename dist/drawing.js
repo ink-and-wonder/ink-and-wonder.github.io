@@ -1,7 +1,7 @@
-import { compositionPaths } from "./compiler.js?v=3.0.5";
-import { distance, pagePaths } from "./engine.js?v=3.0.5";
+import { compositionPaths } from "./compiler.js?v=3.1.0";
+import { distance, pagePaths } from "./engine.js?v=3.1.0";
 export class DrawingDesk {
-  constructor(canvas, { settings, onChange, onFinish }) {
+  constructor(canvas, { settings, onChange, onFinish, onInk }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.ink = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(1,1) :
@@ -11,6 +11,7 @@ export class DrawingDesk {
     this.settings = settings;
     this.onChange = onChange;
     this.onFinish = onFinish;
+    this.onInk = onInk;
     this.strokes = [];
     this.history = [];
     this.future = [];
@@ -110,6 +111,7 @@ export class DrawingDesk {
     } else {
       this.erasing = false;
       this.active = [p];
+      this.onInk?.(p);
     }
     this.requestPaint();
     this.onChange(null, e.pointerType);
@@ -130,7 +132,7 @@ export class DrawingDesk {
         this.active.length < 5000 &&
         distance(p, this.active.at(-1)) > 0.25
       )
-        this.active.push(p);
+        { this.active.push(p); this.onInk?.(p); }
     }
     this.requestPaint();
   }
