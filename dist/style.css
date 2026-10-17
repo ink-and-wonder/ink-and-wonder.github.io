@@ -3333,3 +3333,14 @@ dialog::backdrop {
  .experiment-pair {gap:8px;}
  .experiment-pair svg {height:150px;}
 }
+
+@media(min-width:651px) {
+ .focused .spell-desk {row-gap:4px;}
+ .focused .drawing-surface {width:min(100%,calc(100dvh - 180px));}
+ .focused .study-strip {flex-wrap:nowrap;margin:6px 0;gap:5px;}
+ .focused .study-strip button {flex:1 1 0;min-width:0;padding:5px 2px;font-size:9px;min-height:48px;}
+ .focused .study-strip svg {width:23px;height:23px;}
+ .focused .spell-order {margin:8px 0;}
+ .focused .desk-instruction {margin:8px 0;}
+}
+#dialog:has(.manuscript) {width:min(960px,calc(100% - 32px));max-width:960px;}
