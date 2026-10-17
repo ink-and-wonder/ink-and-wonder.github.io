@@ -3622,3 +3622,5 @@ button {min-height:44px;}
  .atlas-glyph {width:100px;height:100px;}
  .atlas-card h3 {font-size:20px;}
 }
+.studio-layout .scene-caption {display:none;}
+@media(max-height:620px) {.scene-caption {display:none;}}
