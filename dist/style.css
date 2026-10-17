@@ -3616,3 +3616,9 @@ button {min-height:44px;}
 @media(max-height:600px) and (min-width:651px) {
  .spell-desk,.focused .spell-desk {grid-template-rows:32px repeat(6,auto) minmax(0,1fr);}
 }
+.certainty {display:block;line-height:1.4;margin-bottom:4px;}
+.game-footer button {height:42px;min-height:42px;}
+@media(max-height:620px) and (min-width:651px) {
+ .atlas-glyph {width:100px;height:100px;}
+ .atlas-card h3 {font-size:20px;}
+}
