@@ -27,7 +27,7 @@ const modules = await Promise.all(
 let html = await fs.readFile(new URL("index.html", root), "utf8");
 html = html
   .replace(
-    '<script type="module" src="game.js"></script>',
+    /<script type="module" src="game\.js(?:\?v=[\d.]+)?"><\/script>/,
     () => `<script>\n(()=>{\n${modules.join("\n")}\n})();\n</script>`,
   )
   .replace(

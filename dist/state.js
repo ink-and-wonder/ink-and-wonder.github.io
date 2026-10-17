@@ -1,5 +1,5 @@
-import { MISSIONS } from "./data.js";
-import { validateDrawing } from "./engine.js";
+import { MISSIONS } from "./data.js?v=2.2.3";
+import { validateDrawing } from "./engine.js?v=2.2.3";
 export const SAVE_KEY = "ink-wonder-adventure-v2";
 export const freshSave = () => ({
   version: 2,
