@@ -1,4 +1,4 @@
-import { SIGILS, SIGNS } from "./vocabulary.js?v=3.0.2";
+import { SIGILS, SIGNS } from "./vocabulary.js?v=3.0.3";
 /* Local geometric recognition. The ring defines a coordinate system, so seals
    may be drawn anywhere on the page and at any useful size. */
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
