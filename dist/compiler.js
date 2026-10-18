@@ -1,5 +1,5 @@
-import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.2";
-import { resample, distance, ringCandidates, fitRing, heart, sign, circle, recognize, validateDrawing } from "./engine.js?v=3.1.2";
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.3";
+import { resample, distance, ringCandidates, fitRing, heart, sign, circle, recognize, validateDrawing } from "./engine.js?v=3.1.3";
 const designed=CATALOGUE.filter(g=>g.paths.length), templateCache=new Map();
 const bounds=paths=>{
  const p=paths.flat();if(!p.length)return null;
