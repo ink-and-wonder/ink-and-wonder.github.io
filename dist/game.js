@@ -1,6 +1,6 @@
-import { startTrafficCounting, trafficOptedOut, TRAFFIC_OPT_OUT_KEY } from "./traffic.js?v=3.2.0";
-import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.2.0";
-import { compileSpell, compositionPaths } from "./compiler.js?v=3.2.0";
+import { startTrafficCounting, trafficOptedOut, TRAFFIC_OPT_OUT_KEY } from "./traffic.js?v=3.3.0";
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.3.0";
+import { compileSpell, compositionPaths } from "./compiler.js?v=3.3.0";
 import {
   ELEMENTS,
   MODIFIERS,
@@ -8,7 +8,7 @@ import {
   MISSIONS,
   OBJECT_NAMES,
   RANKS,
-} from "./data.js?v=3.2.0";
+} from "./data.js?v=3.3.0";
 import {
   recognize,
   checkObjective,
@@ -17,7 +17,7 @@ import {
   recipePaths,
   distance,
   validateDrawing,
-} from "./engine.js?v=3.2.0";
+} from "./engine.js?v=3.3.0";
 import {
   SAVE_KEY,
   freshSave,
@@ -26,12 +26,12 @@ import {
   nextMission,
   insight,
   completeMission,
-} from "./state.js?v=3.2.0";
-import { AtelierMusic } from "./music.js?v=3.2.0";
-import { DrawingDesk } from "./drawing.js?v=3.2.0";
-import { objectArt, WorldEffects, spellArt } from "./world.js?v=3.2.0";
-import { CLOUD_CONFIG } from "./cloud-config.js?v=3.2.0";
-import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.2.0";
+} from "./state.js?v=3.3.0";
+import { AtelierMusic } from "./music.js?v=3.3.0";
+import { DrawingDesk } from "./drawing.js?v=3.3.0";
+import { objectArt, WorldEffects, spellArt } from "./world.js?v=3.3.0";
+import { CLOUD_CONFIG } from "./cloud-config.js?v=3.3.0";
+import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.3.0";
 startTrafficCounting({config:CLOUD_CONFIG});
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
@@ -134,7 +134,7 @@ function updateHeader() {
   $("#playerRank").innerHTML =
     `${RANKS[rank]}<small id="xpLabel">${insight(save)} insight · ${count}/12 moments</small>`;
   $("#continueGame").innerHTML =
-    `${count ? "Continue your story" : "Begin your story"} ${icon("arrow")}`;
+    `${count ? "Continue playing" : "Start playing"} ${icon("arrow")}`;
   document.body.classList.toggle("large-text", save.settings.largeText);
   document.body.classList.toggle("reduced-motion", save.settings.reducedMotion);
   updateAccountUi();
@@ -183,7 +183,7 @@ function updateAccountUi() {
     : "Sign in<small>Cloud saves</small>";
   title.innerHTML = user
     ? `Welcome back, ${escape(name.slice(0, 30))} <span>↗</span>`
-    : "Sign in · keep your story with you <span>↗</span>";
+    : "Sign in to save <span>↗</span>";
   if (user) footer.textContent = cloudState.message;
   else footer.textContent = "Guest story · saved on this device";
   $("#accountButton").classList.toggle(
@@ -521,7 +521,7 @@ function sceneMarkup({ art, location, title, brief, type, studio = false }) {
 }
 function deskMarkup(studio = false) {
   const r = studio ? studioRecipe : requirement();
-  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "YOUR OWN SPELL" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "Your spell. Your ink." : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Sigil. Signs. Close the ring.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).filter(([id])=>["fire","water","earth","wind","light"].includes(id)).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="canvas-slot"><div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><div id="spellManifestation" class="spell-manifestation" aria-hidden="true"></div><canvas class="desk-effects" id="deskEffects" aria-hidden="true"></canvas><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close the ring to cast." : "Sigil → signs → close the ring."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
+  return `<section class="spell-desk" aria-label="Spell drawing desk"><div class="desk-header"><span>${icon("quill")} DRAWING ATELIER</span><div class="desk-utilities"><button class="text-button music-toggle" data-act="music" aria-pressed="${save.settings.music}" aria-label="Toggle background music">${save.settings.music ? "♫ On" : "♫ Off"}</button><button class="text-button" data-act="focus-desk">Expand ↗</button><button class="text-button" data-act="field-guide">Spellbook ↗</button></div></div><div class="spell-order"><div><span class="overline">${studio ? "SKETCHBOOK" : `SEAL ${stepIndex + 1} OF ${MISSIONS[missionIndex].steps.length}`}</span><h2 id="orderTitle">${studio ? "Free drawing" : ELEMENTS[r.element].name + " · " + MODIFIERS[r.modifier].name}</h2></div><span class="order-element" id="orderElement">${svgPaths(heart(r.element),"-.65 -.65 1.3 1.3")}</span></div>${studio ? `<p class="desk-instruction">Sigil. Signs. Close the ring.</p><div class="studio-hints"><button data-act="recipe" class="recipe-select">Reference: <span id="recipeLabel">${ELEMENTS[r.element].name} / ${MODIFIERS[r.modifier].name}</span> <span>⌄</span></button><button class="icon-button" data-act="download-seal" aria-label="Download drawing as PNG">↓</button></div>` : `<p class="desk-instruction" id="deskInstruction">${recipeInstruction(r)}</p><div class="step-track">${MISSIONS[missionIndex].steps.map((s, i) => `<span class="${i < stepIndex ? "complete" : i === stepIndex ? "current" : ""}">${i < stepIndex ? "✓" : i + 1}<small>${ELEMENTS[s.element].name}</small></span>`).join("")}</div>`}${studio ? `<div class="study-strip" aria-label="Sigil references">${Object.entries(ELEMENTS).filter(([id])=>["fire","water","earth","wind","light"].includes(id)).map(([id,e])=>`<button data-act="study-sigil" data-element="${id}" title="Study ${e.name}">${svgPaths(heart(id),"-.65 -.65 1.3 1.3")}<span>${e.name}</span></button>`).join("")}</div>` : ""}<div class="canvas-slot"><div class="drawing-surface"><div class="paper-ornament top-left"></div><div class="paper-ornament top-right"></div><div id="spellManifestation" class="spell-manifestation" aria-hidden="true"></div><canvas class="desk-effects" id="deskEffects" aria-hidden="true"></canvas><canvas id="drawing" aria-label="Draw your spell here using a pen, finger, or mouse. The ring can be drawn anywhere on this page."></canvas><div class="paper-ornament bottom-left"></div><div class="paper-ornament bottom-right"></div><span class="paper-watermark">INK IS ONLY THE BEGINNING</span></div></div><div class="desk-tools"><div class="tool-group"><button class="tool active" data-act="pen" title="Pen (P)" aria-label="Ink pen" aria-pressed="true">${icon("quill")}</button><button class="tool" data-act="erase" title="Stroke eraser (E)" aria-label="Eraser" aria-pressed="false">${icon("eraser")}</button><span class="tool-divider"></span><button class="tool" data-act="undo" title="Undo (Ctrl Z)" aria-label="Undo">${icon("undo")}</button><button class="tool redo" data-act="redo" title="Redo (Ctrl Shift Z)" aria-label="Redo">${icon("undo")}</button><button class="tool" data-act="clear" title="New page" aria-label="Clear drawing">${icon("trash")}</button></div><label class="check-label"><input type="checkbox" id="traceGuide" ${studio ? (studioGuide ? "checked" : "") : assisted ? "checked" : ""}> Trace guide</label></div><div class="pen-status"><span class="status-dot"></span><span id="penStatus">${save.settings.penOnly ? "Pen-only input · palm rejection" : "Pen, touch, or mouse · ready"}</span><span id="strokeCount">0 lines</span></div><div class="spell-feedback" id="spellFeedback" role="status" aria-live="polite"><span class="feedback-icon">✧</span><span id="feedbackText">${studio ? "Draw freely. Close the ring to cast." : "Sigil → signs → close the ring."}</span></div><div class="cast-actions"><button class="button dark cast-button" id="castButton" data-act="cast">Awaken spell ${icon("spark")}</button><button class="save-seal-button" data-act="save-seal" aria-label="Save drawing to grimoire" title="Save this drawing">${icon("book")}</button></div><button id="nextSeal" class="button gold wide hidden" data-act="next-seal">Draw the next seal ${icon("arrow")}</button><div class="desk-bottom"><span>PRESSURE-SENSITIVE INK</span><span>${save.settings.autoCast ? "CLOSE RING TO CAST" : "TAP AWAKEN TO CAST"}</span></div></section>`;
 }
 function recipeInstruction(r) {
   return `Draw the ${ELEMENTS[r.element].name.toLowerCase()} sigil with <b>${r.signs} ${MODIFIERS[r.modifier].name.toLowerCase()} sign${r.signs > 1 ? "s" : ""}</b>, then finish with one closed ring.`;
@@ -571,7 +571,7 @@ function renderMission() {
 }
 function renderStudio() {
   $("#page").innerHTML =
-    `<div class="encounter-bar"><button class="text-button" data-act="journey">← Journey</button><span>THE STUDIO <i>/</i> AN UNWRITTEN PAGE</span><button class="text-button" data-act="field-guide">How drawn magic works ↗</button></div><section class="play-layout studio-layout">${sceneMarkup({ art: studioScene, location: studioScene === "atelier" ? "The quiet atelier" : studioScene === "village" ? "The village at rest" : "The open observatory", title: "A little ink.<br>Unlimited possibility.", brief: "Draw from memory. Try a new arrangement. Give an old spell a different intention.", type: "lantern", studio: true })}${deskMarkup(true)}</section>`;
+    `<div class="encounter-bar"><button class="text-button" data-act="journey">← Journey</button><span>STUDIO <i>/</i> PRACTICE</span><button class="text-button" data-act="field-guide">How drawn magic works ↗</button></div><section class="play-layout studio-layout">${sceneMarkup({ art: studioScene, location: studioScene === "atelier" ? "The quiet atelier" : studioScene === "village" ? "The village at rest" : "The open observatory", title: "Practice room", brief: "Draw from memory. Try a new arrangement. Give an old spell a different intention.", type: "lantern", studio: true })}${deskMarkup(true)}</section>`;
   lastResult = null;
   mountDesk(true);
 }
@@ -784,7 +784,7 @@ function fieldGuide() {
 }
 function renderGrimoire() {
   $("#page").innerHTML =
-    `<section class="grimoire-page"><div class="page-heading"><div><span class="overline">THE THINGS YOUR HANDS REMEMBER</span><h1>Your personal grimoire.</h1><p>Your spells and keepsakes.</p></div><div class="book-emblem">${icon("book")}</div></div><div class="book-tabs">${[
+    `<section class="grimoire-page"><div class="page-heading"><div><span class="overline">SKETCHBOOK</span><h1>Grimoire</h1><p>Your spells and keepsakes.</p></div><div class="book-emblem">${icon("book")}</div></div><div class="book-tabs">${[
       ["seals", "My seals", save.seals.length],
       ["discoveries", "Discoveries", save.discoveries.length + "/12"],
       ["memories", "Memories", Object.keys(save.completed).length + "/12"],
@@ -801,7 +801,7 @@ function renderGrimoire() {
 
 function sealsMarkup() {
   if (!save.seals.length)
-    return `<div class="empty-book"><span>✧</span><h2>Your next idea belongs here.</h2><p>Save a working spell or an experimental sketch from the drawing desk.<br>This grimoire is yours to fill.</p><button class="button dark" data-act="studio">Find a blank page ${icon("quill")}</button></div>`;
+    return `<div class="empty-book"><span>✧</span><h2>No saved spells yet.</h2><p>Save a spell or sketch from the drawing desk.</p><button class="button dark" data-act="studio">Open sketchbook ${icon("quill")}</button></div>`;
   return `<div class="seal-grid">${save.seals.map((s, i) => `<article class="saved-seal"><div class="saved-seal-art">${svgPaths(s.strokes, "0 0 600 600")}</div><span class="overline">${s.element === "sketch" ? "EXPERIMENTAL PAGE" : ELEMENTS[s.element].name + " / " + MODIFIERS[s.modifier].name}</span><h2>${escape(s.name)}</h2><p>${s.quality ? s.quality + "% clarity" : "An idea still taking shape"}</p><div><button class="text-button" data-act="open-seal" data-index="${i}">Open in studio ↗</button><button class="text-button remove-page" data-act="remove-seal" data-index="${i}" aria-label="Remove ${escape(s.name)}">×</button></div></article>`).join("")}</div>`;
 }
 function discoveriesMarkup() {
@@ -825,7 +825,7 @@ function showPrivacy() {
 }
 function settings() {
   openDialog(
-    `<div class="dialog-content"><span class="overline">SETTINGS · <button class="text-button" data-act="privacy">Privacy</button></span><h2>Your atelier, your pace.</h2><div class="settings-list">${[
+    `<div class="dialog-content"><span class="overline">SETTINGS · <button class="text-button" data-act="privacy">Privacy</button></span><h2>Settings</h2><div class="settings-list">${[
       ["music", "Background music", "A quiet original melody and soft sustained chords. Pauses when this tab is hidden."],
       ["sound", "Spell sounds", "Original soft chimes when a spell awakens."],
       [

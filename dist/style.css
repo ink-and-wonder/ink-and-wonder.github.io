@@ -3644,3 +3644,79 @@ button {min-height:44px;}
 .reduced-motion .spell-manifestation:before,.reduced-motion .spell-form {animation:none;}
 @keyframes quiet-spell {0%,100% {opacity:0;}15%,75% {opacity:.85;}}
 @media(prefers-reduced-motion:reduce) {.spell-form,.spell-manifestation:before {animation:none;}}
+
+/* Notebook edition — quiet paper, printed rules, one vermilion accent. */
+:root {--forest:#292c2b;--deep:#202522;--paper:#f1eee5;--muted:#62665f;--gold:#a34332;--line:#ccc9be;}
+.overline {letter-spacing:.7px;color:#62665f;}
+h1,h2,h3 {font-weight:600;}
+.button {border-radius:0;box-shadow:none;letter-spacing:0;font-weight:500;}
+.button:not(:disabled):hover {transform:none;box-shadow:none;}
+.gold,.dark {background:#303a34;color:#fffdf5;border-color:#303a34;}
+.gold:hover,.dark:hover {background:#46554b;}
+.light {background:#e8e6dd;border-color:#c7c6bb;color:#303a34;}
+.outline,.glass {background:transparent;border-color:#8e948b;color:#303a34;backdrop-filter:none;}
+.icon-button,.save-seal-button,.tool,.recipe-select,.atlas-card,.saved-seal,.discovery,.chapter-card {border-radius:1px;box-shadow:none;}
+.title-screen {background:#f1eee5;color:#292c2b;align-items:center;}
+.title-screen:after {content:'';position:absolute;z-index:-1;inset:28px 28px 72px 43%;background:url('assets/atelier.webp') 65% center/cover;border:1px solid #494e44;filter:saturate(.48);}
+.title-vignette {display:none;}
+.corner-mark {top:28px;left:4vw;font-size:11px;letter-spacing:.7px;color:#4e554e;}
+.corner-mark svg {display:none;}
+.title-copy {margin:80px 4vw 90px;width:34%;max-width:500px;}
+.title-copy>.overline {color:#9a4134;font-size:12px!important;letter-spacing:1px;}
+.title-copy h1 {font-size:clamp(68px,7.4vw,124px);line-height:.88;letter-spacing:-3px;font-weight:600;margin:24px 0;}
+.title-copy h1 i {color:#9a4134;letter-spacing:-3px;}
+.title-copy h1>span {font:500 12px/1.4 var(--sans);letter-spacing:1.4px;color:#51594f;margin-top:24px;}
+.title-copy>p {font:15px/1.5 var(--sans);color:#555d54;margin:24px 0;max-width:240px;}
+.title-actions {gap:10px;}
+.title-actions .button {width:100%;max-width:280px;min-height:48px;}
+.title-meta {display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:24px;color:#666b62;font-size:11px;letter-spacing:.2px;}
+.title-meta>span {display:none;}
+.title-account {width:auto!important;border:0!important;padding:6px 0!important;margin:0!important;color:#4f584f!important;font-size:13px!important;min-height:44px;}
+.title-account span {margin-left:20px;}
+.title-bottom {left:4vw;right:28px;bottom:14px;border-top:1px solid #b9bcb0;padding-top:8px;font-size:10px;letter-spacing:.3px;color:#62685e;}
+.title-bottom button {font-size:12px;color:#303a34;border:0;}
+.game-screen {background:#f1eee5;background-image:none;}
+.game-header {background:#f8f6ef;border-bottom:1px solid #6e776b;}
+.wordmark {font-weight:600;}.wordmark i {color:#9a4134;}.wordmark>span {letter-spacing:1.4px;font-size:8px;}
+.game-header nav button {color:#646b61;font-size:13px;}
+.game-header nav button.active {color:#9a4134;}
+.game-header nav button.active:after {background:#9a4134;}
+.player-seal {display:none;}
+.game-footer {background:#f1eee5;border-top:1px solid #c8cabe;color:#5a6359;}
+.page-heading h1 {font-weight:600;}
+.page-heading>.overline,.page-heading>div>.overline {color:#9a4134;}
+.chapter-card {background:#faf8f1;border-color:#a9afa0;}
+.chapter-art {filter:saturate(.6);}
+.mission-row b {font-family:var(--sans);font-size:15px;font-weight:500;}
+.mission-row small {color:#5e685b;}
+.chapter-art-copy h2 {font-weight:600;}
+.spell-desk {background:#f7f5ed;box-shadow:none;border:1px solid #a9afa0;}
+.desk-header {border-color:#bfc3b6;}
+.desk-header>span {letter-spacing:.5px;color:#5b6558;}
+.desk-utilities .text-button {color:#3e503f;}
+.drawing-surface {background:#fffef9;border:1px solid #9fa795;border-radius:0;box-shadow:2px 3px 0 #d9dccf;}
+.drawing-surface:after,.paper-ornament {display:none;}
+.spell-feedback {background:transparent;border:0;border-left:2px solid #a2aa96;color:#4e5d49;border-radius:0;}
+.spell-feedback.warning {background:#f2e9db;border:0;border-left:2px solid #a45e35;color:#784528;}
+.spell-feedback.success {background:#e6eddf;border:0;border-left:2px solid #56704a;color:#354f2c;}
+.feedback-icon {display:none;}
+.book-tabs {border-color:#b3baaa;}.book-tabs button {font-size:14px;}.book-tabs button.active {color:#943f32;}
+#dialog {border:1px solid #737d6c;border-radius:2px;box-shadow:0 12px 48px #151e2133;background:#faf8f1;}
+#dialog::backdrop {background:#202b2a88;backdrop-filter:none;}
+.dialog-content>h2 {font-weight:600;}
+@media(max-width:650px) {
+ .title-screen:after {inset:16px 16px 54px 47%;background-position:72% center;}
+ .title-copy {margin:70px 5vw 65px;width:38%;}
+ .title-copy h1 {font-size:clamp(46px,10vw,68px);letter-spacing:-2px;margin:18px 0;}
+ .title-copy h1>span {font-size:9px;letter-spacing:.7px;margin-top:16px;}
+ .title-copy>.overline {font-size:10px!important;letter-spacing:.1px;}
+ .title-copy>p {font-size:13px;margin:18px 0;}
+ .title-actions .button {font-size:12px!important;padding:8px 10px;gap:5px;justify-content:center;}
+ .title-actions svg {display:none;}
+ .title-meta {margin-top:12px;}.title-account {font-size:12px!important;}
+ .corner-mark {top:19px;left:5vw;font-size:9px;}.title-bottom {left:5vw;right:16px;bottom:6px;font-size:8px;gap:8px;}.title-bottom>span:last-child {display:none;}
+}
+@media(max-height:600px) and (min-width:651px) {
+ .title-copy {margin:65px 4vw 65px;}.title-copy h1 {font-size:68px;margin:12px 0;}.title-copy h1>span {margin-top:16px;}.title-copy>p {margin:12px 0;}.title-meta {margin-top:10px;}.title-actions .button {min-height:44px;}
+}
+@media(max-height:560px) and (max-width:650px) {.title-copy>p {display:none;}.title-copy h1 {font-size:44px;}.title-copy h1>span {margin-top:10px;}.title-copy {margin-top:50px;margin-bottom:50px;}.title-meta {margin-top:4px;}}

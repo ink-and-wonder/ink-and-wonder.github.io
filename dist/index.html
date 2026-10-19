@@ -16,7 +16,7 @@
     <link rel="icon" href="assets/icon.svg" />
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="style.css?v=3.2.0" />
+    <link rel="stylesheet" href="style.css?v=3.3.0" />
   </head>
   <body>
     <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg">
@@ -59,34 +59,33 @@
     <section id="titleScreen" class="title-screen">
       <div class="title-vignette"></div>
       <a class="corner-mark" href="./"
-        ><svg><use href="#i-spark" /></svg> AN ATELIER STORY</a
+        ><svg><use href="#i-spark" /></svg> INK & WONDER / DRAWING GAME</a
       >
       <div class="title-copy">
-        <span class="overline">SOME WONDERS ARE MADE BY HAND</span>
+        <span class="overline">A WITCH’S NOTEBOOK</span>
         <h1>Ink <i>&</i><br />Wonder<span>A WITCH’S ATELIER</span></h1>
         <p>
-          Every line holds a possibility.<br />Every journey begins with a
-          little ink.
+          Learn a spell. Make it your own.
         </p>
         <div class="title-actions">
           <button id="continueGame" class="button gold">
-            Begin your story <svg><use href="#i-arrow" /></svg></button
+            Start playing <svg><use href="#i-arrow" /></svg></button
           ><button id="titleWorkshop" class="button glass">
-            <svg><use href="#i-quill" /></svg> Free drawing studio
+            <svg><use href="#i-quill" /></svg> Open sketchbook
           </button>
         </div>
         <div class="title-meta">
           <button id="titleAccount" class="title-account" data-account="open">
-            Sign in · keep your story with you <span>↗</span>
+            Sign in to save <span>↗</span>
           </button>
-          <span>✦ A STORY IN THREE CHAPTERS</span
-          ><span>DESIGNED FOR PEN & TABLET</span>
+          <span>01 — STORY MODE</span
+          ><span>02 — FREE DRAWING</span>
         </div>
       </div>
       <div class="title-bottom">
         <span>AN UNOFFICIAL WITCH HAT ATELIER FAN ADVENTURE</span
-        ><button id="titleSettings">Settings & accessibility</button
-        ><span>ORIGINAL ART · ORIGINAL SPELL EXERCISES</span>
+        ><button id="titleSettings">Settings</button
+        ><span>PEN & TABLET</span>
       </div>
     </section>
     <section id="gameScreen" class="game-screen hidden">
@@ -125,7 +124,7 @@
       <main id="page"></main>
       <footer class="game-footer">
         <span id="saveStatus">Progress saved on this device</span
-        ><span>Draw slowly. Wonder is worth the time.</span
+        ><span></span
         ><button id="help">Field guide <span>?</span></button>
       </footer>
     </section>
@@ -137,6 +136,6 @@
     </dialog>
     <div id="toast" role="status" aria-live="polite"></div>
     <input type="file" id="saveImport" accept="application/json,.json" hidden />
-    <script type="module" src="game.js?v=3.2.0"></script>
+    <script type="module" src="game.js?v=3.3.0"></script>
   </body>
 </html>
