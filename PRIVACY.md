@@ -6,7 +6,11 @@ Game saves are stored in Supabase under each authenticated user's ID. Database r
 
 The public page uses a no-referrer policy for outgoing requests and links. This limits referrer disclosure; it does not conceal the hosting provider or public repository history.
 
-The game does not include analytics, public player profiles, leaderboards, or a public list of accounts. Signing in and syncing sends account information and game progress to the configured Supabase project. Guest saves remain in the browser. Browser caches and remembered sessions are not encrypted against someone with access to the same browser profile; sign out on shared devices.
+Anonymous traffic counting sends a single fixed increment when the production page becomes visible. Only an India-calendar date and an aggregate page-view count are retained in the traffic table. There are no visitor-level rows, IP addresses, user IDs, names, emails, referrers, device data, URLs or unique-visitor identifiers in that table. No analytics cookies are used. Each full page load may count again; this is not a unique-people metric. Automation, blocking, offline use and deliberate requests can affect counts. Historical visits before installation cannot be recovered.
+
+Traffic totals are restricted to database administrators in the signed-in Supabase project dashboard. Ordinary game users and anonymous visitors cannot read or edit the totals directly. The public RPC can only increment today's count, and returns no traffic data. The origin filter is a browser safeguard, not authentication or robust bot protection. The app honors Do Not Track and Global Privacy Control. Settings → Privacy also offers a local opt-out boolean, which is not a visitor identifier. Hosting and database providers may retain their own operational request logs.
+
+The game does not include public player profiles, leaderboards, or a public list of accounts. Signing in and syncing sends account information and game progress to the configured Supabase project. Guest saves remain in the browser. Browser caches and remembered sessions are not encrypted against someone with access to the same browser profile; sign out on shared devices.
 
 Publication uses a clean source export. It excludes local saves, environment files, credentials, private chat/hosting metadata, workstation paths, local archives, and previous local Git history. Future source commits use a project-only name and an unlinked `.invalid` email address.
 

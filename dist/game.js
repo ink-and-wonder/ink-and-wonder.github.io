@@ -1,5 +1,6 @@
-import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.1.3";
-import { compileSpell, compositionPaths } from "./compiler.js?v=3.1.3";
+import { startTrafficCounting, trafficOptedOut, TRAFFIC_OPT_OUT_KEY } from "./traffic.js?v=3.2.0";
+import { CATALOGUE, SIGILS, SIGNS } from "./vocabulary.js?v=3.2.0";
+import { compileSpell, compositionPaths } from "./compiler.js?v=3.2.0";
 import {
   ELEMENTS,
   MODIFIERS,
@@ -7,7 +8,7 @@ import {
   MISSIONS,
   OBJECT_NAMES,
   RANKS,
-} from "./data.js?v=3.1.3";
+} from "./data.js?v=3.2.0";
 import {
   recognize,
   checkObjective,
@@ -16,7 +17,7 @@ import {
   recipePaths,
   distance,
   validateDrawing,
-} from "./engine.js?v=3.1.3";
+} from "./engine.js?v=3.2.0";
 import {
   SAVE_KEY,
   freshSave,
@@ -25,12 +26,13 @@ import {
   nextMission,
   insight,
   completeMission,
-} from "./state.js?v=3.1.3";
-import { AtelierMusic } from "./music.js?v=3.1.3";
-import { DrawingDesk } from "./drawing.js?v=3.1.3";
-import { objectArt, WorldEffects, spellArt } from "./world.js?v=3.1.3";
-import { CLOUD_CONFIG } from "./cloud-config.js?v=3.1.3";
-import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.1.3";
+} from "./state.js?v=3.2.0";
+import { AtelierMusic } from "./music.js?v=3.2.0";
+import { DrawingDesk } from "./drawing.js?v=3.2.0";
+import { objectArt, WorldEffects, spellArt } from "./world.js?v=3.2.0";
+import { CLOUD_CONFIG } from "./cloud-config.js?v=3.2.0";
+import { CloudAccount, accountSaveKey, hasStory, cloudError } from "./cloud.js?v=3.2.0";
+startTrafficCounting({config:CLOUD_CONFIG});
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
@@ -818,9 +820,12 @@ function memoriesMarkup() {
     return `<article class="memory ${done ? "" : "unwritten"}"><span class="memory-number">${String(i + 1).padStart(2, "0")}</span><div><span class="overline">${CHAPTERS[m.chapter].subtitle} · ${done ? m.reward : "AN UNWRITTEN MOMENT"}</span><h2>${m.title}</h2><p>${done ? m.memory : "Follow the road to find out what this page will hold."}</p></div>${done ? stars(done.stars) : '<span class="memory-lock">◇</span>'}</article>`;
   }).join("")}</div>`;
 }
+function showPrivacy() {
+ openDialog(`<div class="dialog-content"><span class="overline">YOUR PRIVACY</span><h2>A count, not a profile.</h2><p>We count page views as daily totals. No visitor names, emails, IP addresses, identifiers, referrers or browsing histories are stored in the traffic database.</p><p>Your private game saves are separate. Hosting and database providers may keep operational logs.</p><p>Do Not Track and Global Privacy Control are respected. This device is ${trafficOptedOut(localStorage)?"excluded from":"included in"} anonymous counting.</p><button class="button dark wide" data-act="traffic-toggle">${trafficOptedOut(localStorage)?"Include this device":"Exclude this device"}</button><p class="atlas-note">Changes apply to future page loads. Page views are not unique people.</p></div>`);
+}
 function settings() {
   openDialog(
-    `<div class="dialog-content"><span class="overline">MAKE YOURSELF AT HOME</span><h2>Your atelier, your pace.</h2><div class="settings-list">${[
+    `<div class="dialog-content"><span class="overline">SETTINGS · <button class="text-button" data-act="privacy">Privacy</button></span><h2>Your atelier, your pace.</h2><div class="settings-list">${[
       ["music", "Background music", "A quiet original melody and soft sustained chords. Pauses when this tab is hidden."],
       ["sound", "Spell sounds", "Original soft chimes when a spell awakens."],
       [
@@ -914,6 +919,8 @@ document.addEventListener("click", (event) => {
   else if (act === "mission") beginMission(Number(button.dataset.index));
   else if (act === "begin-drawing") closeDialog();
   else if (act === "close-dialog") closeDialog();
+  else if (act === "privacy") showPrivacy();
+  else if (act === "traffic-toggle") {try{localStorage.setItem(TRAFFIC_OPT_OUT_KEY,trafficOptedOut(localStorage)?"0":"1");}catch{toast("This browser cannot save the preference.");}showPrivacy();}
   else if (act === "music") {
     save.settings.music=!save.settings.music; music.sync(); persist();
     button.textContent=save.settings.music?"♫ On":"♫ Off";

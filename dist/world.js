@@ -1,4 +1,4 @@
-import { SIGILS } from "./vocabulary.js?v=3.1.3";
+import { SIGILS } from "./vocabulary.js?v=3.2.0";
 export function spellArt(result) {
  const shapes={
   water:'<path d="M100 20C85 57 47 92 47 126a53 53 0 0 0 106 0c0-34-38-69-53-106Z"/><path class="spell-highlight" d="M70 126q-2 28 25 32"/>',
