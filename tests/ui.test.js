@@ -143,7 +143,7 @@ test("title, all twelve encounters, multi-seal transitions and ending are playab
   );
   click('#dialog [data-act="studio"]');
   assert.ok($("#drawing"));
-  assert.match($("#page").textContent, /Unlimited possibility/);
+  assert.match($("#page").textContent, /Practice room/);
 });
 test("free drawings cast, save, reopen and render user names safely", () => {
   draw(pagePaths("water", "flow", 3));
@@ -237,3 +237,4 @@ test('atlas pages expose the complete vocabulary, search finds a sign, and refer
  click('[data-act="apply-recipe"]');
  assert.equal($('#strokeCount').textContent,before);
 });
+
